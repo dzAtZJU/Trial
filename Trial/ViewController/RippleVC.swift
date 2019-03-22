@@ -8,14 +8,47 @@
 
 import UIKit
 
-let initialItem = IndexPath(row: 3, section: 2)
-let initialPosition = CGPoint(x: Template.default2.dXOf(dCol: initialItem.section, dRow: initialItem.row), y: Template.default2.dYOf(initialItem.section))
-
 func positionFromIndex(_ index: IndexPath) -> CGPoint {
     return CGPoint(x:CGFloat(index.section) * itemWidth, y: CGFloat(index.row) * itemHeight)
 }
+enum SceneState {
+    case surfing
+    case watching
+    case initial
+}
 
 class RippleVC: UICollectionViewController {
+    
+    var sceneState: SceneState = .initial
+    func updateSceneState() {
+        switch sceneState {
+            case .surfing, .initial:
+                sceneState = .watching
+                collectionView.panGestureRecognizer.addTarget(self, action: #selector(handlePanning(_:)))
+            case .watching:
+                sceneState = .surfing
+                collectionView.panGestureRecognizer.removeTarget(self, action: #selector(handlePanning(_:)))
+        }
+    }
+    
+    var transitionLayoutForWatching: UICollectionViewTransitionLayout?
+    @objc func handlePanning(_ pan: UIPanGestureRecognizer) {
+        switch pan.state {
+            case .began:
+                collectionView.startInteractiveTransition(to: layoutForWatching!.nextLayoutOn(direction: Direction.fromVelocity(pan.velocity(in: collectionView))), completion: nil)
+            case .changed:
+                transitionLayoutForWatching?.transitionProgress = timingFromPanningTranslation(pan.translation(in: collectionView))
+            case .ended:
+                collectionView.finishInteractiveTransition()
+            default:
+                return
+            }
+    }
+    
+    func timingFromPanningTranslation(_ translation: CGPoint) -> CGFloat {
+        let distance = hypot(translation.x, translation.y)
+        return min(distance / (itemWidthForWatching / 2), 1)
+    }
     
     // MARK: CollectionViewDataSource
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -28,29 +61,31 @@ class RippleVC: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCell
-        cell.label.text = indexPath.description
+        cell.embedYTPlayer(YoutubeManager.shared.videos[indexPath]!)
         return cell
     }
     
     // MARK: VC
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.scrollToItem(at: initialItem, at: [.centeredHorizontally, .centeredVertically], animated: false)
-        var i = 2
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            let index = IndexPath(row: i, section: 2)
-            let layout = RippleLayout(theCenter: index, theCenterPosition: CGPoint(x: Template.default2.dXOf(dCol: index.section, dRow: index.row), y: Template.default2.dYOf(index.section)))
-            self.collectionView.setCollectionViewLayout(layout, animated: true)
-            i = (i == 2) ? 3 : 2
-        }
+        updateSceneState()
+        collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
+//        var i = 1
+//        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+//            let index = IndexPath(row: i, section: 2)
+//            let layout = RippleLayout(theCenter: index, theCenterPosition: CGPoint(x: Template.default2.dXOf(dCol: index.section, dRow: index.row), y: Template.default2.dYOf(index.section)))
+//            self.collectionView.setCollectionViewLayout(layout, animated: true)
+//            i = (i == 2) ? 1 : 2
+//        }
     }
     
-//    // MARK: Interaction
-//    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        let viewCenter = CGPoint(x: scrollView.bounds.midX, y: scrollView.bounds.midY)
+    // MARK: Interaction
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let viewCenter = CGPoint(x: scrollView.bounds.midX, y: scrollView.bounds.midY)
+        layoutForSurfing?.viewCenterChanged(viewCenter)
 //        let centralBlock = layout.getCurrentAndNextCentralItem(viewCenter: viewCenter)
 //        animateTo(centralBlock: centralBlock)
-//    }
+    }
 //
 //    var lastCentralBlock: CentralBlock
 //
@@ -76,8 +111,18 @@ class RippleVC: UICollectionViewController {
 //        }
 //    }
     
-    var layout: RippleLayout {
-        return collectionView.collectionViewLayout as! RippleLayout
+    var layoutForWatching: RippleLayout? {
+        if sceneState == .watching {
+            return collectionView.collectionViewLayout as! RippleLayout
+        }
+        return nil
+    }
+    
+    var layoutForSurfing: RippleTransitionLayout? {
+        if sceneState == .surfing {
+            return collectionView.collectionViewLayout as! RippleTransitionLayout
+        }
+        return nil
     }
 }
 

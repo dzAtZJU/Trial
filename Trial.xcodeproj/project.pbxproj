@@ -18,6 +18,10 @@
 		896EA90A2243460700780557 /* RippleLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9092243460700780557 /* RippleLayout.swift */; };
 		896EA90C2243476C00780557 /* RippleVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA90B2243476C00780557 /* RippleVC.swift */; };
 		896EA90F22438C3600780557 /* RippleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA90E22438C3600780557 /* RippleCell.swift */; };
+		896EA9162244945800780557 /* alog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9152244945800780557 /* alog.swift */; };
+		896EA918224496C300780557 /* RippleTransitionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA917224496C300780557 /* RippleTransitionLayout.swift */; };
+		896EA9202244AFCF00780557 /* extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA91F2244AFCF00780557 /* extension.swift */; };
+		896EA9222244CBB500780557 /* YTPlayerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9212244CBB500780557 /* YTPlayerWrapper.swift */; };
 		89F37A1E2237524800A9303D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F37A1D2237524800A9303D /* AppDelegate.swift */; };
 		89F37A202237524800A9303D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F37A1F2237524800A9303D /* ViewController.swift */; };
 		89F37A232237524800A9303D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 89F37A212237524800A9303D /* Main.storyboard */; };
@@ -42,6 +46,10 @@
 		896EA9092243460700780557 /* RippleLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleLayout.swift; sourceTree = "<group>"; };
 		896EA90B2243476C00780557 /* RippleVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleVC.swift; sourceTree = "<group>"; };
 		896EA90E22438C3600780557 /* RippleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleCell.swift; sourceTree = "<group>"; };
+		896EA9152244945800780557 /* alog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = alog.swift; sourceTree = "<group>"; };
+		896EA917224496C300780557 /* RippleTransitionLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleTransitionLayout.swift; sourceTree = "<group>"; };
+		896EA91F2244AFCF00780557 /* extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extension.swift; sourceTree = "<group>"; };
+		896EA9212244CBB500780557 /* YTPlayerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTPlayerWrapper.swift; sourceTree = "<group>"; };
 		89F37A1A2237524800A9303D /* Trial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trial.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89F37A1D2237524800A9303D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		89F37A1F2237524800A9303D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -93,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				896EA9092243460700780557 /* RippleLayout.swift */,
+				896EA917224496C300780557 /* RippleTransitionLayout.swift */,
 			);
 			path = layout;
 			sourceTree = "<group>";
@@ -102,6 +111,7 @@
 			children = (
 				896EA90E22438C3600780557 /* RippleCell.swift */,
 				89F37A212237524800A9303D /* Main.storyboard */,
+				896EA9212244CBB500780557 /* YTPlayerWrapper.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -112,6 +122,16 @@
 				896EA90B2243476C00780557 /* RippleVC.swift */,
 			);
 			path = ViewController;
+			sourceTree = "<group>";
+		};
+		896EA9142244942100780557 /* utility */ = {
+			isa = PBXGroup;
+			children = (
+				89F37A3422392C4500A9303D /* utility.swift */,
+				896EA9152244945800780557 /* alog.swift */,
+				896EA91F2244AFCF00780557 /* extension.swift */,
+			);
+			path = utility;
 			sourceTree = "<group>";
 		};
 		89F37A112237524800A9303D = {
@@ -135,6 +155,7 @@
 		89F37A1C2237524800A9303D /* Trial */ = {
 			isa = PBXGroup;
 			children = (
+				896EA9142244942100780557 /* utility */,
 				896EA9102243A65700780557 /* ViewController */,
 				896EA90D2243807400780557 /* UI */,
 				896EA908224342AD00780557 /* layout */,
@@ -147,7 +168,6 @@
 				89F37A242237524A00A9303D /* Assets.xcassets */,
 				89F37A262237524A00A9303D /* LaunchScreen.storyboard */,
 				89F37A292237524A00A9303D /* Info.plist */,
-				89F37A3422392C4500A9303D /* utility.swift */,
 				89F37A36223A234500A9303D /* VideoViewController.swift */,
 				89F37A38223A24F300A9303D /* ViewControllerAnimatedTransitioning.swift */,
 				890A7AFC223F833F00CDB6B1 /* LayoutAttributes.swift */,
@@ -326,19 +346,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				89F37A3522392C4500A9303D /* utility.swift in Sources */,
+				896EA9202244AFCF00780557 /* extension.swift in Sources */,
 				890A7B052240E73100CDB6B1 /* YoutubeManager.swift in Sources */,
 				896EA90C2243476C00780557 /* RippleVC.swift in Sources */,
 				89F37A30223755CC00A9303D /* CollectionViewLayout.swift in Sources */,
 				890A7AFF223F8C7500CDB6B1 /* constants.swift in Sources */,
 				89F37A202237524800A9303D /* ViewController.swift in Sources */,
+				896EA9222244CBB500780557 /* YTPlayerWrapper.swift in Sources */,
 				890A7AFB223F824000CDB6B1 /* CollectionViewCell.swift in Sources */,
 				89F37A37223A234500A9303D /* VideoViewController.swift in Sources */,
 				896EA90A2243460700780557 /* RippleLayout.swift in Sources */,
 				896EA90F22438C3600780557 /* RippleCell.swift in Sources */,
 				896EA9052242209700780557 /* YTPlayerView.swift in Sources */,
 				89F37A1E2237524800A9303D /* AppDelegate.swift in Sources */,
+				896EA918224496C300780557 /* RippleTransitionLayout.swift in Sources */,
 				890A7AFD223F833F00CDB6B1 /* LayoutAttributes.swift in Sources */,
 				89F37A39223A24F300A9303D /* ViewControllerAnimatedTransitioning.swift in Sources */,
+				896EA9162244945800780557 /* alog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

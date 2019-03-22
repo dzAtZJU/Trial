@@ -17,6 +17,9 @@ let rowGaps: [CGFloat] = [30, 25, 20]
 let itemWidth: CGFloat = 150
 let colGaps: [[CGFloat]] = [[25, 20], [20, 20], [15, 15]]
 
+let itemWidthForWatching = itemWidth * 1.8
+let itemHeightForWatching = itemHeight * 1.8
+
 class Template {
     
     static let default2 = Template()
@@ -94,43 +97,44 @@ class RippleLayout: UICollectionViewLayout {
     init(theCenter: IndexPath, theCenterPosition: CGPoint) {
         center = theCenter
         centerPosition = theCenterPosition
-        super.init()
     }
     
     required init?(coder aDecoder: NSCoder) {
-        center = initialItem
-        centerPosition = initialPosition
+        center = initialCenter1
+        centerPosition = initialPosition1
         super.init(coder: aDecoder)
     }
     
     func dColRowOf(_ indexPath: IndexPath) -> (Int, Int) {
         return (indexPath.section - center.section, indexPath.row - center.row)
     }
-        
-    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+    
+    func centerOf(_ indexPath: IndexPath) -> CGPoint {
         let (dCol, dRow) = dColRowOf(indexPath)
-        let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
+        return CGPoint(x: Template.default2.dXOf(dCol: dCol, dRow: dRow) + centerPosition.x, y: Template.default2.dYOf(dRow) + centerPosition.y)
+    }
+    
+    func timingOf(_ indexPath: IndexPath) -> CGFloat {
+        if indexPath == center {
+            return 1
+        }
+        
+        return 0
+    }
+    
+    override func layoutAttributesForItem(at indexPath: IndexPath) -> LayoutAttributes? {
+        let (dCol, dRow) = dColRowOf(indexPath)
+        let attributes = LayoutAttributes(forCellWith: indexPath)
         attributes.bounds = CGRect(origin: .zero, size: Template.default2.sizeOfItem(dRow: dRow, dCol: dCol))
-        attributes.center = CGPoint(x: Template.default2.dXOf(dCol: dCol, dRow: dRow) + centerPosition.x, y: Template.default2.dYOf(dRow) + centerPosition.y)
-        print("row:\(dRow) col:\(dCol)  x:\(attributes.center.x) y:\(attributes.center.y)")
+        attributes.center = centerOf(indexPath)
+        attributes.timing = timingOf(indexPath)
         return attributes
     }
     
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        var r =  [UICollectionViewLayoutAttributes]()
-        for section in 0..<collectionView!.numberOfSections {
-            for row in 0..<collectionView!.numberOfItems(inSection: section) {
-                let a = layoutAttributesForItem(at: IndexPath(row: row, section: section))
-                if a?.frame.intersects(rect) == true {
-                    r.append(a!)
-                }
-            }
-        }
-        return r
-    }
-    
-    override var collectionViewContentSize: CGSize {
-        return CGSize(width: 1500, height: 1800)
+    func nextLayoutOn(direction: Direction) -> RippleLayout {
+        let nextItem = nextItemOn(direction: direction, currentItem: center, maxRow: collectionView!.numberOfItems(inSection: 0) , maxCol: collectionView!.numberOfSections)
+        let nextPosition = centerOf(nextItem)
+        return RippleLayout(theCenter: nextItem, theCenterPosition: nextPosition)
     }
 }
 
@@ -144,29 +148,29 @@ struct CentralBlock {
         return current == block.current && next == block.next
     }
 }
-
-extension RippleLayout {
-    
-    func getCurrentAndNextCentralItem(viewCenter: CGPoint) -> CentralBlock {
-        var distanceForEachItem = [IndexPath:CGFloat]()
-        for cell in collectionView!.visibleCells {
-            let indexPath = collectionView!.indexPath(for: cell)!
-            let distance = hypot(cell.frame.midY - viewCenter.y, cell.frame.midX - viewCenter.x)
-            distanceForEachItem[indexPath] = distance
-        }
-        
-        
-        let min = distanceForEachItem.min {
-            $0.value < $1.value
-            }!
-        
-        distanceForEachItem[min.key] = CGFloat(Int.max)
-        let min1 = distanceForEachItem.min {
-            $0.value < $1.value
-            }!
-        
-        let centralBlock = CentralBlock(current: min.key, next: min1.key, distanceToCurrent: min.value, distanceToNext: min1.value)
-        return centralBlock
-    }
-    
-}
+//
+//extension RippleLayout {
+//
+//    func getCurrentAndNextCentralItem(viewCenter: CGPoint) -> CentralBlock {
+//        var distanceForEachItem = [IndexPath:CGFloat]()
+//        for cell in collectionView!.visibleCells {
+//            let indexPath = collectionView!.indexPath(for: cell)!
+//            let distance = hypot(cell.frame.midY - viewCenter.y, cell.frame.midX - viewCenter.x)
+//            distanceForEachItem[indexPath] = distance
+//        }
+//
+//
+//        let min = distanceForEachItem.min {
+//            $0.value < $1.value
+//            }!
+//
+//        distanceForEachItem[min.key] = CGFloat(Int.max)
+//        let min1 = distanceForEachItem.min {
+//            $0.value < $1.value
+//            }!
+//
+//        let centralBlock = CentralBlock(current: min.key, next: min1.key, distanceToCurrent: min.value, distanceToNext: min1.value)
+//        return centralBlock
+//    }
+//
+//}
