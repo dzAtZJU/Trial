@@ -22,7 +22,20 @@ let itemHeightForWatching = itemHeight * 1.8
 
 class Template {
     
-    static let default2 = Template()
+    let width: CGFloat
+    let height: CGFloat
+    
+    init(w: CGFloat, h: CGFloat) {
+        width = w
+        height = h
+    }
+    
+    func center() -> CGPoint {
+        return CGPoint(x: width * CGFloat(initialCenter1.section + 2), y: height * CGFloat(initialCenter1.row + 2))
+    }
+    
+    static let watch = Template(w: itemWidthForWatching, h: itemHeightForWatching)
+    static let surf = Template(w: itemWidth, h: itemHeight)
     
     var dColRow2dX = [IndexPath: CGFloat]()
     var dRow2dY = [CGFloat: CGFloat]()
@@ -40,7 +53,7 @@ class Template {
         }
         
         let gap = gapAround(dRow: dRow, dCol: dCol - 1, values: colGaps)
-        let dX = dXOf(dCol: Int(dCol - 1), dRow: Int(dRow)) + magnitudeOf(dCol - 1, value: itemWidth) / 2 + gap + magnitudeOf(dCol, value: itemWidth) / 2
+        let dX = dXOf(dCol: Int(dCol - 1), dRow: Int(dRow)) + magnitudeOf(dCol - 1, value: width) / 2 + gap + magnitudeOf(dCol, value: width) / 2
         
         return sign * dX
     }
@@ -56,7 +69,7 @@ class Template {
             return sign * dY
         }
         
-        let dY = dYOf(Int(dRow - 1)) + magnitudeOf(dRow - 1, value: itemHeight) / 2 + gapAround(dRow - 1, values: rowGaps) + magnitudeOf(dRow, value: itemHeight) / 2
+        let dY = dYOf(Int(dRow - 1)) + magnitudeOf(dRow - 1, value: height) / 2 + gapAround(dRow - 1, values: rowGaps) + magnitudeOf(dRow, value: height) / 2
         dRow2dY[dRow] = dY
         return sign * dY
     }
@@ -81,11 +94,12 @@ class Template {
     
     func sizeOfItem(dRow: Int, dCol: Int) -> CGSize {
         if dRow == 0 && dCol == 0 {
-            return CGSize(width: itemWidth * scale, height: itemHeight * scale)
+            return CGSize(width: width * scale, height: height * scale)
         }
         
-        return CGSize(width: itemWidth, height: itemHeight)
+        return CGSize(width: width, height: height)
     }
+    
 }
 
 
@@ -93,15 +107,25 @@ class RippleLayout: UICollectionViewLayout {
     
     let center: IndexPath
     let centerPosition: CGPoint
+    let template: Template
     
-    init(theCenter: IndexPath, theCenterPosition: CGPoint) {
+    var viewPortCenter = IndexPath(row: 2, section: 2)
+    
+    func updateViewPortCenter(_ indexPath: IndexPath) {
+        viewPortCenter = indexPath
+    }
+    
+    init(theCenter: IndexPath, theCenterPosition: CGPoint, theTemplate: Template) {
         center = theCenter
         centerPosition = theCenterPosition
+        template = theTemplate
+        super.init()
     }
     
     required init?(coder aDecoder: NSCoder) {
         center = initialCenter1
         centerPosition = initialPosition1
+        template = Template.watch
         super.init(coder: aDecoder)
     }
     
@@ -111,7 +135,7 @@ class RippleLayout: UICollectionViewLayout {
     
     func centerOf(_ indexPath: IndexPath) -> CGPoint {
         let (dCol, dRow) = dColRowOf(indexPath)
-        return CGPoint(x: Template.default2.dXOf(dCol: dCol, dRow: dRow) + centerPosition.x, y: Template.default2.dYOf(dRow) + centerPosition.y)
+        return CGPoint(x: template.dXOf(dCol: dCol, dRow: dRow) + centerPosition.x, y: template.dYOf(dRow) + centerPosition.y)
     }
     
     func timingOf(_ indexPath: IndexPath) -> CGFloat {
@@ -125,16 +149,55 @@ class RippleLayout: UICollectionViewLayout {
     override func layoutAttributesForItem(at indexPath: IndexPath) -> LayoutAttributes? {
         let (dCol, dRow) = dColRowOf(indexPath)
         let attributes = LayoutAttributes(forCellWith: indexPath)
-        attributes.bounds = CGRect(origin: .zero, size: Template.default2.sizeOfItem(dRow: dRow, dCol: dCol))
+        attributes.bounds = CGRect(origin: .zero, size: template.sizeOfItem(dRow: dRow, dCol: dCol))
         attributes.center = centerOf(indexPath)
         attributes.timing = timingOf(indexPath)
+        print("\(dCol) \(dRow) \(attributes.center)")
         return attributes
+    }
+    
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        var r =  [UICollectionViewLayoutAttributes]()
+        doIn2DRange(maxRow: ytRows, maxCol: ytCols) {
+            (row, col) in
+            let a = layoutAttributesForItem(at: IndexPath(row: row, section: col))
+            if a?.frame.intersects(rect) == true {
+                r.append(a!)
+            }
+        }
+        return r
     }
     
     func nextLayoutOn(direction: Direction) -> RippleLayout {
         let nextItem = nextItemOn(direction: direction, currentItem: center, maxRow: collectionView!.numberOfItems(inSection: 0) , maxCol: collectionView!.numberOfSections)
         let nextPosition = centerOf(nextItem)
-        return RippleLayout(theCenter: nextItem, theCenterPosition: nextPosition)
+        return RippleLayout(theCenter: nextItem, theCenterPosition: nextPosition, theTemplate: template)
+    }
+    
+    override var collectionViewContentSize: CGSize {
+        return CGSize(width: template.width * CGFloat(ytCols + 1), height: template.width * CGFloat(ytRows + 1))
+    }
+    
+    override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+        if let direction = collectionView!.transitionDirection {
+            var offset: CGPoint?
+            switch direction {
+                case .N:
+                    offset = CGPoint(x: 0, y: -template.height - rowGapN)
+                case .S:
+                    offset = CGPoint(x: 0, y: template.height + rowGapN)
+                case .W:
+                    offset = CGPoint(x: -template.width - colGapN, y: 0)
+                default:
+                    offset = CGPoint(x: template.width + colGapN, y: 0)
+            }
+            return proposedContentOffset + offset!
+        }
+        return proposedContentOffset
+    }
+    
+    override var collectionView: RippleCollectionView? {
+        return super.collectionView as? RippleCollectionView
     }
 }
 

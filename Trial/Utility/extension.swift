@@ -13,6 +13,9 @@ extension IndexPath {
     static func + (left: IndexPath, right: IndexPath) -> IndexPath {
         return IndexPath(row: left.row + right.row, section: left.section + right.section)
     }
+    init(_ cgpoint: CGPoint) {
+        self.init(row: Int(cgpoint.y), section: Int(cgpoint.x))
+    }
 }
 
 extension CGPoint {
@@ -22,8 +25,14 @@ extension CGPoint {
     static func + (left: CGPoint, right: CGPoint) -> CGPoint {
         return CGPoint(x: left.x + right.x, y: left.y + right.y)
     }
+    static func - (left: CGPoint, right: CGPoint) -> CGPoint {
+        return CGPoint(x: left.x - right.x, y: left.y - right.y)
+    }
     static func >= (left: CGPoint, right: CGFloat) -> Bool {
         return left.x >= right && left.y >= right
+    }
+    init(_ indexPath: IndexPath) {
+        self.init(x: indexPath.section, y: indexPath.row)
     }
 }
 extension CGSize {
@@ -42,4 +51,21 @@ extension CGRect {
     static func + (left: CGRect, right: CGRect) -> CGRect {
         return CGRect(origin: left.origin + right.origin, size: left.size + right.size)
     }
+}
+
+func distanceBetween(left: CGPoint, right: CGPoint) -> CGFloat {
+    let vector = left - right
+    return hypot(vector.x, vector.y)
+}
+
+func indexOfMax(_ array: [CGFloat]) -> Int {
+    var max = CGFloat(Int.min)
+    var position = -1
+    for (index,value) in array.enumerated(){
+        if value > max {
+            max = value
+            position = index
+        }
+    }
+    return position
 }

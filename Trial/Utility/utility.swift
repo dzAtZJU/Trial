@@ -73,11 +73,11 @@ func nextItemOn(direction: Direction, currentItem: IndexPath, maxRow: Int, maxCo
     var nextCol: Int
     switch direction {
         case .N:
-            (nextRow, nextCol) = boundedElement(row: currentRow + 1, col: currentCol, maxRow: maxRow, maxCol: maxCol)
+            (nextRow, nextCol) = boundedElement(row: currentRow - 1, col: currentCol, maxRow: maxRow, maxCol: maxCol)
         case .E:
             (nextRow, nextCol) = boundedElement(row: currentRow, col: currentCol + 1, maxRow: maxRow, maxCol: maxCol)
         case .S:
-            (nextRow, nextCol) = boundedElement(row: currentRow - 1, col: currentCol, maxRow: maxRow, maxCol: maxCol)
+            (nextRow, nextCol) = boundedElement(row: currentRow + 1, col: currentCol, maxRow: maxRow, maxCol: maxCol)
         case .W, .EN, .ES, .WN, .WS:
             (nextRow, nextCol) = boundedElement(row: currentRow, col: currentCol - 1, maxRow: maxRow, maxCol: maxCol)
         
@@ -122,4 +122,19 @@ func indexTrianglesAround(_ point: CGPoint) -> [(CGPoint, CGPoint, CGPoint)] {
             })
 }
 
+func defaultIndexTriangleAround(_ point: IndexPath) -> (IndexPath, IndexPath, IndexPath) {
+    return (point, point + IndexPath(row: 0, section: 1), IndexPath(row: 1, section: 0))
+}
 
+func nearestFiveTo(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPath] {
+    var array: [IndexPath] = [indexPath,
+                 indexPath + IndexPath(row: 0, section: 1),
+                 indexPath + IndexPath(row: 0, section: -1),
+                 indexPath + IndexPath(row: 1, section: 0),
+                 indexPath + IndexPath(row: -1, section: 0)]
+    
+    array = array.filter({
+        $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
+    })
+    return Array(Set(array))
+}

@@ -12,7 +12,7 @@ import youtube_ios_player_helper
 
 class RippleCell: UICollectionViewCell, YTPlayerWrapper {
     
-    weak var playerView: YTPlayerView?
+    var positionId: IndexPath?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -24,16 +24,28 @@ class RippleCell: UICollectionViewCell, YTPlayerWrapper {
         setupView()
     }
     
+    private func setupView() {
+        layer.borderColor = UIColor.white.cgColor
+    }
+    
+    @IBOutlet weak var imageView: UIImageView!
+    
+    weak var playerView: YTPlayerView?
+    
     func embedYTPlayer(_ newPlayerView: YTPlayerView) {
-//        if let playerView = playerView {
-//            playerView.removeFromSuperview()
-//        }
-        
         newPlayerView.frame = bounds
         newPlayerView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         playerView = newPlayerView
         
         addSubview(playerView!)
+    }
+    
+    func loadImage(_ image: UIImage) {
+        imageView.image = image
+    }
+    
+    func configure(with youtubeVideoData: YoutubeVideoData?) {
+        loadImage(youtubeVideoData!.thumbnail)
     }
     
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
@@ -42,11 +54,6 @@ class RippleCell: UICollectionViewCell, YTPlayerWrapper {
         layer.borderWidth = bounds.width * 0.02 * timing
         layer.cornerRadius = bounds.width / ratioOfcornerRadiusAndWidth
     }
-    
-    func setupView() {
-        layer.borderColor = UIColor.white.cgColor
-    }
-    
     
     @IBOutlet weak var label: UILabel!
 }

@@ -18,7 +18,7 @@ class VideoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        print("w:\(view.frame.width) h:\(view.frame.height)")
         view.layer.cornerRadius = view.bounds.width / ratioOfcornerRadiusAndWidth
         close.layer.cornerRadius = close.bounds.width / ratioOfcornerRadiusAndWidth
         close.addTarget(self, action: #selector(closeVideo), for: .touchUpInside)
@@ -37,8 +37,9 @@ class VideoViewController: UIViewController {
 
 extension VideoViewController: UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        if let presenting = presenting as? AnimationExpanding, let _ = presented as? VideoViewController {
-            return ViewControllerAnimatedTransitioning(initialFrame: presenting.initialFrame, duration: 0.5)
+        if let presenting = presenting as? RippleVC, let playerView = presenting.currentPlayerView {
+            let center = playerView.superview!.convert(CGPoint(x: playerView.frame.midX, y: playerView.frame.midY), to: nil)
+            return RotatedTransitioning(fromView: playerView, center: center, duration: 0.5)
         }
         return nil
     }
