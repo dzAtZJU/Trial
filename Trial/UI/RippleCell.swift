@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import youtube_ios_player_helper
 
-class RippleCell: UICollectionViewCell, YTPlayerWrapper {
+class RippleCell: UICollectionViewCell {
     
     var positionId: IndexPath?
     
@@ -30,22 +30,29 @@ class RippleCell: UICollectionViewCell, YTPlayerWrapper {
     
     @IBOutlet weak var imageView: UIImageView!
     
-    weak var playerView: YTPlayerView?
+    weak var videoWithPlayer: VideoWithPlayerView!
     
-    func embedYTPlayer(_ newPlayerView: YTPlayerView) {
-        newPlayerView.frame = bounds
-        newPlayerView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        playerView = newPlayerView
-        
-        addSubview(playerView!)
-    }
+    
     
     func loadImage(_ image: UIImage) {
         imageView.image = image
     }
     
-    func configure(with youtubeVideoData: YoutubeVideoData?) {
-        loadImage(youtubeVideoData!.thumbnail)
+    func configure(with youtubeVideoData: YoutubeVideoData, playerView: VideoWithPlayerView) {
+        loadImage(youtubeVideoData.thumbnail!)
+        embedYTPlayer(playerView)
+    }
+    
+    func embedYTPlayer(_ newVideoWithPlayer: VideoWithPlayerView) {
+        videoWithPlayer = newVideoWithPlayer
+        
+        videoWithPlayer.frame = bounds
+        videoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        addSubview(videoWithPlayer)
+        videoWithPlayer.isHidden = true
+        
+        
+        videoWithPlayer.videoView.delegate = self
     }
     
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
@@ -56,4 +63,10 @@ class RippleCell: UICollectionViewCell, YTPlayerWrapper {
     }
     
     @IBOutlet weak var label: UILabel!
+}
+
+extension RippleCell: YTPlayerViewDelegate {
+    func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
+        videoWithPlayer.isHidden = false
+    }
 }

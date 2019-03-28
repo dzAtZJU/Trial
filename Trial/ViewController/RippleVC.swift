@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import youtube_ios_player_helper
 
 func positionFromIndex(_ index: IndexPath) -> CGPoint {
     return CGPoint(x:CGFloat(index.section) * itemWidth, y: CGFloat(index.row) * itemHeight)
@@ -30,20 +31,18 @@ extension RippleVC {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCell
         cell.label.text = indexPath.description + "\(cell.frame.midX) \(cell.frame.midY)"
-        
-//        cell.positionId = indexPath
-//        YoutubeManager.shared.getData(indexPath: indexPath) { youtubeVideoData in
-//            DispatchQueue.main.async {
-//                guard cell.positionId == indexPath else { return }
-//                cell.configure(with: youtubeVideoData)
-//            }
-//        }
-        
-        YoutubeManager.shared.fetchThumbnail(indexPath, completion: { image in
-                        DispatchQueue.main.async {
-                            cell.loadImage(image)
-                        }
-                    })
+        YoutubeManagers.shared.getData(indexPath: indexPath) { youtubeVideoData in
+            DispatchQueue.main.async {
+                let videoId = youtubeVideoData.videoId!
+                if self.videoId2PlayerView[videoId] == nil {
+                    let player = VideoWithPlayerView.createForInitialWatch(videoId: videoId)
+                    player.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1])
+                    player.videoView.fixWebViewLayout()
+                    self.videoId2PlayerView[videoId] = player
+                }
+                cell.configure(with: youtubeVideoData, playerView: self.videoId2PlayerView[videoId]!)
+            }
+        }
         return cell
     }
 }
@@ -51,13 +50,15 @@ extension RippleVC {
 // MARK: CollectionViewDelegate
 extension RippleVC {
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VideoViewController")
+        let cell = collectionView.cellForItem(at: indexPath) as! RippleCell
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VideoViewController") as! VideoViewController
         self.present(vc, animated: true, completion: nil)
     }
 }
 
 class RippleVC: UICollectionViewController {
-
+    var videoId2PlayerView = [VideoId: VideoWithPlayerView]()
+    
     // MARK: VC
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,8 +75,8 @@ class RippleVC: UICollectionViewController {
     
     let indexPath2VideoId = [IndexPath: String]()
     
-    var currentPlayerView: UIView? {
-        return collectionView.cellForItem(at: layoutForWatching!.centerItem)
+    var cellInFocus: RippleCell {
+        return collectionView.cellForItem(at: layoutForWatching!.centerItem) as! RippleCell
     }
     
     var sceneState: SceneState = .initial

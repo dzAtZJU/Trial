@@ -8,58 +8,74 @@
 
 import Foundation
 import UIKit
+import youtube_ios_player_helper
+
+typealias VideoId = String
+typealias URLString = String
+
+class YoutubeVideoData {
+    var videoId: VideoId?
+    var thumbnailUrl: URLString?
+    var thumbnail: UIImage?
+    var playerView: YTPlayerView?
+}
 
 class YoutubeManagers {
     
     static let shared = YoutubeManagers()
     
     func doInitialRequest() {
+        YoutubeOperationQueue.maxConcurrentOperationCount = OperationQueue.defaultMaxConcurrentOperationCount
+        
         loadVideoIds()
         
-        let youtubeVideosThumbnailsUrlsOperation = YoutubeVideosThumbnailsUrlsOperation(videoIds: videoIds)
-        youtubeVideosThumbnailsUrlsOperation.completionBlock = {
-            let videoId2ThumbnailUrl = youtubeVideosThumbnailsUrlsOperation.videoId2ThumbnailUrl
-            for (indexPath, thumbnailUrl) in videoId2ThumbnailUrl.enumerated() {
-                indexPath2Data[indexPath]
+        let thumbnailsUrlsOperation = ThumbnailsUrlsOperation(videoIds: Array(indexPath2videoId.values))
+        thumbnailsUrlsOperation.completionBlock = {
+            self.videoId2Thumbnail.merge(thumbnailsUrlsOperation.videoId2ThumbnailUrl, uniquingKeysWith: { (first, _ ) in first })
+            for (videoId, thumbnailUrl) in self.videoId2Thumbnail {
+                let operation = ImageFetchOperation(imageUrl: thumbnailUrl)
+                operation.completionBlock = {
+                    self.thumbnail2UIImage[thumbnailUrl] = operation.image!
+                    let data = YoutubeVideoData()
+                    data.videoId = videoId
+                    data.thumbnail = operation.image!
+                    self.videoId2Data[videoId] = data
+                    self.invokeCompletionHandlers(for: videoId, with: data)
+                }
+                YoutubeOperationQueue.addOperation(operation)
             }
         }
         
-//        for thumbnailUrl in Array(videoId2Thumbnail.values) {
-//            let operation = ImageFetchOperation(imageUrl: thumbnailUrl)
-//            operation.completionBlock = {
-//                self.thumbnail2UIImage[thumbnailUrl] = operation.image!
-//            }
-//            operation.addDependency(youtubeVideosThumbnailsUrlsOperation)
-//            YoutubeOperationQueue.addOperation(operation)
-//        }
-//
-//        YoutubeOperationQueue.addOperation(youtubeVideosThumbnailsUrlsOperation)
+        YoutubeOperationQueue.addOperation(thumbnailsUrlsOperation)
     }
+    
+    var indexPath2videoId = [IndexPath: VideoId]()
+    
+    var videoId2Thumbnail = [VideoId: URLString]()
+    
+    var thumbnail2UIImage = [URLString: UIImage]()
 
-    var indexPath2Data = [IndexPath: YoutubeVideoData]()
+    var videoId2Data = [VideoId: YoutubeVideoData]()
     
-    var videoIds: [VideoId] {
-        return Array(indexPath2Data.values).map({ $0.videoId! })
-    }
-    
-    private var indexPath2CompletionHandlers = [IndexPath: [(YoutubeVideoData) -> Void]]()
+    private var videoId2CompletionHandlers = [VideoId: [(YoutubeVideoData) -> Void]]()
     
     func getData(indexPath: IndexPath, completionHandler: @escaping (YoutubeVideoData) -> Void) {
-        let handlers = indexPath2CompletionHandlers[indexPath, default: []]
-        indexPath2CompletionHandlers[indexPath] = handlers + [completionHandler]
-        fetchData(indexPath: indexPath)
+        let videoId = indexPath2videoId[indexPath]!
+        let handlers = videoId2CompletionHandlers[videoId, default: []]
+        videoId2CompletionHandlers[videoId] = handlers + [completionHandler]
+        fetchData(videoId: videoId)
     }
     
-    private func fetchData(indexPath: IndexPath) {
-        if let data = indexPath2Data[indexPath] {
-            invokeCompletionHandlers(for: indexPath, with: data)
+    private func fetchData(videoId: VideoId) {
+        if let data = videoId2Data[videoId] {
+            invokeCompletionHandlers(for: videoId, with: data)
             return
         }
     }
     
-    private func invokeCompletionHandlers(for indexPath: IndexPath, with fetchedData: YoutubeVideoData) {
-        let completionHandlers = indexPath2CompletionHandlers[indexPath, default: []]
-        indexPath2CompletionHandlers[indexPath] = nil
+    private func invokeCompletionHandlers(for videoId: VideoId, with fetchedData: YoutubeVideoData) {
+        let completionHandlers = videoId2CompletionHandlers[videoId, default: []]
+        videoId2CompletionHandlers[videoId] = nil
         
         for completionHandler in completionHandlers {
             completionHandler(fetchedData)
@@ -67,13 +83,6 @@ class YoutubeManagers {
     }
     
     func loadVideoIds() {
-        for row in 0..<ytRows {
-            for col in 0..<ytCols {
-                let indexPath = IndexPath(row: col, section: row)
-                let videoData = YoutubeVideoData()
-                videoData.videoId = "_uk4KXP8Gzw"
-                indexPath2Data[indexPath] = videoData
-            }
-        }
+        indexPath2videoId = TestDatas.indexPathToVideoId
     }
 }

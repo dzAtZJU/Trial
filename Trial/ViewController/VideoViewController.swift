@@ -14,7 +14,7 @@ class VideoViewController: UIViewController {
     
     @IBOutlet weak var close: UIButton!
     
-    var ytPlayerView: YTPlayerView!
+    var videoWithPlayer: VideoWithPlayerView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,22 +24,37 @@ class VideoViewController: UIViewController {
         close.addTarget(self, action: #selector(closeVideo), for: .touchUpInside)
         self.modalPresentationStyle = .custom
         self.transitioningDelegate = self
-        
-//        ytPlayerView = YTPlayerView(frame: CGRect(x: 0, y: 0, width: 150, height: 250))
-//        view.addSubview(ytPlayerView)
-//        ytPlayerView.load(videoId: "_uk4KXP8Gzw", playerVars: ["controls":0, "playsinline":1])
     }
     
     @objc func closeVideo() {
         dismiss(animated: true, completion: nil)
     }
+    
+    func addVideoWithPlayer(_ videoWithPlayer: VideoWithPlayerView) {
+        self.videoWithPlayer = videoWithPlayer
+        videoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        view.insertSubview(videoWithPlayer, belowSubview: close)
+    }
 }
 
 extension VideoViewController: UIViewControllerTransitioningDelegate {
+    
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        if let presenting = presenting as? RippleVC, let playerView = presenting.currentPlayerView {
-            let center = playerView.superview!.convert(CGPoint(x: playerView.frame.midX, y: playerView.frame.midY), to: nil)
-            return RotatedTransitioning(fromView: playerView, center: center, duration: 0.5)
+        if let presenting = presenting as? RippleVC {
+            let cellInFocus = presenting.cellInFocus
+            let video = cellInFocus.videoWithPlayer!
+            let center = video.convert(CGPoint(x: video.frame.midX, y: video.frame.midY), to: nil)
+            return RotatedPresentTransitioning(startView: video, centerInWindow: center)
+        }
+        return nil
+    }
+    
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        if let presenting = dismissed.presentingViewController as? RippleVC {
+            let cellInFocus = presenting.cellInFocus
+            let frame = cellInFocus.frame
+            let center = cellInFocus.superview!.convert(CGPoint(x: frame.midX, y: frame.midY), to: nil)
+            return RotatedDismissTransitioning(startView: (dismissed as! VideoViewController).videoWithPlayer, bounds: cellInFocus.bounds, centerInWindow: center)
         }
         return nil
     }

@@ -31,7 +31,7 @@ let youtubeService: GTLRYouTubeService = {
     return s
 }()
 
-class YoutubeVideosThumbnailsUrlsOperation: Operation {
+class ThumbnailsUrlsOperation: Operation {
     
     let videoIds: [VideoId]
     
@@ -59,9 +59,23 @@ class YoutubeVideosThumbnailsUrlsOperation: Operation {
         }
     }
     
-    private var _isExecuting = false
+    private var _isExecuting = false {
+        willSet {
+            willChangeValue(forKey: "isExecuting")
+        }
+        didSet {
+            didChangeValue(forKey: "isExecuting")
+        }
+    }
     
-    private var _isFinished = false
+    private var _isFinished = false {
+        willSet {
+            willChangeValue(forKey: "isFinished")
+        }
+        didSet {
+            didChangeValue(forKey: "isFinished")
+        }
+    }
     
     override var isExecuting: Bool {
         get {

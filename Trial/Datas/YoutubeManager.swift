@@ -11,15 +11,6 @@ import youtube_ios_player_helper
 import GoogleAPIClientForREST
 import GoogleSignIn
 
-typealias VideoId = String
-typealias URLString = String
-
-class YoutubeVideoData {
-    var videoId: VideoId?
-    var thumbnailUrl: URLString?
-    var thumbnail: UIImage?
-}
-
 //class YoutubeManager {
 //    func getData(indexPath: IndexPath, completion: @escaping (YoutubeVideoData?) -> Void) {
 //        let videoId = videoIds[indexPath]!
