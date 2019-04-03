@@ -8,11 +8,11 @@
 
 import Foundation
 import UIKit
-import youtube_ios_player_helper
+import YoutubePlayer_in_WKWebView
 
 class CollectionViewCell: UICollectionViewCell {
     
-    weak var playerView: YTPlayerView?
+    weak var playerView: WKYTPlayerView?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -24,7 +24,7 @@ class CollectionViewCell: UICollectionViewCell {
         setupView()
     }
     
-    func setPlayerView(_ newPlayerView: YTPlayerView) {
+    func setPlayerView(_ newPlayerView: WKYTPlayerView) {
         if let playerView = playerView {
             playerView.removeFromSuperview()
         }

@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import youtube_ios_player_helper
+import YoutubePlayer_in_WKWebView
 
  protocol YTPlayerWrapper {
-    func embedYTPlayer(_ newPlayerView: YTPlayerView)
+    func embedYTPlayer(_ newPlayerView: WKYTPlayerView)
 }

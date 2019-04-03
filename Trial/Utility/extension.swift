@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 extension IndexPath {
     static func + (left: IndexPath, right: IndexPath) -> IndexPath {
@@ -51,6 +52,8 @@ extension CGRect {
     static func + (left: CGRect, right: CGRect) -> CGRect {
         return CGRect(origin: left.origin + right.origin, size: left.size + right.size)
     }
+
+    var center: CGPoint { return CGPoint(x: midX, y: midY) }
 }
 
 func distanceBetween(left: CGPoint, right: CGPoint) -> CGFloat {
@@ -68,4 +71,10 @@ func indexOfMax(_ array: [CGFloat]) -> Int {
         }
     }
     return position
+}
+
+extension UIScrollView {
+    var viewPortCenter: CGPoint {
+        return bounds.center
+    }
 }

@@ -64,7 +64,7 @@
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GNX-DS-VMp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1510" y="-18"/>
+            <point key="canvasLocation" x="-1399" y="-18"/>
         </scene>
         <!--Video View Controller-->
         <scene sceneID="0U3-Xm-Ci6">

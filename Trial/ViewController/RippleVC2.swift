@@ -1,179 +1,191 @@
-////
-////  ViewController.swift
-////  Trial
-////
-////  Created by 周巍然 on 2019/3/12.
-////  Copyright © 2019 周巍然. All rights reserved.
-////
 //
-//import UIKit
+//  ViewController.swift
+//  Trial
 //
-//func positionFromIndex(_ index: IndexPath) -> CGPoint {
-//    return CGPoint(x:CGFloat(index.section) * itemWidth, y: CGFloat(index.row) * itemHeight)
-//}
-//enum SceneState {
-//    case surfing
-//    case watching
-//    case initial
-//}
+//  Created by 周巍然 on 2019/3/12.
+//  Copyright © 2019 周巍然. All rights reserved.
 //
-//class RippleVC: UICollectionViewController {
-//    
-//    var sceneState: SceneState = .initial
-//    func updateSceneState() {
-//        switch sceneState {
-//            case .surfing, .initial:
-////                collectionView.panGestureRecognizer.addTarget(self, action: #selector(handlePanning(_:)))
-//                press?.addTarget(self, action: #selector(handlePress(_:)))
-//                if sceneState == .initial {
-//                    collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
-//                } else {
-//                    let centerItem = layoutForSurfing!.centerItem
-////                    let newLayout = RippleLayout(theCenter: centerItem, theCenterPosition: initialLayout1.centerOf(centerItem), theTemplate: Template.watch)
-//                    let newLayout = RippleTransitionLayout.nextLayoutForWatch(center: centerItem, centerPosition: initialLayout1.centerOf(centerItem))
-//                    collectionView.setCollectionViewLayout(newLayout, animated: false)
-//                }
-//                sceneState = .watching
-//            case .watching:
-////                collectionView.panGestureRecognizer.removeTarget(self, action: #selector(handlePanning(_:)))
-//                press?.addTarget(self, action: #selector(handlePress(_:)))
-//                collectionView.setCollectionViewLayout(RippleTransitionLayout.nextLayoutForSurf(center: layoutForWatching!.centerItem), animated: false)
-//                sceneState = .surfing
-//        }
-//    }
-//    
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-//        return true
-//    }
-//    
-//    // MARK: Interaction
-//    var press: UILongPressGestureRecognizer?
-//    @objc func handlePress(_ press: UILongPressGestureRecognizer) {
-//        switch press.state {
-//        case .began, .ended:
-//            collectionView.isDirectionalLockEnabled = press.state == .began ? false : true
-//            if layoutForWatching != nil || layoutForSurfing != nil {
-//                updateSceneState()
-//            }
-//        default:
-//            print("press change")
-//            return
-//        }
-//        return
-//    }
-//    
-//    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        let viewCenter = CGPoint(x: scrollView.bounds.midX, y: scrollView.bounds.midY)
-//        layoutForSurfing?.viewCenterChanged(viewCenter)
-//        layoutForWatching?.viewCenterChanged(viewCenter)
-//    }
-//    
-//    var transitionLayoutForWatching: UICollectionViewTransitionLayout?
-////    @objc func handlePanning(_ pan: UIPanGestureRecognizer) {
-////        switch pan.state {
-////            case .began:
-////                if let layoutForWatching = layoutForWatching {
-////                    let direction = Direction.fromVelocity(pan.velocity(in: collectionView))
-////                    (collectionView as! RippleCollectionView).transitionDirection = direction
-////                    transitionLayoutForWatching = collectionView.startInteractiveTransition(to: layoutForWatching.nextLayoutOn(direction: direction), completion: nil)
-////                }
-////            case .changed:
-////                let timing = timingFromPanningTranslation(pan.translation(in: collectionView))
-////                transitionLayoutForWatching?.transitionProgress = timing
-////            case .ended:
-////                collectionView.finishInteractiveTransition()
-////            default:
-////                return
-////            }
-////    }
-//    
-//    func timingFromPanningTranslation(_ translation: CGPoint) -> CGFloat {
-//        let distance = hypot(translation.x, translation.y)
-//        return min(distance / (itemWidthForWatching / 2), 1)
-//    }
-//    
-//    // MARK: CollectionViewDataSource
-//    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-//        return ytRows
-//    }
-//    
-//    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        return ytCols
-//    }
-//    
-//    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCell
-//        cell.label.text = indexPath.description + "\(cell.frame.midX) \(cell.frame.midY)"
-////        YoutubeManager.shared.fetchThumbnail(indexPath, completion: { image in
-////            DispatchQueue.main.async {
-////                cell.loadImage(image)
-////            }
-////        })
-////        cell.embedYTPlayer(YoutubeManager.shared.videos[indexPath]!)
-//        return cell
-//    }
-//    
-//    // MARK: VC
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        press = UILongPressGestureRecognizer(target: nil, action: nil)
-//        collectionView.addGestureRecognizer(press!)
-//        updateSceneState()
-//        collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
-//        collectionView.panGestureRecognizer.delegate = collectionView as! RippleCollectionView
-//        
-////        var i = 1
-////        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-////            let index = IndexPath(row: i, section: 2)
-////            let layout = RippleLayout(theCenter: index, theCenterPosition: CGPoint(x: Template.default2.dXOf(dCol: index.section, dRow: index.row), y: Template.default2.dYOf(index.section)))
-////            self.collectionView.setCollectionViewLayout(layout, animated: true)
-////            i = (i == 2) ? 1 : 2
-////        }
-//    }
-//    
-////
-////    var lastCentralBlock: CentralBlock
-////
-////    var lastTransition: UICollectionViewTransitionLayout
-//    
-////    func animateTo(centralBlock: CentralBlock) {
-////        if lastCentralBlock.sameBlockAs(centralBlock) {
-////            lastTransition.transitionProgress = timingFrom(distanceToStart: lastCentralBlock.distanceToCurrent, distanceToEnd: lastCentralBlock.distanceToNext)
-////            lastTransition.invalidateLayout()
-////        } else {
-////            collectionView.finishInteractiveTransition()
-////            lastCentralBlock = centralBlock
-////            lastTransition = collectionView.startInteractiveTransition(to: RippleLayout(center: centralBlock.next), completion: nil)
-////        }
-////    }
-//    
-////    @objc func handlePanning(_ recognizer: UIPanGestureRecognizer) {
-////        switch recognizer.state {
-////        case .began:
-////            collectionView.setCollectionViewLayout(RippleLayout(theCenter: IndexPath(row: initialItem.row - 1, section: initialItem.section), theCenterPosition: CGPoint(x: initialPosition.x - itemHeight, y: initialPosition.y)), animated: true)
-////        default:
-////            return
-////        }
-////    }
-//    
-//    var layoutForWatching: RippleTransitionLayout? {
-//        if sceneState == .watching {
-//            return collectionView.collectionViewLayout as? RippleTransitionLayout
-//        }
-//        return nil
-//    }
-//    
-//    var layoutForSurfing: RippleTransitionLayout? {
-//        if sceneState == .surfing {
-//            return collectionView.collectionViewLayout as? RippleTransitionLayout
-//        }
-//        return nil
-//    }
-//}
-//
-////extension RippleVC {
-////    func timingFrom(distanceToStart: CGFloat, distanceToEnd: CGFloat) -> CGFloat {
-////
-////    }
-////}
-//
+
+import UIKit
+import Foundation
+import YoutubePlayer_in_WKWebView
+
+func positionFromIndex(_ index: IndexPath) -> CGPoint {
+    return CGPoint(x:CGFloat(index.section) * itemWidth, y: CGFloat(index.row) * itemHeight)
+}
+enum SceneState {
+    case surfing
+    case watching
+    case initial
+}
+
+// MARK: CollectionViewDatasource
+extension RippleVC {
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return ytRows
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return ytCols
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCell
+        cell.label.text = indexPath.description + "\(Int(cell.frame.midX)) \(Int(cell.frame.midY))"
+        
+        YoutubeManagers.shared.getData(indexPath: indexPath) { youtubeVideoData in
+            DispatchQueue.main.async {
+                let videoId = youtubeVideoData.videoId!
+                cell.label.text = cell.label.text! + " \(videoId)"
+                if self.videoId2PlayerView[videoId] == nil {
+                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+                    self.videoId2PlayerView[videoId] = player
+                }
+                cell.loadImage(youtubeVideoData.thumbnail)
+//                cell.embedYTPlayer(self.videoId2PlayerView[videoId]!)
+            }
+        }
+
+        return cell
+    }
+}
+
+// MARK: CollectionViewDelegate
+extension RippleVC {
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as! RippleCell
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VideoViewController") as! VideoViewController
+        self.present(vc, animated: true, completion: nil)
+    }
+}
+
+// MARK: UIScrollViewDelegate
+extension RippleVC {
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        layout.viewPortCenterChanged()
+    }
+    
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        inFocusCell.pause()
+        inFocusCell.videoWithPlayer?.removeFromSuperview()
+    }
+    
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        YoutubeManagers.shared.getData(indexPath: layout.centerItem) { youtubeVideoData in
+            DispatchQueue.main.async {
+                let videoId = youtubeVideoData.videoId!
+                if self.videoId2PlayerView[videoId] == nil {
+                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+                    self.videoId2PlayerView[videoId] = player
+                }
+                self.inFocusCell.embedYTPlayer(self.videoId2PlayerView[videoId]!)
+            }
+        }
+        inFocusCell.play()
+    }
+}
+
+// MARK: Animation
+extension RippleVC {
+    var video: VideoWithPlayerView {
+        return inFocusCell.videoWithPlayer
+    }
+}
+
+class RippleVC: UICollectionViewController {
+    var videoId2PlayerView = [VideoId: VideoWithPlayerView]()
+    
+    var rippleCollectionView: RippleCollectionView {
+        get {
+            return collectionView as! RippleCollectionView
+        }
+    }
+    
+    var inFocusCell: RippleCell {
+        return collectionView.cellForItem(at: layout.lastCenterP) as! RippleCell
+    }
+    
+    var layout: RippleTransitionLayout {
+        return collectionView.collectionViewLayout as! RippleTransitionLayout
+    }
+    
+    // MARK: VC
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        press = UILongPressGestureRecognizer(target: nil, action: nil)
+        press!.addTarget(self, action: #selector(handlePress(_:)))
+        collectionView.addGestureRecognizer(press!)
+        collectionView.panGestureRecognizer.delegate = collectionView as! RippleCollectionView
+        collectionView.isDirectionalLockEnabled = true
+        updateSceneState()
+        collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        inFocusCell.play()
+    }
+    
+    let indexPath2VideoId = [IndexPath: String]()
+    
+    var sceneState: SceneState = .initial
+    func updateSceneState() {
+        switch sceneState {
+        case .surfing, .initial:
+            if sceneState == .initial {
+                collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
+            } else {
+                layout.toggleTemplatFor(scene: .watching)
+                collectionView.scrollToItem(at: layout.centerItem, at: [.centeredVertically, .centeredHorizontally], animated: true)
+            }
+            sceneState = .watching
+            rippleCollectionView.sceneState = .watching
+        case .watching:
+            layout.toggleTemplatFor(scene: .surfing)
+            sceneState = .surfing
+            rippleCollectionView.sceneState = .surfing
+        }
+        collectionView.collectionViewLayout.addObserver(collectionView, forKeyPath: "lastCenterP", options: [.new, .old], context: nil)
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+    
+    // MARK: Interaction
+    var press: UILongPressGestureRecognizer?
+    @objc func handlePress(_ press: UILongPressGestureRecognizer) {
+        switch press.state {
+        case .began, .ended:
+                updateSceneState()
+        default:
+            print("press change")
+            return
+        }
+        return
+    }
+    
+    var transitionLayoutForWatching: UICollectionViewTransitionLayout?
+    //    @objc func handlePanning(_ pan: UIPanGestureRecognizer) {
+    //        switch pan.state {
+    //            case .began:
+    //                if let layoutForWatching = layoutForWatching {
+    //                    let direction = Direction.fromVelocity(pan.velocity(in: collectionView))
+    //                    (collectionView as! RippleCollectionView).transitionDirection = direction
+    //                    transitionLayoutForWatching = collectionView.startInteractiveTransition(to: layoutForWatching.nextLayoutOn(direction: direction), completion: nil)
+    //                }
+    //            case .changed:
+    //                let timing = timingFromPanningTranslation(pan.translation(in: collectionView))
+    //                transitionLayoutForWatching?.transitionProgress = timing
+    //            case .ended:
+    //                collectionView.finishInteractiveTransition()
+    //            default:
+    //                return
+    //            }
+    //    }
+    
+    func timingFromPanningTranslation(_ translation: CGPoint) -> CGFloat {
+        let distance = hypot(translation.x, translation.y)
+        return min(distance / (itemWidthForWatching / 2), 1)
+    }
+}
+

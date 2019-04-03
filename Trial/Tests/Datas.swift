@@ -9,32 +9,36 @@
 import Foundation
 
 struct TestDatas {
-    static let videoIds = ["M9Uy0opVF3s",
-                        "p_rjyLslD0U",
-                        "2Gy8eGr7AfM",
-                        "VfN3jxENsbc",
-                        "beT5Sp6RQ5c",
-                        "T0seYxfaoG0",
-                        "-2PFeE_sSss",
-                        "dDH0EukOeuY",
-                        "Em1uK7KKc6o",
-                        "ktW5KHxRf4o",
-                        "7fBx9Njz4OQ",
-                        "9bjjn6tCxfo",
-                        "mGxxlX-H7Pc",
-                        "3ggfF2oEqrA",
-                        "XEYmFOLasn0",
-                        "FAWAkaQJLio",
-                        "yQNzb9ZZVnw",
-                        "HdGEYTyxIoo",
-                        "1Sd6dOLMucE",
-                        "UeExpFlubTk",
-                        "_jePCtHj77Y",
-                        "LkHNbsQMxPI",
-                        "I9bSGijEDBY",
-                        "AL4qa-vNH4U",
-                        "OT5eybAoJTo"]
+    static let videoIds = ["876pLueclwE", //
+                        "YASCaIdh2HE", //
+                        "YZxmoOvqWek", //
+                        "3F04f64yV2w", //
+                        "aSjflT_J0Xo", //
+                        "UzjMPWAqShY",
+                        "EfVdMsZCEUg",
+                        "O3Z_LKxPJXQ",
+                        "Ll2zC_ivjK0",
+                        "f-bHkixKt0g",
+                        "1afoVNPPQCI",
+                        "LJMuk01J5yw",
+                        "HvGql8HwOIM",
+                        "nuw6TLOEm7Q",
+                        "ix5pCUGWerk",
+                        "sQQ1Gq4j3_A",
+                        "uNacesqyKTI",
+                        "_Qd4bL19dLM",
+                        "JTrNa7FV0O4",
+                        "tcqjwadyVYw",
+                        "QOHa6FBUdsQ",
+                        "aan9vCi2oi8",
+                        "IF8BEEQSzfw",
+                        "Yz0lAvzM5S4",
+                        "luPp3CP784g"]
+    
+    
+    
     static let indexPathToVideoId: [IndexPath: VideoId] = {
+        assert(Set(videoIds).count == videoIds.count)
         var result = [IndexPath: VideoId]()
         for row in 0..<ytRows {
             for col in 0..<ytCols {

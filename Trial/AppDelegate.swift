@@ -17,6 +17,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         YoutubeManagers.shared.doInitialRequest()
+        
+        
+        
+//        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
+//        NSString *documentsDirectory = [paths objectAtIndex:0];
+//        NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];
+//        NSString *logFilePath = [documentsDirectory stringByAppendingPathComponent:fileName];
+        
+//        let logFilePath = ""
+//        freopen(<#T##UnsafePointer<Int8>!#>, <#T##UnsafePointer<Int8>!#>, <#T##UnsafeMutablePointer<FILE>!#>)
+//        freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding],"a+",stderr);
+        
         return true
     }
 

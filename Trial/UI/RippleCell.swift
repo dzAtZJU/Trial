@@ -8,11 +8,35 @@
 
 import Foundation
 import UIKit
-import youtube_ios_player_helper
+import YoutubePlayer_in_WKWebView
 
 class RippleCell: UICollectionViewCell {
     
     var positionId: IndexPath?
+    
+    @IBOutlet weak var imageView: UIImageView!
+    
+    weak var titleLabel: UILabel!
+    
+    weak var subTitleLabel: UILabel!
+    
+    func play() {
+        if let videoWithPlayer = videoWithPlayer {
+            videoWithPlayer.play()
+        } else {
+            shouldPlay = true
+        }
+    }
+    
+    func pause() {
+        if let videoWithPlayer = videoWithPlayer {
+            videoWithPlayer.pause()
+        } else {
+            shouldPlay = false
+        }
+    }
+    
+    private var shouldPlay = false
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,33 +50,38 @@ class RippleCell: UICollectionViewCell {
     
     private func setupView() {
         layer.borderColor = UIColor.white.cgColor
+        
+        titleLabel = UILabel(frame: .zero)
     }
     
-    @IBOutlet weak var imageView: UIImageView!
+    weak var videoWithPlayer: VideoWithPlayerView! {
+        didSet {
+            if shouldPlay {
+                videoWithPlayer.play()
+            }
+        }
+    }
     
-    weak var videoWithPlayer: VideoWithPlayerView!
     
-    
-    
-    func loadImage(_ image: UIImage) {
+    func loadImage(_ image: UIImage?) {
         imageView.image = image
     }
     
     func configure(with youtubeVideoData: YoutubeVideoData, playerView: VideoWithPlayerView) {
-        loadImage(youtubeVideoData.thumbnail!)
+        loadImage(youtubeVideoData.thumbnail)
         embedYTPlayer(playerView)
     }
     
     func embedYTPlayer(_ newVideoWithPlayer: VideoWithPlayerView) {
-        videoWithPlayer = newVideoWithPlayer
-        
-        videoWithPlayer.frame = bounds
-        videoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        addSubview(videoWithPlayer)
-        videoWithPlayer.isHidden = true
-        
-        
-        videoWithPlayer.videoView.delegate = self
+        DispatchQueue.main.async {
+                self.videoWithPlayer = newVideoWithPlayer
+                self.videoWithPlayer.transform = .identity
+                self.videoWithPlayer.bounds = self.bounds
+                self.videoWithPlayer.center = self.bounds.center
+                self.videoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+                self.videoWithPlayer.backgroundColor = UIColor.yellow
+                self.addSubview(self.videoWithPlayer)
+        }
     }
     
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
@@ -63,10 +92,4 @@ class RippleCell: UICollectionViewCell {
     }
     
     @IBOutlet weak var label: UILabel!
-}
-
-extension RippleCell: YTPlayerViewDelegate {
-    func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
-        videoWithPlayer.isHidden = false
-    }
 }

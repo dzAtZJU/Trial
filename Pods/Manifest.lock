@@ -21,12 +21,12 @@ PODS:
   - GTMSessionFetcher/Core (1.2.1)
   - GTMSessionFetcher/Full (1.2.1):
     - GTMSessionFetcher/Core (= 1.2.1)
-  - youtube-ios-player-helper (0.1.6)
+  - YoutubePlayer-in-WKWebView (0.2.5)
 
 DEPENDENCIES:
   - GoogleAPIClientForREST/YouTube (~> 1.3)
   - GoogleSignIn (~> 4.4)
-  - youtube-ios-player-helper (~> 0.1.4)
+  - YoutubePlayer-in-WKWebView (~> 0.2.0)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -34,15 +34,15 @@ SPEC REPOS:
     - GoogleSignIn
     - GoogleToolboxForMac
     - GTMSessionFetcher
-    - youtube-ios-player-helper
+    - YoutubePlayer-in-WKWebView
 
 SPEC CHECKSUMS:
   GoogleAPIClientForREST: 5447a194eae517986cafe6421a5330b80b820591
   GoogleSignIn: 7ff245e1a7b26d379099d3243a562f5747e23d39
   GoogleToolboxForMac: ff31605b7d66400dcec09bed5861689aebadda4d
   GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
-  youtube-ios-player-helper: 21ab92db027c7ff86cb17a3843a3f6eafc8158d2
+  YoutubePlayer-in-WKWebView: 4dad12b3ece938a6456fa4374df78942f88b485a
 
-PODFILE CHECKSUM: 884aa6e851da50d27002593836c659631fe80094
+PODFILE CHECKSUM: 9a686c8b822d0e7f0d873a7e632e1eb5a8608605
 
 COCOAPODS: 1.6.1

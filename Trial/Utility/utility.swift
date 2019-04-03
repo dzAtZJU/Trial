@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 let tan22_5: CGFloat = 0.414
 let tan67_5: CGFloat = 2.41
@@ -104,13 +105,25 @@ func normalizedDistanceToCenterOf(rec: CGRect, endPoint: CGPoint) -> CGFloat {
     }
 }
 
-func doIn2DRange(maxRow: Int, maxCol: Int, block: (Int, Int) -> Void) {
+func doIn2DRange(maxRow: Int, maxCol: Int, block: (Int, Int, inout Bool) -> Void) {
+    var stop = false
     for row in 0..<maxRow {
         for col in 0..<maxCol {
-            block(row, col)
+            block(row, col, &stop)
+            if stop {
+                return
+            }
         }
     }
 }
+
+//func doIn2DRange(startPoints: [(Int, Int)], maxRow: Int, maxCol: Int, block: (Int, Int) -> Void) {
+//    var queue = startPoints
+//    while let point = queue.first {
+//        block(point.0, point.1)
+//
+//    }
+//}
 
 func indexTrianglesAround(_ point: CGPoint) -> [(CGPoint, CGPoint, CGPoint)] {
     let dPoints = [CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: -1, y: 0), CGPoint(x: 0, y: -1)]
@@ -137,4 +150,15 @@ func nearestFiveTo(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPa
         $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
     })
     return Array(Set(array))
+}
+
+func snapshotImage(with view: UIView) -> UIImage? {
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.isOpaque, 0.0)
+    defer { UIGraphicsEndImageContext() }
+    if let context = UIGraphicsGetCurrentContext() {
+        view.layer.render(in: context)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        return image
+    }
+    return nil
 }

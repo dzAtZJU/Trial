@@ -19,8 +19,10 @@ class ImageFetchOperation: Operation {
     private(set) var image: UIImage?
     
     override func main() {
-        if let data = try? Data(contentsOf: URL(string: imageUrl)!) {
+        if let url = URL(string: imageUrl), let data = try? Data(contentsOf: url){
             image = UIImage(data: data)!
+        } else {
+            print("image error")
         }
     }
 }
@@ -30,6 +32,8 @@ let youtubeService: GTLRYouTubeService = {
     s.apiKey = "AIzaSyCdC0q9pnE9t5uB9klpdaf_P7PICftusv0"
     return s
 }()
+
+let Default_ImageUrl = ""
 
 class ThumbnailsUrlsOperation: Operation {
     
@@ -52,6 +56,11 @@ class ThumbnailsUrlsOperation: Operation {
                     if let identifier = item.identifier, let url = item.snippet?.thumbnails?.high?.url {
                         self.videoId2ThumbnailUrl[identifier] = url
                     }
+                }
+            }
+            for videoId in self.videoIds {
+                if self.videoId2ThumbnailUrl[videoId] == nil {
+                    self.videoId2ThumbnailUrl[videoId] = Default_ImageUrl
                 }
             }
             self._isExecuting = false

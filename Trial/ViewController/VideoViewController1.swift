@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import youtube_ios_player_helper
+import YoutubePlayer_in_WKWebView
 
 class VideoViewController: UIViewController {
     
@@ -18,12 +18,15 @@ class VideoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("w:\(view.frame.width) h:\(view.frame.height)")
         view.layer.cornerRadius = view.bounds.width / ratioOfcornerRadiusAndWidth
         close.layer.cornerRadius = close.bounds.width / ratioOfcornerRadiusAndWidth
         close.addTarget(self, action: #selector(closeVideo), for: .touchUpInside)
         self.modalPresentationStyle = .custom
         self.transitioningDelegate = self
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
     }
     
     @objc func closeVideo() {
@@ -33,6 +36,9 @@ class VideoViewController: UIViewController {
     func addVideoWithPlayer(_ videoWithPlayer: VideoWithPlayerView) {
         self.videoWithPlayer = videoWithPlayer
         videoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        videoWithPlayer.transform = CGAffineTransform(rotationAngle: .pi / 2)
+        videoWithPlayer.center = view.center
+        videoWithPlayer.bounds = CGRect(x: 0, y: 0, width: view.bounds.height, height: view.bounds.width)
         view.insertSubview(videoWithPlayer, belowSubview: close)
     }
 }
@@ -41,20 +47,28 @@ extension VideoViewController: UIViewControllerTransitioningDelegate {
     
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         if let presenting = presenting as? RippleVC {
-            let cellInFocus = presenting.cellInFocus
+            let cellInFocus = presenting.inFocusCell
             let video = cellInFocus.videoWithPlayer!
+    
             let center = video.convert(CGPoint(x: video.frame.midX, y: video.frame.midY), to: nil)
-            return RotatedPresentTransitioning(startView: video, centerInWindow: center)
+            let size = cellInFocus.bounds.size
+            
+            video.boundsInLastWindow = CGRect(origin: .zero, size: size)
+            video.centerInLastWindow = center
+            let image = video.snapshotView(afterScreenUpdates: true)!
+            return RotatedPresentTransitioning(startView: image, centerInWindow: center, startSize: size)
         }
         return nil
     }
     
     func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        if let presenting = dismissed.presentingViewController as? RippleVC {
-            let cellInFocus = presenting.cellInFocus
-            let frame = cellInFocus.frame
-            let center = cellInFocus.superview!.convert(CGPoint(x: frame.midX, y: frame.midY), to: nil)
-            return RotatedDismissTransitioning(startView: (dismissed as! VideoViewController).videoWithPlayer, bounds: cellInFocus.bounds, centerInWindow: center)
+        if let presenting = dismissed.presentingViewController as? RippleVC, let presented = dismissed as? VideoViewController {
+            let cellInFocus = presenting.inFocusCell
+            let imageView = cellInFocus.imageView!
+            let center = imageView.convert(CGPoint(x: imageView.bounds.midX, y: imageView.bounds.midY), to: nil)
+            
+            let image = presented.videoWithPlayer.snapshotView(afterScreenUpdates: true)!
+            return RotatedDismissTransitioning(startView: image, centerInWindow: center, bounds: cellInFocus.bounds)
         }
         return nil
     }

@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import youtube_ios_player_helper
+import YoutubePlayer_in_WKWebView
 
 typealias VideoId = String
 typealias URLString = String
@@ -17,7 +17,7 @@ class YoutubeVideoData {
     var videoId: VideoId?
     var thumbnailUrl: URLString?
     var thumbnail: UIImage?
-    var playerView: YTPlayerView?
+    var playerView: WKYTPlayerView?
 }
 
 class YoutubeManagers {
@@ -35,10 +35,10 @@ class YoutubeManagers {
             for (videoId, thumbnailUrl) in self.videoId2Thumbnail {
                 let operation = ImageFetchOperation(imageUrl: thumbnailUrl)
                 operation.completionBlock = {
-                    self.thumbnail2UIImage[thumbnailUrl] = operation.image!
+                    self.thumbnail2UIImage[thumbnailUrl] = operation.image
                     let data = YoutubeVideoData()
                     data.videoId = videoId
-                    data.thumbnail = operation.image!
+                    data.thumbnail = operation.image
                     self.videoId2Data[videoId] = data
                     self.invokeCompletionHandlers(for: videoId, with: data)
                 }
