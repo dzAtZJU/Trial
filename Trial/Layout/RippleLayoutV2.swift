@@ -9,16 +9,16 @@
 import Foundation
 import UIKit
 
-let scale: CGFloat = 1.2
-
-let itemHeight: CGFloat = 100
-let rowGaps: [CGFloat] = [30, 25, 20]
-
-let itemWidth: CGFloat = 150
-let colGaps: [[CGFloat]] = [[25, 20], [20, 20], [15, 15]]
-
-let itemWidthForWatching = itemWidth * 1.8
-let itemHeightForWatching = itemHeight * 1.8
+//let scale: CGFloat = 1.2
+//
+//let itemHeight: CGFloat = 100
+//let rowGaps: [CGFloat] = [30, 25, 20]
+//
+//let itemWidth: CGFloat = 150
+//let colGaps: [[CGFloat]] = [[25, 20], [20, 20], [15, 15]]
+//
+//let itemWidthForWatching = itemWidth * 1.8
+//let itemHeightForWatching = itemHeight * 1.8
 
 class Template {
     
@@ -36,6 +36,10 @@ class Template {
     
     static let watch = Template(w: itemWidthForWatching, h: itemHeightForWatching)
     static let surf = Template(w: itemWidth, h: itemHeight)
+    
+    func toggledTemplate() -> Template {
+        return self === Template.watch ? Template.surf : Template.watch
+    }
     
     var dColRow2dX = [IndexPath: CGFloat]()
     var dRow2dY = [CGFloat: CGFloat]()
@@ -109,12 +113,6 @@ class RippleLayout: UICollectionViewLayout {
     var centerPosition: CGPoint
     var template: Template
     
-    var viewPortCenter = IndexPath(row: 2, section: 2)
-    
-    func updateViewPortCenter(_ indexPath: IndexPath) {
-        viewPortCenter = indexPath
-    }
-    
     init(theCenter: IndexPath, theCenterPosition: CGPoint, theTemplate: Template) {
         center = theCenter
         centerPosition = theCenterPosition
@@ -127,6 +125,12 @@ class RippleLayout: UICollectionViewLayout {
         centerPosition = initialPosition1
         template = Template.watch
         super.init(coder: aDecoder)
+    }
+    
+    var viewPortCenter = IndexPath(row: 2, section: 2)
+    
+    func updateViewPortCenter(_ indexPath: IndexPath) {
+        viewPortCenter = indexPath
     }
     
     func dColRowOf(_ indexPath: IndexPath) -> (Int, Int) {

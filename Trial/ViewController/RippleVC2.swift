@@ -19,6 +19,8 @@ enum SceneState {
     case initial
 }
 
+var sceneState = SceneState.initial
+
 // MARK: CollectionViewDatasource
 extension RippleVC {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -127,24 +129,33 @@ class RippleVC: UICollectionViewController {
     
     let indexPath2VideoId = [IndexPath: String]()
     
-    var sceneState: SceneState = .initial
     func updateSceneState() {
         switch sceneState {
         case .surfing, .initial:
             if sceneState == .initial {
                 collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
             } else {
-                layout.toggleTemplatFor(scene: .watching)
-                collectionView.scrollToItem(at: layout.centerItem, at: [.centeredVertically, .centeredHorizontally], animated: true)
+                UIView.animate(withDuration: 0.5) {
+                    self.collectionView.collectionViewLayout = self.layout.getToggledLayout()
+                    self.collectionView.visibleCells.forEach { cell in
+                        cell.layoutIfNeeded()
+                    }
+                }
             }
             sceneState = .watching
             rippleCollectionView.sceneState = .watching
         case .watching:
-            layout.toggleTemplatFor(scene: .surfing)
+            UIView.animate(withDuration: 0.5) {
+                self.collectionView.collectionViewLayout = self.layout.getToggledLayout()
+                self.collectionView.visibleCells.forEach { cell in
+                    cell.layoutIfNeeded()
+                }
+            }
             sceneState = .surfing
             rippleCollectionView.sceneState = .surfing
         }
         collectionView.collectionViewLayout.addObserver(collectionView, forKeyPath: "lastCenterP", options: [.new, .old], context: nil)
+        
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {

@@ -16,9 +16,9 @@ class RippleCell: UICollectionViewCell {
     
     @IBOutlet weak var imageView: UIImageView!
     
-    weak var titleLabel: UILabel!
+    var titleLabel: UILabel!
     
-    weak var subTitleLabel: UILabel!
+    var subtitleLabel: UILabel!
     
     func play() {
         if let videoWithPlayer = videoWithPlayer {
@@ -51,7 +51,28 @@ class RippleCell: UICollectionViewCell {
     private func setupView() {
         layer.borderColor = UIColor.white.cgColor
         
+        setupTitles()
+    }
+    
+    private func setupTitles() {
+        let stackView = UIStackView(frame: .zero)
+        addSubview(stackView)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        self.addConstraints([NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: stackView, attribute: .bottom, multiplier: 1, constant: UITemplates.current.titlesBottom),
+                                  NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: stackView, attribute: .centerX, multiplier: 1, constant: 0)])
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.spacing = UITemplates.current.titlesSpace
         titleLabel = UILabel(frame: .zero)
+        subtitleLabel = UILabel(frame: .zero)
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(subtitleLabel)
+        titleLabel.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.current.titleFontSize)
+        titleLabel.textColor = UIColor.white
+        titleLabel.text = "音乐"
+        subtitleLabel.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.current.subtitleFontSize)
+        subtitleLabel.text = "Cigerrete 2019-04"
+        subtitleLabel.textColor = UIColor.white
     }
     
     weak var videoWithPlayer: VideoWithPlayerView! {
@@ -89,6 +110,8 @@ class RippleCell: UICollectionViewCell {
         alpha = timing + 0.5
         layer.borderWidth = bounds.width * 0.02 * timing
         layer.cornerRadius = bounds.width / ratioOfcornerRadiusAndWidth
+        titleLabel.alpha = timing
+        subtitleLabel.alpha = timing
     }
     
     @IBOutlet weak var label: UILabel!
