@@ -21,21 +21,18 @@ import UIKit
 //let itemHeightForWatching = itemHeight * 1.8
 
 class Template {
-    
-    let width: CGFloat
-    let height: CGFloat
-    
-    init(w: CGFloat, h: CGFloat) {
-        width = w
-        height = h
+
+    let uiTemplates: UITemplates
+    init(uiTemplates: UITemplates) {
+        self.uiTemplates = uiTemplates
     }
     
     func center() -> CGPoint {
-        return CGPoint(x: width * CGFloat(initialCenter1.section + 2), y: height * CGFloat(initialCenter1.row + 2))
+        return CGPoint(x: uiTemplates.itemWidth * CGFloat(initialCenter1.section + 2), y: uiTemplates.itemHeight * CGFloat(initialCenter1.row + 2))
     }
     
-    static let watch = Template(w: itemWidthForWatching, h: itemHeightForWatching)
-    static let surf = Template(w: itemWidth, h: itemHeight)
+    static let watch = Template(uiTemplates: UITemplates.watch)
+    static let surf = Template(uiTemplates: UITemplates.surf)
     
     func toggledTemplate() -> Template {
         return self === Template.watch ? Template.surf : Template.watch
@@ -56,8 +53,8 @@ class Template {
             return sign * dX
         }
         
-        let gap = gapAround(dRow: dRow, dCol: dCol - 1, values: colGaps)
-        let dX = dXOf(dCol: Int(dCol - 1), dRow: Int(dRow)) + magnitudeOf(dCol - 1, value: width) / 2 + gap + magnitudeOf(dCol, value: width) / 2
+        let gap = gapAround(dRow: dRow, dCol: dCol - 1, values: uiTemplates.colGaps)
+        let dX = dXOf(dCol: Int(dCol - 1), dRow: Int(dRow)) + magnitudeOf(dCol - 1, value: uiTemplates.itemWidth) / 2 + gap + magnitudeOf(dCol, value: uiTemplates.itemWidth) / 2
         
         return sign * dX
     }
@@ -73,14 +70,14 @@ class Template {
             return sign * dY
         }
         
-        let dY = dYOf(Int(dRow - 1)) + magnitudeOf(dRow - 1, value: height) / 2 + gapAround(dRow - 1, values: rowGaps) + magnitudeOf(dRow, value: height) / 2
+        let dY = dYOf(Int(dRow - 1)) + magnitudeOf(dRow - 1, value: uiTemplates.itemHeight) / 2 + gapAround(dRow - 1, values: uiTemplates.rowGaps) + magnitudeOf(dRow, value: uiTemplates.itemHeight) / 2
         dRow2dY[dRow] = dY
         return sign * dY
     }
     
     func magnitudeOf(_ d: CGFloat, value: CGFloat) -> CGFloat {
         if d == 0 {
-            return value * scale
+            return value * uiTemplates.scale
         }
         
         return value
@@ -98,10 +95,10 @@ class Template {
     
     func sizeOfItem(dRow: Int, dCol: Int) -> CGSize {
         if dRow == 0 && dCol == 0 {
-            return CGSize(width: width * scale, height: height * scale)
+            return CGSize(width: uiTemplates.itemWidth * uiTemplates.scale, height: uiTemplates.itemHeight * uiTemplates.scale)
         }
         
-        return CGSize(width: width, height: height)
+        return CGSize(width: uiTemplates.itemWidth, height: uiTemplates.itemHeight)
     }
     
 }
@@ -178,7 +175,7 @@ class RippleLayout: UICollectionViewLayout {
     }
     
     override var collectionViewContentSize: CGSize {
-        return CGSize(width: template.width * CGFloat(ytCols + 1), height: template.width * CGFloat(ytRows + 1))
+        return CGSize(width: template.uiTemplates.itemWidth * CGFloat(ytCols + 1), height: template.uiTemplates.itemWidth * CGFloat(ytRows + 1))
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
@@ -186,13 +183,13 @@ class RippleLayout: UICollectionViewLayout {
             var offset: CGPoint?
             switch direction {
             case .N:
-                offset = CGPoint(x: 0, y: -template.height - rowGapN)
+                offset = CGPoint(x: 0, y: -template.uiTemplates.itemHeight - rowGapN)
             case .S:
-                offset = CGPoint(x: 0, y: template.height + rowGapN)
+                offset = CGPoint(x: 0, y: template.uiTemplates.itemHeight + rowGapN)
             case .W:
-                offset = CGPoint(x: -template.width - colGapN, y: 0)
+                offset = CGPoint(x: -template.uiTemplates.itemWidth - colGapN, y: 0)
             default:
-                offset = CGPoint(x: template.width + colGapN, y: 0)
+                offset = CGPoint(x: template.uiTemplates.itemWidth + colGapN, y: 0)
             }
             return proposedContentOffset + offset!
         }

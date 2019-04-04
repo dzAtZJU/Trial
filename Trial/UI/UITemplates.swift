@@ -27,8 +27,8 @@ struct UITemplates {
         template.subtitleFontSize = 16
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[15, 20], [25, 20], [25, 15]]
-        template.itemWidth = 151
-        template.itemHeight = 265
+        template.itemWidth = 265
+        template.itemHeight = 151
         template.scale = 1.188
         return template
     }()

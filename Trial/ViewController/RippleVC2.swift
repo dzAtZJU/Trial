@@ -10,9 +10,6 @@ import UIKit
 import Foundation
 import YoutubePlayer_in_WKWebView
 
-func positionFromIndex(_ index: IndexPath) -> CGPoint {
-    return CGPoint(x:CGFloat(index.section) * itemWidth, y: CGFloat(index.row) * itemHeight)
-}
 enum SceneState {
     case surfing
     case watching
@@ -55,9 +52,17 @@ extension RippleVC {
 // MARK: CollectionViewDelegate
 extension RippleVC {
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as! RippleCell
-        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VideoViewController") as! VideoViewController
-        self.present(vc, animated: true, completion: nil)
+        switch sceneState {
+        case .watching:
+            let cell = collectionView.cellForItem(at: indexPath) as! RippleCell
+            let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VideoViewController") as! VideoViewController
+            self.present(vc, animated: true, completion: nil)
+        case .surfing:
+            updateSceneState()
+        default:
+            return
+        }
+        
     }
 }
 
@@ -166,7 +171,7 @@ class RippleVC: UICollectionViewController {
     var press: UILongPressGestureRecognizer?
     @objc func handlePress(_ press: UILongPressGestureRecognizer) {
         switch press.state {
-        case .began, .ended:
+        case .began:
                 updateSceneState()
         default:
             print("press change")
@@ -193,10 +198,5 @@ class RippleVC: UICollectionViewController {
     //                return
     //            }
     //    }
-    
-    func timingFromPanningTranslation(_ translation: CGPoint) -> CGFloat {
-        let distance = hypot(translation.x, translation.y)
-        return min(distance / (itemWidthForWatching / 2), 1)
-    }
 }
 
