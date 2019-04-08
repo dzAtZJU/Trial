@@ -98,7 +98,6 @@ class RippleTransitionLayout: UICollectionViewLayout {
         let result = LayoutAttributes(forCellWith: indexPath)
         result.frame = attributes123[0].frame * baryCentrics[0] + attributes123[1].frame * baryCentrics[1] + attributes123[2].frame * baryCentrics[2]
         result.timing = attributes123[0].timing * baryCentrics[0] + attributes123[1].timing * baryCentrics[1] + attributes123[2].timing * baryCentrics[2]
-        
         #if VERBOSE
         if indexPath == IndexPath(row: 2, section: 2) {
             print("\(collectionView!.viewPortCenter), \(layoutP1.centerPosition), \(layoutP2.centerPosition), \(layoutP3.centerPosition)")

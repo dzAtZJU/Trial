@@ -64,7 +64,7 @@ extension VideoViewController: UIViewControllerTransitioningDelegate {
     func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         if let presenting = dismissed.presentingViewController as? RippleVC, let presented = dismissed as? VideoViewController {
             let cellInFocus = presenting.inFocusCell
-            let imageView = cellInFocus.imageView!
+            let imageView = cellInFocus.thumbnailImageView!
             let center = imageView.convert(CGPoint(x: imageView.bounds.midX, y: imageView.bounds.midY), to: nil)
             
             let image = presented.videoWithPlayer.snapshotView(afterScreenUpdates: true)!

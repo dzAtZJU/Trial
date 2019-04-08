@@ -12,13 +12,19 @@ import YoutubePlayer_in_WKWebView
 
 class RippleCell: UICollectionViewCell {
     
-    var positionId: IndexPath?
+    @IBOutlet weak var thumbnailImageView: UIImageView!
     
-    @IBOutlet weak var imageView: UIImageView!
+    var screenshotView: UIView?
+    
+    var titles: UIStackView!
+    
+    var titlesBottomConstraint: NSLayoutConstraint!
     
     var titleLabel: UILabel!
     
     var subtitleLabel: UILabel!
+    
+    var positionId: IndexPath?
     
     func play() {
         if let videoWithPlayer = videoWithPlayer {
@@ -56,12 +62,15 @@ class RippleCell: UICollectionViewCell {
     
     private func setupTitles() {
         let stackView = UIStackView(frame: .zero)
+        titles = stackView
         addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        self.addConstraints([NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: stackView, attribute: .bottom, multiplier: 1, constant: UITemplates.current.titlesBottom),
-                                  NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: stackView, attribute: .centerX, multiplier: 1, constant: 0)])
+        titlesBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: stackView, attribute: .bottom, multiplier: 1, constant: UITemplates.current.titlesBottom)
+        self.addConstraints([titlesBottomConstraint,
+                             NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: stackView, attribute: .centerX, multiplier: 1, constant: 0)])
         stackView.axis = .vertical
         stackView.alignment = .center
+        stackView.distribution = .fillProportionally
         stackView.spacing = UITemplates.current.titlesSpace
         titleLabel = UILabel(frame: .zero)
         subtitleLabel = UILabel(frame: .zero)
@@ -83,13 +92,23 @@ class RippleCell: UICollectionViewCell {
         }
     }
     
+    func updateScreenShot() {
+        guard let videoWithPlayer = videoWithPlayer else {
+            return
+        }
+        screenshotView?.removeFromSuperview()
+        screenshotView  = videoWithPlayer.snapshot()!
+        screenshotView!.frame = bounds
+        screenshotView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(screenshotView!)
+    }
     
-    func loadImage(_ image: UIImage?) {
-        imageView.image = image
+    func loadThumbnailImage(_ image: UIImage?) {
+        thumbnailImageView.image = image
     }
     
     func configure(with youtubeVideoData: YoutubeVideoData, playerView: VideoWithPlayerView) {
-        loadImage(youtubeVideoData.thumbnail)
+        loadThumbnailImage(youtubeVideoData.thumbnail)
         embedYTPlayer(playerView)
     }
     
@@ -106,12 +125,16 @@ class RippleCell: UICollectionViewCell {
     }
     
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
-        let timing = (layoutAttributes as! LayoutAttributes).timing
-        alpha = timing + 0.5
+        let l = layoutAttributes as! LayoutAttributes
+        let timing = l.timing
         layer.borderWidth = bounds.width * 0.02 * timing
         layer.cornerRadius = bounds.width / ratioOfcornerRadiusAndWidth
         titleLabel.alpha = timing
         subtitleLabel.alpha = timing
+        if let screenshotView = screenshotView {
+            thumbnailImageView.alpha = 1 - timing
+            screenshotView.alpha = timing
+        }
     }
     
     @IBOutlet weak var label: UILabel!

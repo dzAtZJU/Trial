@@ -60,8 +60,8 @@
                                     <constraint firstItem="dfL-fk-oWp" firstAttribute="leading" secondItem="lbc-Ps-HQ6" secondAttribute="leading" id="v22-ky-xR9"/>
                                 </constraints>
                                 <connections>
-                                    <outlet property="imageView" destination="s4P-YG-uZi" id="b2S-SM-aDJ"/>
                                     <outlet property="label" destination="ndk-Ur-b0O" id="2kN-jo-6Lb"/>
+                                    <outlet property="thumbnailImageView" destination="s4P-YG-uZi" id="b2S-SM-aDJ"/>
                                 </connections>
                             </collectionViewCell>
                         </cells>

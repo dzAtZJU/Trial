@@ -34,6 +34,10 @@ class VideoWithPlayerView: UIView {
         }
     }
     
+    func snapshot() -> UIView? {
+        return videoView.snapshotView(afterScreenUpdates: true)
+    }
+    
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
         let result = VideoWithPlayerView(videoId: videoId)
         result.setPlayerControl(PlayerControlView())

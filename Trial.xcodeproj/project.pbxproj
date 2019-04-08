@@ -149,6 +149,7 @@
 		896EA908224342AD00780557 /* Layout */ = {
 			isa = PBXGroup;
 			children = (
+				890A7AFC223F833F00CDB6B1 /* LayoutAttributes.swift */,
 				896EA9092243460700780557 /* RippleLayout.swift */,
 				896EA917224496C300780557 /* RippleTransitionLayout.swift */,
 				8900626E224E214300094F91 /* RippleTransitionLayoutV2.swift */,
@@ -237,7 +238,6 @@
 				89F37A242237524A00A9303D /* Assets.xcassets */,
 				89F37A262237524A00A9303D /* LaunchScreen.storyboard */,
 				89F37A292237524A00A9303D /* Info.plist */,
-				890A7AFC223F833F00CDB6B1 /* LayoutAttributes.swift */,
 				890A7AFE223F8C7500CDB6B1 /* constants.swift */,
 			);
 			path = Trial;

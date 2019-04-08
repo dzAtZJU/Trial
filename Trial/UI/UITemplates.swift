@@ -35,10 +35,10 @@ struct UITemplates {
     
     static let surf: UITemplates = {
         var template = UITemplates()
-        template.titlesBottom = 19
+        template.titlesBottom = 12
         template.titlesSpace = 0
-        template.titleFontSize = 26
-        template.subtitleFontSize = 16
+        template.titleFontSize = 18
+        template.subtitleFontSize = 11
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[20, 20], [25, 20], [20, 15], [15, 15]]
         template.itemWidth = 157
