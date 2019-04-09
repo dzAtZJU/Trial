@@ -12,6 +12,15 @@ import YoutubePlayer_in_WKWebView
 
 class VideoWithPlayerView: UIView {
     
+    var screenshot: UIView!
+    
+    /// Leave cell then pack up
+    func fallOff() {
+        removeFromSuperview()
+        pause()
+        screenshot = snapshot()!
+    }
+    
     func play() {
         self.requestToPlay = true
         self.isHidden = false
@@ -78,12 +87,9 @@ class VideoWithPlayerView: UIView {
     private var bufferPlay = false
     
     private func setupSubview(_ subView: UIView) {
-        subView.translatesAutoresizingMaskIntoConstraints = false
+        subView.frame = self.bounds
+        subView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         addSubview(subView)
-        addConstraints([NSLayoutConstraint(item: subView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: 0),
-                        NSLayoutConstraint(item: subView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 0),
-                        NSLayoutConstraint(item: subView, attribute: .leading, relatedBy: .equal, toItem: self, attribute: .leading, multiplier: 1, constant: 0),
-                        NSLayoutConstraint(item: subView, attribute: .trailing, relatedBy: .equal, toItem: self, attribute: .trailing, multiplier: 1, constant: 0)])
     }
     
     required init?(coder aDecoder: NSCoder) {

@@ -12,8 +12,13 @@ import YoutubePlayer_in_WKWebView
 
 class RippleCell: UICollectionViewCell {
     
+    /// Identifier for asyn contents
+    var positionId: IndexPath!
+    
+    /// One of global contents
     @IBOutlet weak var thumbnailImageView: UIImageView!
     
+    /// One of timing contents
     var screenshotView: UIView?
     
     var titles: UIStackView!
@@ -22,9 +27,38 @@ class RippleCell: UICollectionViewCell {
     
     var subtitleLabel: UILabel!
     
-    var positionId: IndexPath?
-    
     var titleBottomConstraint: NSLayoutConstraint!
+    
+    var videoWithPlayer: VideoWithPlayerView? {
+        didSet {
+            if shouldPlay {
+                videoWithPlayer?.play()
+            }
+        }
+    }
+    
+    /// One place to configure timing contents
+    func handleUserEnter(video: VideoWithPlayerView) {
+        embedYTPlayer(video)
+        video.play()
+    }
+    
+    /// One place to configure timing contents
+    func handleUserLeave() {
+        guard sceneState == .watching else {
+            return
+        }
+        
+        if let videoWithPlayer = videoWithPlayer {
+            videoWithPlayer.fallOff()
+            
+            screenshotView?.removeFromSuperview()
+            screenshotView  = videoWithPlayer.screenshot
+            screenshotView!.frame = bounds
+            screenshotView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            addSubview(screenshotView!)
+        }
+    }
     
     func play() {
         if let videoWithPlayer = videoWithPlayer {
@@ -40,6 +74,16 @@ class RippleCell: UICollectionViewCell {
         } else {
             shouldPlay = false
         }
+    }
+    
+    func runTitlesAnimation(fontScale: CGFloat, bottom: CGFloat) {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.titleLabel.transform = CGAffineTransform(scaleX: fontScale, y: fontScale).concatenating(CGAffineTransform.init(translationX: 0, y: bottom))
+            self.subtitleLabel.transform = CGAffineTransform(scaleX: fontScale, y: fontScale).concatenating(CGAffineTransform.init(translationX: 0, y: bottom))
+        }, completion: { _ in
+            self.titleLabel.transform = .identity
+            self.subtitleLabel.transform = .identity
+        })
     }
     
     private var shouldPlay = false
@@ -84,25 +128,6 @@ class RippleCell: UICollectionViewCell {
         subtitleLabel.textColor = UIColor.white
     }
     
-    weak var videoWithPlayer: VideoWithPlayerView! {
-        didSet {
-            if shouldPlay {
-                videoWithPlayer.play()
-            }
-        }
-    }
-    
-    func updateScreenShot() {
-        guard let videoWithPlayer = videoWithPlayer else {
-            return
-        }
-        screenshotView?.removeFromSuperview()
-        screenshotView  = videoWithPlayer.snapshot()!
-        screenshotView!.frame = bounds
-        screenshotView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        addSubview(screenshotView!)
-    }
-    
     func loadThumbnailImage(_ image: UIImage?) {
         thumbnailImageView.image = image
     }
@@ -113,41 +138,45 @@ class RippleCell: UICollectionViewCell {
     }
     
     func embedYTPlayer(_ newVideoWithPlayer: VideoWithPlayerView) {
-        DispatchQueue.main.async {
-                self.videoWithPlayer = newVideoWithPlayer
-                self.videoWithPlayer.transform = .identity
-                self.videoWithPlayer.bounds = self.bounds
-                self.videoWithPlayer.center = self.bounds.center
-                self.videoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-                self.videoWithPlayer.backgroundColor = UIColor.yellow
-                self.addSubview(self.videoWithPlayer)
-        }
+        self.videoWithPlayer = newVideoWithPlayer
+        self.videoWithPlayer!.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        self.videoWithPlayer!.backgroundColor = UIColor.yellow
+        
+        /// TODO: these are result from animation. Refactor later
+        self.videoWithPlayer!.transform = .identity
+        self.videoWithPlayer!.bounds = self.bounds
+        self.videoWithPlayer!.center = self.bounds.center
+        
+        self.addSubview(self.videoWithPlayer!)
     }
     
+    /// Apply layout to both Global and Timing Contents
+    /// Since Timing Contents may be dirty, using layout to work around
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
-        let l = layoutAttributes as! LayoutAttributes
-        let timing = l.timing
+        let attributes = layoutAttributes as! LayoutAttributes
+        let timing = attributes.timing
         
 //        layer.borderWidth = bounds.width * 0.02 * timing
-        layer.cornerRadius = l.radius
+        layer.cornerRadius = attributes.radius
         
         titleLabel.alpha = timing
         subtitleLabel.alpha = timing
         
-//        titleLabel.font = titleLabel.font.withSize(l.titleFontSize)
-//        subtitleLabel.font = subtitleLabel.font.withSize(l.subtitleFontSize)
-//        titleBottomConstraint.constant = l.titlesBottom
+        titleLabel.font = titleLabel.font.withSize(attributes.titleFontSize)
+        subtitleLabel.font = subtitleLabel.font.withSize(attributes.subtitleFontSize)
+        titleBottomConstraint.constant = attributes.titlesBottom
         
-        if l.sceneState == .watching {
-            if let screenshotView = screenshotView {
-                thumbnailImageView.alpha = 1 - timing
-                screenshotView.alpha = timing
-            }
-        } else {
-            thumbnailImageView.alpha = 1
+        guard attributes.sceneState == .watching else {
             screenshotView?.alpha = 0
+            thumbnailImageView.alpha = 1
+            return
         }
+        if let screenshotView = screenshotView {
+            thumbnailImageView.alpha = 1 - timing
+            screenshotView.alpha = timing
+        }
+        /// Notice for cell reusing
     }
-    
+    /// For debug
     @IBOutlet weak var label: UILabel!
 }

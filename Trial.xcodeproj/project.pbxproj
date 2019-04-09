@@ -84,6 +84,7 @@
 		896EA9232248CA3200780557 /* RippleCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleCollectionView.swift; sourceTree = "<group>"; };
 		8997F2CC2249F17F00C2DC72 /* RippleVC1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleVC1.swift; sourceTree = "<group>"; };
 		8997F2CF224A071C00C2DC72 /* RotatedTransitioning0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotatedTransitioning0.swift; sourceTree = "<group>"; };
+		89AA5449225C879E00178341 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		89F37A1A2237524800A9303D /* Trial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trial.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89F37A1D2237524800A9303D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		89F37A1F2237524800A9303D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -202,6 +203,14 @@
 			path = Animations;
 			sourceTree = "<group>";
 		};
+		89AA5448225C878700178341 /* Docs */ = {
+			isa = PBXGroup;
+			children = (
+				89AA5449225C879E00178341 /* README.md */,
+			);
+			path = Docs;
+			sourceTree = "<group>";
+		};
 		89F37A112237524800A9303D = {
 			isa = PBXGroup;
 			children = (
@@ -223,6 +232,7 @@
 		89F37A1C2237524800A9303D /* Trial */ = {
 			isa = PBXGroup;
 			children = (
+				89AA5448225C878700178341 /* Docs */,
 				89006265224C879500094F91 /* Tests */,
 				8997F2CE224A06DA00C2DC72 /* Animations */,
 				896EA9252248F32C00780557 /* Network */,

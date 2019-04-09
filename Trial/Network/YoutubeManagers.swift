@@ -22,6 +22,7 @@ class YoutubeVideoData {
 
 class YoutubeManagers {
     
+    /// Gloabal data warehouse for videos
     static let shared = YoutubeManagers()
     
     func doInitialRequest() {
