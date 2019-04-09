@@ -18,13 +18,13 @@ class RippleCell: UICollectionViewCell {
     
     var titles: UIStackView!
     
-    var titlesBottomConstraint: NSLayoutConstraint!
-    
     var titleLabel: UILabel!
     
     var subtitleLabel: UILabel!
     
     var positionId: IndexPath?
+    
+    var titleBottomConstraint: NSLayoutConstraint!
     
     func play() {
         if let videoWithPlayer = videoWithPlayer {
@@ -65,8 +65,8 @@ class RippleCell: UICollectionViewCell {
         titles = stackView
         addSubview(stackView)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        titlesBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: stackView, attribute: .bottom, multiplier: 1, constant: UITemplates.current.titlesBottom)
-        self.addConstraints([titlesBottomConstraint,
+        titleBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: stackView, attribute: .bottom, multiplier: 1, constant: UITemplates.current.titlesBottom)
+        self.addConstraints([titleBottomConstraint,
                              NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: stackView, attribute: .centerX, multiplier: 1, constant: 0)])
         stackView.axis = .vertical
         stackView.alignment = .center
@@ -127,13 +127,25 @@ class RippleCell: UICollectionViewCell {
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
         let l = layoutAttributes as! LayoutAttributes
         let timing = l.timing
-        layer.borderWidth = bounds.width * 0.02 * timing
-        layer.cornerRadius = bounds.width / ratioOfcornerRadiusAndWidth
+        
+//        layer.borderWidth = bounds.width * 0.02 * timing
+        layer.cornerRadius = l.radius
+        
         titleLabel.alpha = timing
         subtitleLabel.alpha = timing
-        if let screenshotView = screenshotView {
-            thumbnailImageView.alpha = 1 - timing
-            screenshotView.alpha = timing
+        
+//        titleLabel.font = titleLabel.font.withSize(l.titleFontSize)
+//        subtitleLabel.font = subtitleLabel.font.withSize(l.subtitleFontSize)
+//        titleBottomConstraint.constant = l.titlesBottom
+        
+        if l.sceneState == .watching {
+            if let screenshotView = screenshotView {
+                thumbnailImageView.alpha = 1 - timing
+                screenshotView.alpha = timing
+            }
+        } else {
+            thumbnailImageView.alpha = 1
+            screenshotView?.alpha = 0
         }
     }
     

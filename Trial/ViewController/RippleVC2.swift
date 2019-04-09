@@ -31,19 +31,25 @@ extension RippleVC {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCell
         cell.label.text = indexPath.description + "\(Int(cell.frame.midX)) \(Int(cell.frame.midY))"
+        cell.positionId = indexPath
         
-//        YoutubeManagers.shared.getData(indexPath: indexPath) { youtubeVideoData in
-//            DispatchQueue.main.async {
-//                let videoId = youtubeVideoData.videoId!
-//                cell.label.text = cell.label.text! + " \(videoId)"
-//                if self.videoId2PlayerView[videoId] == nil {
-//                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-//                    self.videoId2PlayerView[videoId] = player
-//                }
-//                cell.loadThumbnailImage(youtubeVideoData.thumbnail)
-////                cell.embedYTPlayer(self.videoId2PlayerView[videoId]!)
-//            }
-//        }
+        YoutubeManagers.shared.getData(indexPath: indexPath) { youtubeVideoData in
+            DispatchQueue.main.async {
+                guard cell.positionId == indexPath else {
+                    return
+                }
+                let videoId = youtubeVideoData.videoId!
+                cell.label.text = cell.label.text! + " \(videoId)"
+                if self.videoId2PlayerView[videoId] == nil {
+                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+                    self.videoId2PlayerView[videoId] = player
+                }
+                cell.loadThumbnailImage(youtubeVideoData.thumbnail)
+                if sceneState == .watching {
+                    cell.embedYTPlayer(self.videoId2PlayerView[videoId]!)
+                }
+            }
+        }
         
         cell.positionId = indexPath
         return cell
@@ -59,7 +65,11 @@ extension RippleVC {
             let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VideoViewController") as! VideoViewController
             self.present(vc, animated: true, completion: nil)
         case .surfing:
-            collectionView.scrollToItem(at: indexPath, at: [.centeredHorizontally, .centeredVertically], animated: true)
+            if indexPath == layout.centerItem {
+                updateSceneState()
+            } else {
+                collectionView.scrollToItem(at: indexPath, at: [.centeredHorizontally, .centeredVertically], animated: true)
+            }
         default:
             return
         }
@@ -74,23 +84,27 @@ extension RippleVC {
     }
     
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        inFocusCell.pause()
-        inFocusCell.updateScreenShot()
-        inFocusCell.videoWithPlayer?.removeFromSuperview()
+        if sceneState == .watching {
+            inFocusCell.pause()
+            inFocusCell.updateScreenShot()
+            inFocusCell.videoWithPlayer?.removeFromSuperview()
+        }
     }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        YoutubeManagers.shared.getData(indexPath: layout.centerItem) { youtubeVideoData in
-            DispatchQueue.main.async {
-                let videoId = youtubeVideoData.videoId!
-                if self.videoId2PlayerView[videoId] == nil {
-                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-                    self.videoId2PlayerView[videoId] = player
+        if sceneState == .watching {
+            YoutubeManagers.shared.getData(indexPath: layout.centerItem) { youtubeVideoData in
+                DispatchQueue.main.async {
+                    let videoId = youtubeVideoData.videoId!
+                    if self.videoId2PlayerView[videoId] == nil {
+                        let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+                        self.videoId2PlayerView[videoId] = player
+                    }
+                    self.inFocusCell.embedYTPlayer(self.videoId2PlayerView[videoId]!)
                 }
-                self.inFocusCell.embedYTPlayer(self.videoId2PlayerView[videoId]!)
             }
+            inFocusCell.play()
         }
-        inFocusCell.play()
     }
     
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -163,12 +177,24 @@ class RippleVC: UICollectionViewController {
             if sceneState == .initial {
                 collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
             } else {
-                UIView.animate(withDuration: 0.5) {
+                UIView.animate(withDuration: 0.3, animations: {
                     self.collectionView.collectionViewLayout = self.layout.getToggledLayout()
                     self.collectionView.visibleCells.forEach { cell in
                         cell.layoutIfNeeded()
                     }
-                }
+                }, completion: {_ in
+//                        YoutubeManagers.shared.getData(indexPath: self.layout.centerItem) { youtubeVideoData in
+//                            DispatchQueue.main.async {
+//                                let videoId = youtubeVideoData.videoId!
+//                                if self.videoId2PlayerView[videoId] == nil {
+//                                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+//                                    self.videoId2PlayerView[videoId] = player
+//                                }
+//                                self.inFocusCell.embedYTPlayer(self.videoId2PlayerView[videoId]!)
+//                            }
+//                        }
+//                        self.inFocusCell.play()
+                })
             }
             sceneState = .watching
             rippleCollectionView.sceneState = .watching
@@ -176,7 +202,7 @@ class RippleVC: UICollectionViewController {
             shadowWatch.removeFromSuperlayer()
             view.layer.addSublayer(shadowSurf)
             shadowSurf.frame = view.layer.bounds
-            UIView.animate(withDuration: 0.5) {
+            UIView.animate(withDuration: 0.3) {
                 self.collectionView.collectionViewLayout = self.layout.getToggledLayout()
                 self.collectionView.visibleCells.forEach { cell in
                     cell.layoutIfNeeded()
@@ -197,11 +223,12 @@ class RippleVC: UICollectionViewController {
     var press: UILongPressGestureRecognizer?
     @objc func handlePress(_ press: UILongPressGestureRecognizer) {
         switch press.state {
-        case .began:
-                updateSceneState()
-        default:
-            print("press change")
-            return
+            case .began:
+//                    inFocusCell.pause()
+                    updateSceneState()
+            default:
+                print("press change")
+                return
         }
         return
     }

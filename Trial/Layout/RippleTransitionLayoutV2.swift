@@ -41,13 +41,31 @@ class RippleTransitionLayout: UICollectionViewLayout {
     
     var baryCentrics: [CGFloat]
     
-    init(layoutP1: RippleLayout, layoutP2: RippleLayout, layoutP3: RippleLayout) {
+    var centerItem: IndexPath {
+        let position = indexOfMax(baryCentrics)
+        if position == 0 {
+            return IndexPath(centerTriangle.0)
+        } else if position == 1 {
+            return IndexPath(centerTriangle.1)
+        } else {
+            return IndexPath(centerTriangle.2)
+        }
+    }
+    
+    var uiTemplates: UITemplates
+    
+    var shouldPagedMove: Bool {
+        return (collectionView as! RippleCollectionView).sceneState == .watching
+    }
+    
+    init(layoutP1: RippleLayout, layoutP2: RippleLayout, layoutP3: RippleLayout, uiTemplates: UITemplates) {
         self.layoutP1 = layoutP1
         self.layoutP2 = layoutP2
         self.layoutP3 = layoutP3
         self.centerTriangle = (CGPoint(layoutP1.center), CGPoint(layoutP2.center), CGPoint(layoutP3.center))
         self.baryCentrics = [1, 0, 0]
         self.lastCenterP = layoutP1.center
+        self.uiTemplates = uiTemplates
         super.init()
     }
     
@@ -58,27 +76,24 @@ class RippleTransitionLayout: UICollectionViewLayout {
         self.centerTriangle = (CGPoint(layoutP1.center), CGPoint(layoutP2.center), CGPoint(layoutP3.center))
         self.lastCenterP = layoutP1.center
         self.baryCentrics = [1, 0, 0]
+        self.uiTemplates = UITemplates.watch
         super.init(coder: aDecoder)
     }
     
     func getToggledLayout() -> RippleTransitionLayout {
+        var layoutP1 = self.layoutP1, layoutP2 = self.layoutP2, layoutP3 = self.layoutP3
+        if centerItem == layoutP2.center {
+            swap(&layoutP1, &layoutP2)
+        } else if centerItem == layoutP3.center {
+            swap(&layoutP1, &layoutP3)
+        }
+        
         let toggledTemplate = layoutP1.template.toggledTemplate()
         let toggledLayoutP1 = RippleLayout(theCenter: layoutP1.center, theCenterPosition: layoutP1.centerPosition, theTemplate: toggledTemplate)
         let toggledLayoutP2 = RippleLayout(theCenter: layoutP2.center, theCenterPosition: layoutP1.centerOf(layoutP2.center), theTemplate: toggledTemplate)
-        let toggledLayoutP3 = RippleLayout(theCenter: layoutP2.center, theCenterPosition: layoutP1.centerOf(layoutP3.center), theTemplate: toggledTemplate)
+        let toggledLayoutP3 = RippleLayout(theCenter: layoutP3.center, theCenterPosition: layoutP1.centerOf(layoutP3.center), theTemplate: toggledTemplate)
         
-        return RippleTransitionLayout(layoutP1: toggledLayoutP1, layoutP2: toggledLayoutP2, layoutP3: toggledLayoutP3)
-    }
-    
-    var centerItem: IndexPath {
-        let position = indexOfMax(baryCentrics)
-        if position == 0 {
-            return IndexPath(centerTriangle.0)
-        } else if position == 1 {
-            return IndexPath(centerTriangle.1)
-        } else {
-            return IndexPath(centerTriangle.2)
-        }
+        return RippleTransitionLayout(layoutP1: toggledLayoutP1, layoutP2: toggledLayoutP2, layoutP3: toggledLayoutP3, uiTemplates: uiTemplates.toggled())
     }
     
     // 中心的 item
@@ -98,6 +113,12 @@ class RippleTransitionLayout: UICollectionViewLayout {
         let result = LayoutAttributes(forCellWith: indexPath)
         result.frame = attributes123[0].frame * baryCentrics[0] + attributes123[1].frame * baryCentrics[1] + attributes123[2].frame * baryCentrics[2]
         result.timing = attributes123[0].timing * baryCentrics[0] + attributes123[1].timing * baryCentrics[1] + attributes123[2].timing * baryCentrics[2]
+        
+        result.titleFontSize = uiTemplates.titleFontSize
+        result.subtitleFontSize = uiTemplates.subtitleFontSize
+        result.titlesBottom = uiTemplates.titlesBottom
+        result.radius = uiTemplates.radius
+        result.sceneState = sceneState
         #if VERBOSE
         if indexPath == IndexPath(row: 2, section: 2) {
             print("\(collectionView!.viewPortCenter), \(layoutP1.centerPosition), \(layoutP2.centerPosition), \(layoutP3.centerPosition)")
@@ -172,23 +193,23 @@ class RippleTransitionLayout: UICollectionViewLayout {
         let layoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: template)
         
         
-        return RippleTransitionLayout(layoutP1: layoutP1, layoutP2: layoutP2, layoutP3: layoutP3)
+        return RippleTransitionLayout(layoutP1: layoutP1, layoutP2: layoutP2, layoutP3: layoutP3, uiTemplates: UITemplates.watch)
     }
     
-    static func nextLayoutForSurf(center: IndexPath, centerPosition: CGPoint) -> RippleTransitionLayout {
-        let triangle = defaultIndexTriangleAround(center)
-        return from(template: Template.surf, center1: triangle.0, position: centerPosition, center2: triangle.1, center3: triangle.2)
-    }
+//    static func nextLayoutForSurf(center: IndexPath, centerPosition: CGPoint) -> RippleTransitionLayout {
+//        let triangle = defaultIndexTriangleAround(center)
+//        return from(template: Template.surf, center1: triangle.0, position: centerPosition, center2: triangle.1, center3: triangle.2)
+//    }
     
     static func initialLayoutForWatch(centerLayout: RippleLayout) -> RippleTransitionLayout {
         let triangle = defaultIndexTriangleAround(centerLayout.center)
         return from(template: Template.watch, center1: triangle.0, position: Template.watch.center(), center2: triangle.1, center3: triangle.2)
     }
     
-    static func nextLayoutForWatch(center: IndexPath, centerPosition: CGPoint) -> RippleTransitionLayout {
-        let triangle = defaultIndexTriangleAround(center)
-        return from(template: Template.watch, center1: triangle.0, position: centerPosition, center2: triangle.1, center3: triangle.2)
-    }
+//    static func nextLayoutForWatch(center: IndexPath, centerPosition: CGPoint) -> RippleTransitionLayout {
+//        let triangle = defaultIndexTriangleAround(center)
+//        return from(template: Template.watch, center1: triangle.0, position: centerPosition, center2: triangle.1, center3: triangle.2)
+//    }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
         let proposedCenter = proposedContentOffset + CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
@@ -205,8 +226,15 @@ class RippleTransitionLayout: UICollectionViewLayout {
             }
         }
         let r = minCenter - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
-        lastCenterP = minIndex
-        return r
+        
+        if shouldPagedMove {
+            lastCenterP = minIndex
+            return r
+        } else {
+            lastCenterP = centerItem
+            return proposedContentOffset
+        }
+        
     }
     
     

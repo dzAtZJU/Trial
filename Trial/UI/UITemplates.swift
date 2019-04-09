@@ -9,8 +9,7 @@
 import Foundation
 import CoreGraphics
 
-struct UITemplates {
-    
+class UITemplates {
     static var current: UITemplates {
         switch sceneState {
             case .surfing: return surf
@@ -30,6 +29,7 @@ struct UITemplates {
         template.itemWidth = 265
         template.itemHeight = 151
         template.scale = 1.188
+        template.radius = 14
         return template
     }()
     
@@ -44,14 +44,24 @@ struct UITemplates {
         template.itemWidth = 157
         template.itemHeight = 89
         template.scale = 1.178
+        template.radius = 6
         return template
     }()
+    
+    func toggled() -> UITemplates {
+        if self === UITemplates.watch {
+            return .surf
+        } else {
+            return .watch
+        }
+    }
     
     var rowGaps = [CGFloat]()
     var colGaps = [[CGFloat]]()
     var itemHeight: CGFloat = 0
     var itemWidth: CGFloat = 0
     var scale: CGFloat = 0
+    var radius: CGFloat = 0
     
     var titlesBottom: CGFloat = 0
     var titlesSpace: CGFloat = 0
