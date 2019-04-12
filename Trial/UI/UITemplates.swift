@@ -23,7 +23,7 @@ class UITemplates {
         template.titlesBottom = 19
         template.titlesSpace = 0
         template.titleFontSize = 26
-        template.subtitleFontSize = 16
+        template.subtitleFontSize = 50//16
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[15, 20], [25, 20], [25, 15]]
         template.itemWidth = 265
@@ -35,7 +35,7 @@ class UITemplates {
     
     static let surf: UITemplates = {
         var template = UITemplates()
-        template.titlesBottom = 12
+        template.titlesBottom = 19//12
         template.titlesSpace = 0
         template.titleFontSize = 18
         template.subtitleFontSize = 11
@@ -67,7 +67,6 @@ class UITemplates {
     var titlesSpace: CGFloat = 0
     var titleFontSize:CGFloat = 0
     var subtitleFontSize:CGFloat = 0
-    
     
 //
 //    let scale: CGFloat = 1.2

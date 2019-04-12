@@ -39,6 +39,9 @@
 		896EA9242248CA3200780557 /* RippleCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9232248CA3200780557 /* RippleCollectionView.swift */; };
 		8997F2CD2249F17F00C2DC72 /* RippleVC1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997F2CC2249F17F00C2DC72 /* RippleVC1.swift */; };
 		8997F2D0224A071C00C2DC72 /* RotatedTransitioning0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997F2CF224A071C00C2DC72 /* RotatedTransitioning0.swift */; };
+		89D487ED2260642D009F2013 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D487EC2260642D009F2013 /* GradientView.swift */; };
+		89D487EF226083B0009F2013 /* ViewMorphing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D487EE226083B0009F2013 /* ViewMorphing.swift */; };
+		89D487F12260A82D009F2013 /* GlobalStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D487F02260A82D009F2013 /* GlobalStates.swift */; };
 		89F37A1E2237524800A9303D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F37A1D2237524800A9303D /* AppDelegate.swift */; };
 		89F37A202237524800A9303D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F37A1F2237524800A9303D /* ViewController.swift */; };
 		89F37A232237524800A9303D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 89F37A212237524800A9303D /* Main.storyboard */; };
@@ -85,6 +88,9 @@
 		8997F2CC2249F17F00C2DC72 /* RippleVC1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleVC1.swift; sourceTree = "<group>"; };
 		8997F2CF224A071C00C2DC72 /* RotatedTransitioning0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotatedTransitioning0.swift; sourceTree = "<group>"; };
 		89AA5449225C879E00178341 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		89D487EC2260642D009F2013 /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
+		89D487EE226083B0009F2013 /* ViewMorphing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMorphing.swift; sourceTree = "<group>"; };
+		89D487F02260A82D009F2013 /* GlobalStates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalStates.swift; sourceTree = "<group>"; };
 		89F37A1A2237524800A9303D /* Trial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trial.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89F37A1D2237524800A9303D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		89F37A1F2237524800A9303D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -134,6 +140,7 @@
 				89006268224C970500094F91 /* PlayerControlView.swift */,
 				8900626C224C9ADE00094F91 /* VideoWithPlayerView.swift */,
 				8900627A2255B5BE00094F91 /* UITemplates.swift */,
+				89D487EC2260642D009F2013 /* GradientView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -199,6 +206,7 @@
 				89F37A38223A24F300A9303D /* ViewControllerAnimatedTransitioning.swift */,
 				8997F2CF224A071C00C2DC72 /* RotatedTransitioning0.swift */,
 				8900627622521A7800094F91 /* RotatedTransitioning1.swift */,
+				89D487EE226083B0009F2013 /* ViewMorphing.swift */,
 			);
 			path = Animations;
 			sourceTree = "<group>";
@@ -209,6 +217,14 @@
 				89AA5449225C879E00178341 /* README.md */,
 			);
 			path = Docs;
+			sourceTree = "<group>";
+		};
+		89D487F22260A859009F2013 /* GlobalStates */ = {
+			isa = PBXGroup;
+			children = (
+				89D487F02260A82D009F2013 /* GlobalStates.swift */,
+			);
+			path = GlobalStates;
 			sourceTree = "<group>";
 		};
 		89F37A112237524800A9303D = {
@@ -232,6 +248,7 @@
 		89F37A1C2237524800A9303D /* Trial */ = {
 			isa = PBXGroup;
 			children = (
+				89D487F22260A859009F2013 /* GlobalStates */,
 				89AA5448225C878700178341 /* Docs */,
 				89006265224C879500094F91 /* Tests */,
 				8997F2CE224A06DA00C2DC72 /* Animations */,
@@ -444,6 +461,7 @@
 				896EA90F22438C3600780557 /* RippleCell.swift in Sources */,
 				8900627B2255B5BE00094F91 /* UITemplates.swift in Sources */,
 				89006269224C970500094F91 /* PlayerControlView.swift in Sources */,
+				89D487F12260A82D009F2013 /* GlobalStates.swift in Sources */,
 				896EA9052242209700780557 /* YTPlayerView.swift in Sources */,
 				89F37A1E2237524800A9303D /* AppDelegate.swift in Sources */,
 				89006271224E218900094F91 /* RippleLayoutV2.swift in Sources */,
@@ -451,10 +469,12 @@
 				8900627722521A7800094F91 /* RotatedTransitioning1.swift in Sources */,
 				8900626F224E214400094F91 /* RippleTransitionLayoutV2.swift in Sources */,
 				89006267224C87B200094F91 /* Datas.swift in Sources */,
+				89D487EF226083B0009F2013 /* ViewMorphing.swift in Sources */,
 				890A7AFD223F833F00CDB6B1 /* LayoutAttributes.swift in Sources */,
 				8900626D224C9ADE00094F91 /* VideoWithPlayerView.swift in Sources */,
 				8900627522521A2C00094F91 /* VideoViewController1.swift in Sources */,
 				89F37A39223A24F300A9303D /* ViewControllerAnimatedTransitioning.swift in Sources */,
+				89D487ED2260642D009F2013 /* GradientView.swift in Sources */,
 				89006260224B4F7A00094F91 /* YoutubeOperations.swift in Sources */,
 				896EA9162244945800780557 /* alog.swift in Sources */,
 			);

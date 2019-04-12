@@ -16,6 +16,7 @@ enum SceneState {
     case initial
 }
 
+var activityIndicator: UIActivityIndicatorView!
 var sceneState = SceneState.initial
 
 // MARK: CollectionViewDatasource
@@ -139,6 +140,8 @@ class RippleVC: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupViews()
+        
         press = UILongPressGestureRecognizer(target: self, action: #selector(handlePress(_:)))
         collectionView.addGestureRecognizer(press!)
         
@@ -154,6 +157,14 @@ class RippleVC: UICollectionViewController {
                 self.inFocusCell.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
             }
         }
+    }
+    
+    func setupViews() {
+        activityIndicator = UIActivityIndicatorView()
+        activityIndicator.center = view.center
+        activityIndicator.bounds = CGRect(origin: .zero, size: CGSize(width: 20, height: 20))
+        activityIndicator.hidesWhenStopped = true
+        view.addSubview(activityIndicator)
     }
     
     lazy var shadowWatch: CALayer = {
@@ -184,24 +195,33 @@ class RippleVC: UICollectionViewController {
             if sceneState == .initial {
                 collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
             } else {
-                self.inFocusCell.runTitlesAnimation(fontScale: 1.05, bottom: 0)
-                UIView.animate(withDuration: 0.3, animations: {
+                
+                var animators = [UIViewPropertyAnimator]()
+                let layoutAnimator = UIViewPropertyAnimator(duration: 3, curve: .easeInOut)
+                layoutAnimator.addAnimations {
                     self.collectionView.collectionViewLayout = self.layout.getToggledLayout()
                     self.collectionView.visibleCells.forEach { cell in
                         cell.layoutIfNeeded()
                     }
-                }, completion: {_ in
-                        YoutubeManagers.shared.getData(indexPath: self.layout.centerItem) { youtubeVideoData in
-                            DispatchQueue.main.async {
-                                let videoId = youtubeVideoData.videoId!
-                                if self.videoId2PlayerView[videoId] == nil {
-                                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-                                    self.videoId2PlayerView[videoId] = player
-                                }
-                                self.inFocusCell.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
+                }
+                layoutAnimator.addCompletion { (_) in
+                    YoutubeManagers.shared.getData(indexPath: self.layout.centerItem) { youtubeVideoData in
+                        DispatchQueue.main.async {
+                            let videoId = youtubeVideoData.videoId!
+                            if self.videoId2PlayerView[videoId] == nil {
+                                let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+                                self.videoId2PlayerView[videoId] = player
                             }
+                            self.inFocusCell.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
                         }
-                })
+                    }
+                }
+                animators.append(layoutAnimator)
+                
+                animators = animators + self.inFocusCell.addSceneTransitionAnimation(toScene: .watching, duration: 3)
+                for animator in animators {
+                    animator.startAnimation()
+                }
             }
             sceneState = .watching
             rippleCollectionView.sceneState = .watching
@@ -210,13 +230,23 @@ class RippleVC: UICollectionViewController {
             view.layer.addSublayer(shadowSurf)
             shadowSurf.frame = view.layer.bounds
             
-            self.inFocusCell.runTitlesAnimation(fontScale: 1 / 1.05, bottom: 0)
-            UIView.animate(withDuration: 0.3, animations: {
+            var animators = [UIViewPropertyAnimator]()
+            
+            let layoutAnimator = UIViewPropertyAnimator(duration: 3, curve: .easeInOut)
+            layoutAnimator.addAnimations {
                 self.collectionView.collectionViewLayout = self.layout.getToggledLayout()
                 self.collectionView.visibleCells.forEach { cell in
                     cell.layoutIfNeeded()
                 }
-            })
+            }
+            animators.append(layoutAnimator)
+            
+            animators = animators + self.inFocusCell.addSceneTransitionAnimation(toScene: .surfing, duration: 3)
+            
+            for animator in animators {
+                animator.startAnimation()
+            }
+            
             sceneState = .surfing
             rippleCollectionView.sceneState = .surfing
         }

@@ -17,7 +17,7 @@ class RotatedPresentTransitioning: NSObject, UIViewControllerAnimatedTransitioni
     
     let startSize: CGSize
     
-    let duration: Double = 1
+    let duration: Double = 0.3
     
     init(startView: UIView, centerInWindow: CGPoint, startSize: CGSize) {
         self.startView = startView
@@ -61,7 +61,7 @@ class RotatedDismissTransitioning: NSObject, UIViewControllerAnimatedTransitioni
     
     let centerInWindow: CGPoint
     
-    let duration: Double = 1
+    let duration: Double = 0.3
     
     let startView: UIView
     

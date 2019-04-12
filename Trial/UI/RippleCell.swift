@@ -21,13 +21,15 @@ class RippleCell: UICollectionViewCell {
     /// One of timing contents
     var screenshotView: UIView?
     
-    var titles: UIStackView!
+    var titleWatch: UILabel!
     
-    var titleLabel: UILabel!
+    var subtitleWatch: UILabel!
+    var subtitleWatchBottomConstraint: NSLayoutConstraint!
     
-    var subtitleLabel: UILabel!
+    var titleSurf: UILabel!
     
-    var titleBottomConstraint: NSLayoutConstraint!
+    var subtitleSurf: UILabel!
+    var subtitleSurfBottomConstraint: NSLayoutConstraint!
     
     var videoWithPlayer: VideoWithPlayerView? {
         didSet {
@@ -76,14 +78,25 @@ class RippleCell: UICollectionViewCell {
         }
     }
     
-    func runTitlesAnimation(fontScale: CGFloat, bottom: CGFloat) {
-        UIView.animate(withDuration: 0.3, animations: {
-            self.titleLabel.transform = CGAffineTransform(scaleX: fontScale, y: fontScale).concatenating(CGAffineTransform.init(translationX: 0, y: bottom))
-            self.subtitleLabel.transform = CGAffineTransform(scaleX: fontScale, y: fontScale).concatenating(CGAffineTransform.init(translationX: 0, y: bottom))
-        }, completion: { _ in
-            self.titleLabel.transform = .identity
-            self.subtitleLabel.transform = .identity
-        })
+    func addSceneTransitionAnimation(toScene: SceneState, duration: TimeInterval) -> [UIViewPropertyAnimator] {
+        var inVOutVs = [(UIView, UIView, NSLayoutConstraint?, NSLayoutConstraint?)]()
+        switch toScene {
+            case .surfing:
+                inVOutVs = [(titleSurf, titleWatch, nil, nil), (subtitleSurf, subtitleWatch, subtitleSurfBottomConstraint, subtitleWatchBottomConstraint)]
+            case .watching:
+                inVOutVs = [(titleWatch, titleSurf, nil, nil), (subtitleWatch, subtitleSurf, subtitleWatchBottomConstraint, subtitleSurfBottomConstraint)]
+            default:
+                fatalError("no such scene state")
+        }
+        let inVAlphaAnimator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut)
+        let outVAlphaAnimator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut)
+        let transformAnimator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut)
+        
+        for inVOutV in inVOutVs {
+            addViewMorphing(inV: inVOutV.0, outV: inVOutV.1, inVBottomConstraint: inVOutV.2, outVBottomConstraint: inVOutV.3, inVAlphaAnimator: inVAlphaAnimator, outVAlphaAnimator: outVAlphaAnimator, transformAnimator: transformAnimator)
+        }
+        
+        return [inVAlphaAnimator, outVAlphaAnimator, transformAnimator]
     }
     
     private var shouldPlay = false
@@ -101,31 +114,62 @@ class RippleCell: UICollectionViewCell {
     private func setupView() {
         layer.borderColor = UIColor.white.cgColor
         
+        setupGradientMask()
         setupTitles()
     }
     
+    private func setupGradientMask() {
+        let gradientView = GradientView()
+        addSubview(gradientView)
+        gradientView.translatesAutoresizingMaskIntoConstraints = false
+        addConstraints([NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: gradientView, attribute: .leading, multiplier: 1, constant: 0),
+                                     NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: gradientView, attribute: .trailing, multiplier: 1, constant: 0),
+                                     NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: gradientView, attribute: .top, multiplier: 1, constant: 0),
+                                     NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: gradientView, attribute: .bottom, multiplier: 1, constant: 0)])
+    }
+    
     private func setupTitles() {
-        let stackView = UIStackView(frame: .zero)
-        titles = stackView
-        addSubview(stackView)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        titleBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: stackView, attribute: .bottom, multiplier: 1, constant: UITemplates.current.titlesBottom)
-        self.addConstraints([titleBottomConstraint,
-                             NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: stackView, attribute: .centerX, multiplier: 1, constant: 0)])
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        stackView.distribution = .fillProportionally
-        stackView.spacing = UITemplates.current.titlesSpace
-        titleLabel = UILabel(frame: .zero)
-        subtitleLabel = UILabel(frame: .zero)
-        stackView.addArrangedSubview(titleLabel)
-        stackView.addArrangedSubview(subtitleLabel)
-        titleLabel.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.current.titleFontSize)
-        titleLabel.textColor = UIColor.white
-        titleLabel.text = "音乐"
-        subtitleLabel.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.current.subtitleFontSize)
-        subtitleLabel.text = "Cigerrete 2019-04"
-        subtitleLabel.textColor = UIColor.white
+        subtitleWatch = UILabel(frame: .zero)
+        subtitleWatch.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.watch.subtitleFontSize)
+        subtitleWatch.text = "Cigerrete 2019-04"
+        subtitleWatch.textColor = UIColor.white
+        addSubview(subtitleWatch)
+        subtitleWatch.alpha = 1
+        subtitleWatch.translatesAutoresizingMaskIntoConstraints = false
+        subtitleWatchBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: subtitleWatch, attribute: .bottom, multiplier: 1, constant: UITemplates.watch.titlesBottom)
+        self.addConstraints([subtitleWatchBottomConstraint,
+                             NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: subtitleWatch, attribute: .centerX, multiplier: 1, constant: 0)])
+        
+        titleWatch = UILabel(frame: .zero)
+        titleWatch.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.watch.titleFontSize)
+        titleWatch.textColor = UIColor.white
+        titleWatch.text = "音乐"
+        addSubview(titleWatch)
+        titleWatch.alpha = 1
+        titleWatch.translatesAutoresizingMaskIntoConstraints = false
+        self.addConstraints([NSLayoutConstraint(item: titleWatch, attribute: .bottom, relatedBy: .equal, toItem: subtitleWatch, attribute: .top, multiplier: 1, constant: 0),
+                             NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: titleWatch, attribute: .centerX, multiplier: 1, constant: 0)])
+        
+        subtitleSurf = UILabel(frame: .zero)
+        subtitleSurf.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.surf.subtitleFontSize)
+        subtitleSurf.text = "Cigerrete 2019-04"
+        subtitleSurf.textColor = UIColor.white
+        addSubview(subtitleSurf)
+        subtitleSurf.alpha = 0
+        subtitleSurf.translatesAutoresizingMaskIntoConstraints = false
+        subtitleSurfBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: subtitleSurf, attribute: .bottom, multiplier: 1, constant: UITemplates.surf.titlesBottom)
+        self.addConstraints([subtitleSurfBottomConstraint,
+                             NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: subtitleSurf, attribute: .centerX, multiplier: 1, constant: 0)])
+        
+        titleSurf = UILabel(frame: .zero)
+        titleSurf.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.surf.titleFontSize)
+        titleSurf.textColor = UIColor.white
+        titleSurf.text = "音乐"
+        addSubview(titleSurf)
+        titleSurf.alpha = 0
+        titleSurf.translatesAutoresizingMaskIntoConstraints = false
+        self.addConstraints([NSLayoutConstraint(item: titleSurf, attribute: .bottom, relatedBy: .equal, toItem: subtitleSurf, attribute: .top, multiplier: 1, constant: 0),
+                             NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: titleSurf, attribute: .centerX, multiplier: 1, constant: 0)])
     }
     
     func loadThumbnailImage(_ image: UIImage?) {
@@ -159,13 +203,14 @@ class RippleCell: UICollectionViewCell {
 //        layer.borderWidth = bounds.width * 0.02 * timing
         layer.cornerRadius = attributes.radius
         
-        titleLabel.alpha = timing
-        subtitleLabel.alpha = timing
-        
-        titleLabel.font = titleLabel.font.withSize(attributes.titleFontSize)
-        subtitleLabel.font = subtitleLabel.font.withSize(attributes.subtitleFontSize)
-        titleBottomConstraint.constant = attributes.titlesBottom
-        
+        if attributes.sceneState == .watching {
+            titleWatch.alpha = timing
+            subtitleWatch.alpha = timing
+        } else {
+            titleSurf.alpha = timing
+            subtitleSurf.alpha = timing
+        }
+    
         guard attributes.sceneState == .watching else {
             screenshotView?.alpha = 0
             thumbnailImageView.alpha = 1

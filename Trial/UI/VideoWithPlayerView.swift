@@ -16,14 +16,14 @@ class VideoWithPlayerView: UIView {
     
     /// Leave cell then pack up
     func fallOff() {
-        removeFromSuperview()
+        window?.addSubview(self) // remove from super view will somehow clear up the video, so instead just move to elsewhere
         pause()
         screenshot = snapshot()!
     }
     
     func play() {
         self.requestToPlay = true
-        self.isHidden = false
+        activityIndicator.startAnimating()
         DispatchQueue.main.async { [weak self] in
             guard let theSelf = self else {
                 return
@@ -116,6 +116,8 @@ extension VideoWithPlayerView: WKYTPlayerViewDelegate {
             layer.borderColor = UIColor.orange.cgColor
         case .playing:
             layer.borderColor = UIColor.green.cgColor
+            activityIndicator.stopAnimating()
+            isHidden = false
         case .paused:
             layer.borderColor = UIColor.red.cgColor
         case .ended:
