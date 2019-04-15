@@ -48,10 +48,10 @@ extension VideoViewController: UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         if let presenting = presenting as? RippleVC {
             let cellInFocus = presenting.inFocusCell
-            let video = cellInFocus.videoWithPlayer!
+            let video = cellInFocus!.videoWithPlayer!
     
             let center = video.convert(CGPoint(x: video.frame.midX, y: video.frame.midY), to: nil)
-            let size = cellInFocus.bounds.size
+            let size = cellInFocus!.bounds.size
             
             video.boundsInLastWindow = CGRect(origin: .zero, size: size)
             video.centerInLastWindow = center
@@ -64,11 +64,11 @@ extension VideoViewController: UIViewControllerTransitioningDelegate {
     func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         if let presenting = dismissed.presentingViewController as? RippleVC, let presented = dismissed as? VideoViewController {
             let cellInFocus = presenting.inFocusCell
-            let imageView = cellInFocus.thumbnailImageView!
+            let imageView = cellInFocus!.thumbnailImageView!
             let center = imageView.convert(CGPoint(x: imageView.bounds.midX, y: imageView.bounds.midY), to: nil)
             
             let image = presented.videoWithPlayer.snapshotView(afterScreenUpdates: true)!
-            return RotatedDismissTransitioning(startView: image, centerInWindow: center, bounds: cellInFocus.bounds)
+            return RotatedDismissTransitioning(startView: image, centerInWindow: center, bounds: cellInFocus!.bounds)
         }
         return nil
     }

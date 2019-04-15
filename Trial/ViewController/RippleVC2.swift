@@ -65,11 +65,13 @@ extension RippleVC {
             let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VideoViewController") as! VideoViewController
             self.present(vc, animated: true, completion: nil)
         case .surfing:
-            if indexPath == layout.centerItem {
-                updateSceneState()
-            } else {
-                collectionView.scrollToItem(at: indexPath, at: [.centeredHorizontally, .centeredVertically], animated: true)
-            }
+            updateSceneState(moveTo: indexPath)
+            collectionView.scrollToItem(at: indexPath, at: [.centeredHorizontally, .centeredVertically], animated: true)
+//            if indexPath == layout.centerItem {
+//                updateSceneState()
+//            } else {
+//                collectionView.scrollToItem(at: indexPath, at: [.centeredHorizontally, .centeredVertically], animated: true)
+//            }
         default:
             return
         }
@@ -84,7 +86,7 @@ extension RippleVC {
     }
     
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        inFocusCell.handleUserLeave()
+        inFocusCell?.handleUserLeave()
     }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -100,20 +102,20 @@ extension RippleVC {
                     let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
                     self.videoId2PlayerView[videoId] = player
                 }
-                self.inFocusCell.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
+                self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
             }
         }
     }
     
     override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        updateSceneState()
+//        updateSceneState()
     }
 }
 
 // MARK: Animation
 extension RippleVC {
     var video: VideoWithPlayerView {
-        return inFocusCell.videoWithPlayer!
+        return inFocusCell!.videoWithPlayer!
     }
 }
 
@@ -126,8 +128,8 @@ class RippleVC: UICollectionViewController {
         }
     }
     
-    var inFocusCell: RippleCell {
-        return collectionView.cellForItem(at: layout.centerItem) as! RippleCell
+    var inFocusCell: RippleCell? {
+        return collectionView.cellForItem(at: layout.centerItem) as? RippleCell
     }
     
     var layout: RippleTransitionLayout {
@@ -154,7 +156,7 @@ class RippleVC: UICollectionViewController {
                     let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
                     self.videoId2PlayerView[videoId] = player
                 }
-                self.inFocusCell.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
+                self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
             }
         }
     }
@@ -180,13 +182,13 @@ class RippleVC: UICollectionViewController {
     }()
     
     override func viewDidAppear(_ animated: Bool) {
-        inFocusCell.play()
+        inFocusCell?.play()
     }
     
     let indexPath2VideoId = [IndexPath: String]()
     
     /// User wants to transfer scene
-    func updateSceneState() {
+    func updateSceneState(moveTo: IndexPath? = nil) {
         switch sceneState {
         case .surfing, .initial:
             shadowSurf.removeFromSuperlayer()
@@ -197,9 +199,9 @@ class RippleVC: UICollectionViewController {
             } else {
                 
                 var animators = [UIViewPropertyAnimator]()
-                let layoutAnimator = UIViewPropertyAnimator(duration: 3, curve: .easeInOut)
+                let layoutAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
                 layoutAnimator.addAnimations {
-                    self.collectionView.collectionViewLayout = self.layout.getToggledLayout()
+                    self.collectionView.collectionViewLayout = self.layout.getToggledLayout(moveTo: moveTo)
                     self.collectionView.visibleCells.forEach { cell in
                         cell.layoutIfNeeded()
                     }
@@ -212,13 +214,13 @@ class RippleVC: UICollectionViewController {
                                 let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
                                 self.videoId2PlayerView[videoId] = player
                             }
-                            self.inFocusCell.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
+                            self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
                         }
                     }
                 }
                 animators.append(layoutAnimator)
                 
-                animators = animators + self.inFocusCell.addSceneTransitionAnimation(toScene: .watching, duration: 3)
+                animators = animators + self.inFocusCell!.addSceneTransitionAnimation(toScene: .watching, duration: 0.3)
                 for animator in animators {
                     animator.startAnimation()
                 }
@@ -231,21 +233,25 @@ class RippleVC: UICollectionViewController {
             shadowSurf.frame = view.layer.bounds
             
             var animators = [UIViewPropertyAnimator]()
-            
-            let layoutAnimator = UIViewPropertyAnimator(duration: 3, curve: .easeInOut)
+
+            let layoutAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
             layoutAnimator.addAnimations {
-                self.collectionView.collectionViewLayout = self.layout.getToggledLayout()
+                self.collectionView.collectionViewLayout = self.layout.getToggledLayout(moveTo: moveTo)
                 self.collectionView.visibleCells.forEach { cell in
                     cell.layoutIfNeeded()
                 }
             }
+            layoutAnimator.addCompletion { _ in
+                print(self.layout)
+            }
             animators.append(layoutAnimator)
-            
-            animators = animators + self.inFocusCell.addSceneTransitionAnimation(toScene: .surfing, duration: 3)
-            
+
+            animators = animators + self.inFocusCell!.addSceneTransitionAnimation(toScene: .surfing, duration: 0.3)
+
             for animator in animators {
                 animator.startAnimation()
             }
+            
             
             sceneState = .surfing
             rippleCollectionView.sceneState = .surfing
@@ -265,7 +271,7 @@ class RippleVC: UICollectionViewController {
         
         switch press.state {
             case .began:
-                    inFocusCell.handleUserLeave()
+                    inFocusCell?.handleUserLeave()
                     updateSceneState()
             default:
                 return

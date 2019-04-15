@@ -135,8 +135,15 @@ func indexTrianglesAround(_ point: CGPoint) -> [(CGPoint, CGPoint, CGPoint)] {
             })
 }
 
-func defaultIndexTriangleAround(_ point: IndexPath) -> (IndexPath, IndexPath, IndexPath) {
-    return (point, point + IndexPath(row: 0, section: 1), IndexPath(row: 1, section: 0))
+func defaultIndexTriangleAround(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> (IndexPath, IndexPath, IndexPath) {
+    let boundFilter: (IndexPath) -> Bool = {
+        return $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
+    }
+    
+    var alongRows = [indexPath + IndexPath(row: -1, section: 0), indexPath + IndexPath(row: 1, section: 0)].filter(boundFilter)
+    var alongCols = [indexPath + IndexPath(row: 0, section: 1), indexPath + IndexPath(row: 0, section: -1)].filter(boundFilter)
+
+    return (indexPath, alongRows.first!, alongCols.first!)
 }
 
 func nearestFiveTo(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPath] {
@@ -150,15 +157,4 @@ func nearestFiveTo(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPa
         $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
     })
     return Array(Set(array))
-}
-
-func snapshotImage(with view: UIView) -> UIImage? {
-    UIGraphicsBeginImageContextWithOptions(view.bounds.size, view.isOpaque, 0.0)
-    defer { UIGraphicsEndImageContext() }
-    if let context = UIGraphicsGetCurrentContext() {
-        view.layer.render(in: context)
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        return image
-    }
-    return nil
 }

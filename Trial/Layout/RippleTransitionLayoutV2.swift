@@ -80,6 +80,29 @@ class RippleTransitionLayout: UICollectionViewLayout {
         super.init(coder: aDecoder)
     }
     
+    func getToggledLayout(moveTo: IndexPath?) -> RippleTransitionLayout {
+        var layoutP1 = self.layoutP1, layoutP2 = self.layoutP2, layoutP3 = self.layoutP3
+        if centerItem == layoutP2.center {
+            swap(&layoutP1, &layoutP2)
+        } else if centerItem == layoutP3.center {
+            swap(&layoutP1, &layoutP3)
+        }
+        
+        var center1, center2, center3: IndexPath
+        if let moveTo = moveTo {
+            (center1, center2, center3) = defaultIndexTriangleAround(moveTo, maxRow: maxRow, maxCol: maxCol)
+        } else {
+            (center1, center2, center3) = (layoutP1.center, layoutP2.center, layoutP3.center)
+        }
+        
+        let toggledTemplate = layoutP1.template.toggledTemplate()
+        let toggledLayoutP1 = RippleLayout(theCenter: center1, theCenterPosition: layoutP1.centerOf(center1), theTemplate: toggledTemplate)
+        let toggledLayoutP2 = RippleLayout(theCenter: center2, theCenterPosition: layoutP1.centerOf(center2), theTemplate: toggledTemplate)
+        let toggledLayoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: toggledTemplate)
+        
+        return RippleTransitionLayout(layoutP1: toggledLayoutP1, layoutP2: toggledLayoutP2, layoutP3: toggledLayoutP3, uiTemplates: uiTemplates.toggled())
+    }
+    
     func getToggledLayout() -> RippleTransitionLayout {
         var layoutP1 = self.layoutP1, layoutP2 = self.layoutP2, layoutP3 = self.layoutP3
         if centerItem == layoutP2.center {
@@ -202,7 +225,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
 //    }
     
     static func initialLayoutForWatch(centerLayout: RippleLayout) -> RippleTransitionLayout {
-        let triangle = defaultIndexTriangleAround(centerLayout.center)
+        let triangle = defaultIndexTriangleAround(centerLayout.center, maxRow: ytRows, maxCol: ytCols)
         return from(template: Template.watch, center1: triangle.0, position: Template.watch.center(), center2: triangle.1, center3: triangle.2)
     }
     
@@ -235,6 +258,10 @@ class RippleTransitionLayout: UICollectionViewLayout {
             return proposedContentOffset
         }
         
+    }
+    
+    override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+        return centerOf(item: CGPoint(centerItem)) - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
     }
     
     

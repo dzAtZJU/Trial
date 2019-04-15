@@ -12,18 +12,23 @@ import YoutubePlayer_in_WKWebView
 
 class VideoWithPlayerView: UIView {
     
-    var screenshot: UIView!
+    var screenshot: UIImage!
     
     /// Leave cell then pack up
     func fallOff() {
-        window?.addSubview(self) // remove from super view will somehow clear up the video, so instead just move to elsewhere
+        window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
         pause()
-        screenshot = snapshot()!
+        screenshot = snapshot()
     }
     
     func play() {
+        getVideoState { state in
+            guard state != WKYTPlayerState.playing else {
+                return
+            }
+            activityIndicator.startAnimating()
+        }
         self.requestToPlay = true
-        activityIndicator.startAnimating()
         DispatchQueue.main.async { [weak self] in
             guard let theSelf = self else {
                 return
@@ -35,6 +40,7 @@ class VideoWithPlayerView: UIView {
     func pause() {
         self.requestToPlay = false
         self.isHidden = true
+        activityIndicator.stopAnimating()
         DispatchQueue.main.async { [weak self] in
             guard let theSelf = self else {
                 return
@@ -43,8 +49,18 @@ class VideoWithPlayerView: UIView {
         }
     }
     
-    func snapshot() -> UIView? {
-        return videoView.snapshotView(afterScreenUpdates: true)
+    lazy var renderer = UIGraphicsImageRenderer(size: CGSize(width: UITemplates.watch.itemWidth, height: UITemplates.watch.itemHeight))
+    func snapshot() -> UIImage {
+        return renderer.image { ctx in
+            videoView.drawHierarchy(in: ctx.format.bounds, afterScreenUpdates: false)
+        }
+    }
+    
+    
+    func getVideoState(_ block: @escaping (WKYTPlayerState) -> ()) {
+        videoView.getPlayerState { (state, _) in
+            block(state)
+        }
     }
     
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {

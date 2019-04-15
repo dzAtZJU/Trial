@@ -19,7 +19,18 @@ class RippleCell: UICollectionViewCell {
     @IBOutlet weak var thumbnailImageView: UIImageView!
     
     /// One of timing contents
-    var screenshotView: UIView?
+    var screenshotView: UIImageView!
+    
+    var videoWithPlayer: VideoWithPlayerView? {
+        didSet {
+            if shouldPlay {
+                videoWithPlayer?.play()
+                shouldPlay = false
+            }
+        }
+    }
+    
+    var gradientView: UIView!
     
     var titleWatch: UILabel!
     
@@ -31,13 +42,7 @@ class RippleCell: UICollectionViewCell {
     var subtitleSurf: UILabel!
     var subtitleSurfBottomConstraint: NSLayoutConstraint!
     
-    var videoWithPlayer: VideoWithPlayerView? {
-        didSet {
-            if shouldPlay {
-                videoWithPlayer?.play()
-            }
-        }
-    }
+    
     
     /// One place to configure timing contents
     func handleUserEnter(video: VideoWithPlayerView) {
@@ -52,13 +57,13 @@ class RippleCell: UICollectionViewCell {
         }
         
         if let videoWithPlayer = videoWithPlayer {
+            videoWithPlayer.getVideoState { state in
+                guard state == WKYTPlayerState.playing else {
+                    return
+                }
+                self.screenshotView.image = videoWithPlayer.screenshot
+            }
             videoWithPlayer.fallOff()
-            
-            screenshotView?.removeFromSuperview()
-            screenshotView  = videoWithPlayer.screenshot
-            screenshotView!.frame = bounds
-            screenshotView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            addSubview(screenshotView!)
         }
     }
     
@@ -89,7 +94,7 @@ class RippleCell: UICollectionViewCell {
                 fatalError("no such scene state")
         }
         let inVAlphaAnimator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut)
-        let outVAlphaAnimator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut)
+        let outVAlphaAnimator = UIViewPropertyAnimator(duration: duration / 4, curve: .easeInOut)
         let transformAnimator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut)
         
         for inVOutV in inVOutVs {
@@ -114,12 +119,23 @@ class RippleCell: UICollectionViewCell {
     private func setupView() {
         layer.borderColor = UIColor.white.cgColor
         
+        setupScreenshotView()
         setupGradientMask()
         setupTitles()
     }
     
+    private func setupScreenshotView() {
+        screenshotView = UIImageView()
+        addSubview(screenshotView)
+        screenshotView.translatesAutoresizingMaskIntoConstraints = false
+        addConstraints([NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: screenshotView, attribute: .leading, multiplier: 1, constant: 0),
+                        NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: screenshotView, attribute: .trailing, multiplier: 1, constant: 0),
+                        NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: screenshotView, attribute: .top, multiplier: 1, constant: 0),
+                        NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: screenshotView, attribute: .bottom, multiplier: 1, constant: 0)])
+    }
+    
     private func setupGradientMask() {
-        let gradientView = GradientView()
+        gradientView = GradientView()
         addSubview(gradientView)
         gradientView.translatesAutoresizingMaskIntoConstraints = false
         addConstraints([NSLayoutConstraint(item: self, attribute: .leading, relatedBy: .equal, toItem: gradientView, attribute: .leading, multiplier: 1, constant: 0),
@@ -191,7 +207,7 @@ class RippleCell: UICollectionViewCell {
         self.videoWithPlayer!.bounds = self.bounds
         self.videoWithPlayer!.center = self.bounds.center
         
-        self.addSubview(self.videoWithPlayer!)
+        self.insertSubview(self.videoWithPlayer!, belowSubview: gradientView)
     }
     
     /// Apply layout to both Global and Timing Contents
@@ -206,9 +222,15 @@ class RippleCell: UICollectionViewCell {
         if attributes.sceneState == .watching {
             titleWatch.alpha = timing
             subtitleWatch.alpha = timing
+            
+            titleSurf.alpha = 0
+            subtitleSurf.alpha = 0
         } else {
             titleSurf.alpha = timing
             subtitleSurf.alpha = timing
+            
+            titleWatch.alpha = 0
+            subtitleWatch.alpha = 0
         }
     
         guard attributes.sceneState == .watching else {
@@ -216,7 +238,7 @@ class RippleCell: UICollectionViewCell {
             thumbnailImageView.alpha = 1
             return
         }
-        if let screenshotView = screenshotView {
+        if screenshotView.image != nil {
             thumbnailImageView.alpha = 1 - timing
             screenshotView.alpha = timing
         }

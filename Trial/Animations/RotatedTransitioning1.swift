@@ -80,7 +80,7 @@ class RotatedDismissTransitioning: NSObject, UIViewControllerAnimatedTransitioni
         let toView = transitionContext.view(forKey: .to)!
         let toVC = transitionContext.viewController(forKey: .to) as! RippleVC
         let fromVC = transitionContext.viewController(forKey: .from) as! VideoViewController
-        toVC.inFocusCell.embedYTPlayer(fromVC.videoWithPlayer)
+        toVC.inFocusCell!.embedYTPlayer(fromVC.videoWithPlayer)
         canvas.addSubview(toView)
         
         let fromView = transitionContext.view(forKey: .from)!

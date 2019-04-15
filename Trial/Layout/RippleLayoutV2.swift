@@ -9,17 +9,6 @@
 import Foundation
 import UIKit
 
-//let scale: CGFloat = 1.2
-//
-//let itemHeight: CGFloat = 100
-//let rowGaps: [CGFloat] = [30, 25, 20]
-//
-//let itemWidth: CGFloat = 150
-//let colGaps: [[CGFloat]] = [[25, 20], [20, 20], [15, 15]]
-//
-//let itemWidthForWatching = itemWidth * 1.8
-//let itemHeightForWatching = itemHeight * 1.8
-
 class Template {
 
     let uiTemplates: UITemplates
@@ -124,12 +113,6 @@ class RippleLayout: UICollectionViewLayout {
         super.init(coder: aDecoder)
     }
     
-    var viewPortCenter = IndexPath(row: 2, section: 2)
-    
-    func updateViewPortCenter(_ indexPath: IndexPath) {
-        viewPortCenter = indexPath
-    }
-    
     func dColRowOf(_ indexPath: IndexPath) -> (Int, Int) {
         return (indexPath.section - center.section, indexPath.row - center.row)
     }
@@ -156,48 +139,10 @@ class RippleLayout: UICollectionViewLayout {
         return attributes
     }
     
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        var r =  [UICollectionViewLayoutAttributes]()
-        doIn2DRange(maxRow: ytRows, maxCol: ytCols) {
-            (row, col, _) in
-            let a = layoutAttributesForItem(at: IndexPath(row: row, section: col))
-            if a?.frame.intersects(rect) == true {
-                r.append(a!)
-            }
-        }
-        return r
-    }
-    
     func nextLayoutOn(direction: Direction) -> RippleLayout {
         let nextItem = nextItemOn(direction: direction, currentItem: center, maxRow: collectionView!.numberOfItems(inSection: 0) , maxCol: collectionView!.numberOfSections)
         let nextPosition = centerOf(nextItem)
         return RippleLayout(theCenter: nextItem, theCenterPosition: nextPosition, theTemplate: template)
-    }
-    
-    override var collectionViewContentSize: CGSize {
-        return CGSize(width: template.uiTemplates.itemWidth * CGFloat(ytCols + 1), height: template.uiTemplates.itemWidth * CGFloat(ytRows + 1))
-    }
-    
-    override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-        if let direction = collectionView!.transitionDirection {
-            var offset: CGPoint?
-            switch direction {
-            case .N:
-                offset = CGPoint(x: 0, y: -template.uiTemplates.itemHeight - rowGapN)
-            case .S:
-                offset = CGPoint(x: 0, y: template.uiTemplates.itemHeight + rowGapN)
-            case .W:
-                offset = CGPoint(x: -template.uiTemplates.itemWidth - colGapN, y: 0)
-            default:
-                offset = CGPoint(x: template.uiTemplates.itemWidth + colGapN, y: 0)
-            }
-            return proposedContentOffset + offset!
-        }
-        return proposedContentOffset
-    }
-    
-    override var collectionView: RippleCollectionView? {
-        return super.collectionView as? RippleCollectionView
     }
 }
 
@@ -211,29 +156,3 @@ struct CentralBlock {
         return current == block.current && next == block.next
     }
 }
-//
-//extension RippleLayout {
-//
-//    func getCurrentAndNextCentralItem(viewCenter: CGPoint) -> CentralBlock {
-//        var distanceForEachItem = [IndexPath:CGFloat]()
-//        for cell in collectionView!.visibleCells {
-//            let indexPath = collectionView!.indexPath(for: cell)!
-//            let distance = hypot(cell.frame.midY - viewCenter.y, cell.frame.midX - viewCenter.x)
-//            distanceForEachItem[indexPath] = distance
-//        }
-//
-//
-//        let min = distanceForEachItem.min {
-//            $0.value < $1.value
-//            }!
-//
-//        distanceForEachItem[min.key] = CGFloat(Int.max)
-//        let min1 = distanceForEachItem.min {
-//            $0.value < $1.value
-//            }!
-//
-//        let centralBlock = CentralBlock(current: min.key, next: min1.key, distanceToCurrent: min.value, distanceToNext: min1.value)
-//        return centralBlock
-//    }
-//
-//}

@@ -30,6 +30,9 @@ func addViewMorphing(inV: UIView, outV: UIView, inVBottomConstraint: NSLayoutCon
         inV.alpha = 1
     }
     outVAlphaAnimator.addAnimations {
+        outV.alpha = 0.5
+    }
+    outVAlphaAnimator.addCompletion { _ in
         outV.alpha = 0
     }
     transformAnimator.addAnimations {
