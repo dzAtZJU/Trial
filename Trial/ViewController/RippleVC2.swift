@@ -19,18 +19,17 @@ enum SceneState {
 var activityIndicator: UIActivityIndicatorView!
 var sceneState = SceneState.initial
 
-// MARK: CollectionViewDatasource
-extension RippleVC {
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+extension RippleVC: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return ytRows
     }
     
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return ytCols
     }
     
     /// Configure global cell contents, that is, each cell has such contents
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCell
         cell.label.text = indexPath.description + "\(Int(cell.frame.midX)) \(Int(cell.frame.midY))"
         cell.positionId = indexPath
@@ -51,27 +50,18 @@ extension RippleVC {
     }
 }
 
-//if self.videoId2PlayerView[videoId] == nil {
-//    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-//    self.videoId2PlayerView[videoId] = player
-//}
-
-// MARK: CollectionViewDelegate
-extension RippleVC {
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+extension RippleVC: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         switch sceneState {
         case .watching:
-            let cell = collectionView.cellForItem(at: indexPath) as! RippleCell
             let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "VideoViewController") as! VideoViewController
+            // Prepare data for new vc
+            vc.prepareForPresent(video: inFocusCell!.videoWithPlayer!)
+            inFocusCell?.handleUserLeave()
             self.present(vc, animated: true, completion: nil)
         case .surfing:
             updateSceneState(moveTo: indexPath)
             collectionView.scrollToItem(at: indexPath, at: [.centeredHorizontally, .centeredVertically], animated: true)
-//            if indexPath == layout.centerItem {
-//                updateSceneState()
-//            } else {
-//                collectionView.scrollToItem(at: indexPath, at: [.centeredHorizontally, .centeredVertically], animated: true)
-//            }
         default:
             return
         }
@@ -79,17 +69,16 @@ extension RippleVC {
     }
 }
 
-// MARK: UIScrollViewDelegate
-extension RippleVC {
-    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+extension RippleVC: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
         layout.viewPortCenterChanged()
     }
     
-    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         inFocusCell?.handleUserLeave()
     }
     
-    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         guard sceneState == .watching else {
             return
         }
@@ -106,27 +95,48 @@ extension RippleVC {
             }
         }
     }
-    
-    override func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-//        updateSceneState()
-    }
 }
 
-// MARK: Animation
+// MARK: Rotation
 extension RippleVC {
-    var video: VideoWithPlayerView {
-        return inFocusCell!.videoWithPlayer!
-    }
-}
-
-class RippleVC: UICollectionViewController {
-    var videoId2PlayerView = [VideoId: VideoWithPlayerView]()
     
-    var rippleCollectionView: RippleCollectionView {
-        get {
-            return collectionView as! RippleCollectionView
+    func installShadow(_ newShadow: Shadow) -> (() -> Void, () -> Void) {
+        newShadow.frame = view.bounds
+        newShadow.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        newShadow.alpha = 0
+        view.addSubview(newShadow)
+        
+        return ({ self.shadow.alpha = 0
+            newShadow.alpha = 1
+        }, {
+            self.shadow.removeFromSuperview()
+            self.shadow = newShadow
+        })
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnRotate())
+        coordinator.animateAlongsideTransition(in: view, animation: { (context) in
+            shadowAnimation()
+            self.collectionView.collectionViewLayout = self.layout.nextOnRotate()
+            self.collectionView.visibleCells.forEach { cell in
+                cell.layoutIfNeeded()
+            }
+        }) { (context) in
+            shadowCompletion()
         }
     }
+}
+
+
+class RippleVC: UIViewController {
+    var shadow = Shadow.dumb
+    
+    var videoId2PlayerView = [VideoId: VideoWithPlayerView]()
+    
+    @IBOutlet weak var collectionView: RippleCollectionView!
     
     var inFocusCell: RippleCell? {
         return collectionView.cellForItem(at: layout.centerItem) as? RippleCell
@@ -141,6 +151,9 @@ class RippleVC: UICollectionViewController {
     // MARK: VC
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        collectionView.delegate = self
+        collectionView.dataSource = self
         
         setupViews()
         
@@ -166,20 +179,12 @@ class RippleVC: UICollectionViewController {
         activityIndicator.center = view.center
         activityIndicator.bounds = CGRect(origin: .zero, size: CGSize(width: 20, height: 20))
         activityIndicator.hidesWhenStopped = true
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        
         view.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([NSLayoutConstraint(item: self.view, attribute: .centerX, relatedBy: .equal, toItem: activityIndicator, attribute: .centerX, multiplier: 1, constant: 0),
+                                     NSLayoutConstraint(item: self.view, attribute: .centerY, relatedBy: .equal, toItem: activityIndicator, attribute: .centerY, multiplier: 1, constant: 0)])
     }
-    
-    lazy var shadowWatch: CALayer = {
-        let layer = CALayer()
-        layer.contents = UIImage(named: "shadow_landing")?.cgImage
-        return layer
-    }()
-    
-    lazy var shadowSurf: CALayer = {
-        let layer = CALayer()
-        layer.contents = UIImage(named: "shadow_surfing")?.cgImage
-        return layer
-    }()
     
     override func viewDidAppear(_ animated: Bool) {
         inFocusCell?.play()
@@ -191,20 +196,22 @@ class RippleVC: UICollectionViewController {
     func updateSceneState(moveTo: IndexPath? = nil) {
         switch sceneState {
         case .surfing, .initial:
-            shadowSurf.removeFromSuperlayer()
-            view.layer.addSublayer(shadowWatch)
-            shadowWatch.frame = view.layer.bounds
+            let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
+            shadow.frame = view.bounds
             if sceneState == .initial {
                 collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
+                shadowAnimation()
+                shadowCompletion()
             } else {
                 
                 var animators = [UIViewPropertyAnimator]()
                 let layoutAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
                 layoutAnimator.addAnimations {
-                    self.collectionView.collectionViewLayout = self.layout.getToggledLayout(moveTo: moveTo)
+                    self.collectionView.collectionViewLayout = self.layout.nextOnScene().nextOnMove(moveTo)
                     self.collectionView.visibleCells.forEach { cell in
                         cell.layoutIfNeeded()
                     }
+                    shadowAnimation()
                 }
                 layoutAnimator.addCompletion { (_) in
                     YoutubeManagers.shared.getData(indexPath: self.layout.centerItem) { youtubeVideoData in
@@ -217,6 +224,7 @@ class RippleVC: UICollectionViewController {
                             self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
                         }
                     }
+                    shadowCompletion()
                 }
                 animators.append(layoutAnimator)
                 
@@ -226,23 +234,23 @@ class RippleVC: UICollectionViewController {
                 }
             }
             sceneState = .watching
-            rippleCollectionView.sceneState = .watching
+            collectionView.sceneState = .watching
         case .watching:
-            shadowWatch.removeFromSuperlayer()
-            view.layer.addSublayer(shadowSurf)
-            shadowSurf.frame = view.layer.bounds
+            let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
+            shadow.frame = view.bounds
             
             var animators = [UIViewPropertyAnimator]()
 
             let layoutAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
             layoutAnimator.addAnimations {
-                self.collectionView.collectionViewLayout = self.layout.getToggledLayout(moveTo: moveTo)
+                self.collectionView.collectionViewLayout = self.layout.nextOnScene()
                 self.collectionView.visibleCells.forEach { cell in
                     cell.layoutIfNeeded()
                 }
+                shadowAnimation()
             }
             layoutAnimator.addCompletion { _ in
-                print(self.layout)
+                shadowCompletion()
             }
             animators.append(layoutAnimator)
 
@@ -254,7 +262,7 @@ class RippleVC: UICollectionViewController {
             
             
             sceneState = .surfing
-            rippleCollectionView.sceneState = .surfing
+            collectionView.sceneState = .surfing
         }
     }
     
@@ -279,23 +287,5 @@ class RippleVC: UICollectionViewController {
         return
     }
     
-    var transitionLayoutForWatching: UICollectionViewTransitionLayout?
-    //    @objc func handlePanning(_ pan: UIPanGestureRecognizer) {
-    //        switch pan.state {
-    //            case .began:
-    //                if let layoutForWatching = layoutForWatching {
-    //                    let direction = Direction.fromVelocity(pan.velocity(in: collectionView))
-    //                    (collectionView as! RippleCollectionView).transitionDirection = direction
-    //                    transitionLayoutForWatching = collectionView.startInteractiveTransition(to: layoutForWatching.nextLayoutOn(direction: direction), completion: nil)
-    //                }
-    //            case .changed:
-    //                let timing = timingFromPanningTranslation(pan.translation(in: collectionView))
-    //                transitionLayoutForWatching?.transitionProgress = timing
-    //            case .ended:
-    //                collectionView.finishInteractiveTransition()
-    //            default:
-    //                return
-    //            }
-    //    }
+    // MARK: Miscellaneous
 }
-

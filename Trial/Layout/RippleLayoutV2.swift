@@ -9,9 +9,47 @@
 import Foundation
 import UIKit
 
-class Template {
-
+class Template: NSObject {
+    static let watch = Template(uiTemplates: UITemplates.watch)
+    
+    static let surf = Template(uiTemplates: UITemplates.surf)
+    
+    static let watchLand = Template(uiTemplates: UITemplates.watchLand)
+    
+    static let surfLand = Template(uiTemplates: UITemplates.surfLand)
+    
+    func nextOnScene() -> Template {
+        switch self {
+        case .watch:
+            return .surf
+        case .surf:
+            return .watch
+        case .watchLand:
+            return .surfLand
+        case .surfLand:
+            return .watchLand
+        default:
+            fatalError("")
+        }
+    }
+    
+    func nextOnRotate() -> Template {
+        switch self {
+        case .watch:
+            return .watchLand
+        case .surf:
+            return .surfLand
+        case .watchLand:
+            return .watch
+        case .surfLand:
+            return .surf
+        default:
+            fatalError("")
+        }
+    }
+    
     let uiTemplates: UITemplates
+    
     init(uiTemplates: UITemplates) {
         self.uiTemplates = uiTemplates
     }
@@ -20,14 +58,12 @@ class Template {
         return CGPoint(x: uiTemplates.itemWidth * CGFloat(initialCenter1.section + 2), y: uiTemplates.itemHeight * CGFloat(initialCenter1.row + 2))
     }
     
-    static let watch = Template(uiTemplates: UITemplates.watch)
-    static let surf = Template(uiTemplates: UITemplates.surf)
-    
     func toggledTemplate() -> Template {
         return self === Template.watch ? Template.surf : Template.watch
     }
     
     var dColRow2dX = [IndexPath: CGFloat]()
+    
     var dRow2dY = [CGFloat: CGFloat]()
     
     func dXOf(dCol: Int, dRow: Int) -> CGFloat {

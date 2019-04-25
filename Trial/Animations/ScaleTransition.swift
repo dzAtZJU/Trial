@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class RotatedPresentTransition: NSObject, UIViewControllerAnimatedTransitioning {
+class ScalePresentTransition: NSObject, UIViewControllerAnimatedTransitioning {
     
     let startImage: UIImage
     
@@ -30,34 +30,32 @@ class RotatedPresentTransition: NSObject, UIViewControllerAnimatedTransitioning 
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        let startView = UIImageView(image: startImage)
-        startView.contentMode = .scaleAspectFill
-        startView.bounds = CGRect(origin: CGPoint.zero, size: startSize)
-        startView.transform = CGAffineTransform(rotationAngle: CGFloat.pi / 2)
         let canvas = transitionContext.containerView
-        startView.center = canvas.bounds.center
-        canvas.addSubview(startView)
         
         let toVC = transitionContext.viewController(forKey: .to) as! VideoViewController
         toVC.embedYTPlayer()
         let toView = transitionContext.view(forKey: .to)!
         toView.isHidden = true
-        toView.frame = canvas.bounds
         canvas.addSubview(toView)
         
+        let startView = UIImageView(image: startImage)
+        startView.bounds = CGRect(origin: CGPoint.zero, size: startSize)
+        startView.center = startCenterInWindow
+        canvas.addSubview(startView)
+        
         UIView.animate(withDuration: duration, animations: {
-            startView.bounds = canvas.bounds
-            startView.transform = .identity
+            let finaleFrame = transitionContext.finalFrame(for: transitionContext.viewController(forKey: .to)!)
+            startView.bounds = finaleFrame
         }, completion: { finished in
-            toVC.play()
             toView.isHidden = false
+            toVC.play()
             startView.removeFromSuperview()
             transitionContext.completeTransition(finished)
         })
     }
 }
 
-class RotatedDismissTransition: NSObject, UIViewControllerAnimatedTransitioning {
+class ScaleDismissTransition: NSObject, UIViewControllerAnimatedTransitioning {
     
     let startSize: CGSize
     
@@ -79,33 +77,26 @@ class RotatedDismissTransition: NSObject, UIViewControllerAnimatedTransitioning 
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         let canvas = transitionContext.containerView
-        
-        
+        let toView = transitionContext.view(forKey: .to)!
         let toVC = transitionContext.viewController(forKey: .to) as! RippleVC
         let fromVC = transitionContext.viewController(forKey: .from) as! VideoViewController
         toVC.inFocusCell!.embedYTPlayer(fromVC.videoWithPlayer)
-        let toView = transitionContext.view(forKey: .to)!
-        toView.frame = canvas.bounds
         canvas.addSubview(toView)
         
         let fromView = transitionContext.view(forKey: .from)!
         fromView.removeFromSuperview()
         
         let startView = UIImageView(image: startImage)
-        startView.contentMode = .scaleAspectFill
-        startView.bounds = canvas.bounds
-        startView.center = canvas.bounds.center
-        startView.transform = CGAffineTransform(rotationAngle: .pi / -2)
+        startView.frame = fromView.bounds
         canvas.addSubview(startView)
         
         UIView.animate(withDuration: duration, animations: {
             startView.center = self.centerInWindow
             startView.bounds = CGRect(origin: .zero, size: self.startSize)
-            startView.transform = CGAffineTransform.identity
-            startView.layoutIfNeeded()
         }, completion: { finished in
-            transitionContext.completeTransition(finished)
             startView.removeFromSuperview()
+            toVC.inFocusCell!.play()
+            transitionContext.completeTransition(finished)
         })
     }
     

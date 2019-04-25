@@ -140,8 +140,8 @@ func defaultIndexTriangleAround(_ indexPath: IndexPath, maxRow: Int, maxCol: Int
         return $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
     }
     
-    var alongRows = [indexPath + IndexPath(row: -1, section: 0), indexPath + IndexPath(row: 1, section: 0)].filter(boundFilter)
-    var alongCols = [indexPath + IndexPath(row: 0, section: 1), indexPath + IndexPath(row: 0, section: -1)].filter(boundFilter)
+    let alongRows = [indexPath + IndexPath(row: -1, section: 0), indexPath + IndexPath(row: 1, section: 0)].filter(boundFilter)
+    let alongCols = [indexPath + IndexPath(row: 0, section: 1), indexPath + IndexPath(row: 0, section: -1)].filter(boundFilter)
 
     return (indexPath, alongRows.first!, alongCols.first!)
 }

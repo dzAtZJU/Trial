@@ -41,14 +41,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Trial/UI/RippleCell.swift"
-            timestampString = "577012232.364614"
+            filePath = "Trial/ViewController/RippleVC2.swift"
+            timestampString = "577856257.2573251"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
-            landmarkName = "videoWithPlayer"
-            landmarkType = "24">
+            startingLineNumber = "118"
+            endingLineNumber = "118"
+            landmarkName = "viewWillTransition(to:with:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

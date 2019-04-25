@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import YoutubePlayer_in_WKWebView
 
-class RippleCell: UICollectionViewCell {
+class RippleCell: UICollectionViewCell, VideoContainer {
     
     /// Identifier for asyn contents
     var positionId: IndexPath!
@@ -64,6 +64,7 @@ class RippleCell: UICollectionViewCell {
                 self.screenshotView.image = videoWithPlayer.screenshot
             }
             videoWithPlayer.fallOff()
+            self.videoWithPlayer = nil
         }
     }
     

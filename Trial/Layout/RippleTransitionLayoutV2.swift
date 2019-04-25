@@ -29,8 +29,48 @@ let initialPosition1ForSurf = CGPoint(x: Template.surf.dXOf(dCol: initialCenter1
 let initialLayout1ForSurf = RippleLayout(theCenter: initialCenter1ForSurf, theCenterPosition: initialPosition1ForSurf, theTemplate: Template.surf)
 
 
-class RippleTransitionLayout: UICollectionViewLayout {
+extension RippleTransitionLayout: TransitionalResource {
     
+    func nextOnScene() -> RippleTransitionLayout {
+        let toggledLayoutTemplate = layoutP1.template.nextOnScene()
+        return getNewLayout(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
+    }
+    
+    func nextOnRotate() -> RippleTransitionLayout {
+        let toggledLayoutTemplate = layoutP1.template.nextOnRotate()
+        return getNewLayout(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
+    }
+    
+    func nextOnMove(_ index: IndexPath?) -> RippleTransitionLayout {
+        return getNewLayout(moveTo: index, layoutTemplate: layoutP1.template)
+    }
+    
+    typealias Item = RippleTransitionLayout
+    
+    func getNewLayout(moveTo: IndexPath?, layoutTemplate: Template) -> RippleTransitionLayout {
+        var layoutP1 = self.layoutP1, layoutP2 = self.layoutP2, layoutP3 = self.layoutP3
+        if centerItem == layoutP2.center {
+            swap(&layoutP1, &layoutP2)
+        } else if centerItem == layoutP3.center {
+            swap(&layoutP1, &layoutP3)
+        }
+        
+        var center1, center2, center3: IndexPath
+        if let moveTo = moveTo {
+            (center1, center2, center3) = defaultIndexTriangleAround(moveTo, maxRow: ytRows, maxCol: ytCols)
+        } else {
+            (center1, center2, center3) = (layoutP1.center, layoutP2.center, layoutP3.center)
+        }
+        
+        let toggledLayoutP1 = RippleLayout(theCenter: center1, theCenterPosition: layoutP1.centerOf(center1), theTemplate: layoutTemplate)
+        let toggledLayoutP2 = RippleLayout(theCenter: center2, theCenterPosition: layoutP1.centerOf(center2), theTemplate: layoutTemplate)
+        let toggledLayoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: layoutTemplate)
+        
+        return RippleTransitionLayout(layoutP1: toggledLayoutP1, layoutP2: toggledLayoutP2, layoutP3: toggledLayoutP3, uiTemplates: layoutTemplate.uiTemplates)
+    }
+}
+
+class RippleTransitionLayout: UICollectionViewLayout {
     private var layoutP1: RippleLayout
     
     private var layoutP2: RippleLayout
@@ -78,29 +118,6 @@ class RippleTransitionLayout: UICollectionViewLayout {
         self.baryCentrics = [1, 0, 0]
         self.uiTemplates = UITemplates.watch
         super.init(coder: aDecoder)
-    }
-    
-    func getToggledLayout(moveTo: IndexPath?) -> RippleTransitionLayout {
-        var layoutP1 = self.layoutP1, layoutP2 = self.layoutP2, layoutP3 = self.layoutP3
-        if centerItem == layoutP2.center {
-            swap(&layoutP1, &layoutP2)
-        } else if centerItem == layoutP3.center {
-            swap(&layoutP1, &layoutP3)
-        }
-        
-        var center1, center2, center3: IndexPath
-        if let moveTo = moveTo {
-            (center1, center2, center3) = defaultIndexTriangleAround(moveTo, maxRow: maxRow, maxCol: maxCol)
-        } else {
-            (center1, center2, center3) = (layoutP1.center, layoutP2.center, layoutP3.center)
-        }
-        
-        let toggledTemplate = layoutP1.template.toggledTemplate()
-        let toggledLayoutP1 = RippleLayout(theCenter: center1, theCenterPosition: layoutP1.centerOf(center1), theTemplate: toggledTemplate)
-        let toggledLayoutP2 = RippleLayout(theCenter: center2, theCenterPosition: layoutP1.centerOf(center2), theTemplate: toggledTemplate)
-        let toggledLayoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: toggledTemplate)
-        
-        return RippleTransitionLayout(layoutP1: toggledLayoutP1, layoutP2: toggledLayoutP2, layoutP3: toggledLayoutP3, uiTemplates: uiTemplates.toggled())
     }
     
     func getToggledLayout() -> RippleTransitionLayout {

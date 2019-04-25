@@ -20,31 +20,66 @@ class UITemplates {
     
     static let watch: UITemplates = {
         var template = UITemplates()
-        template.titlesBottom = 19
-        template.titlesSpace = 0
-        template.titleFontSize = 26
-        template.subtitleFontSize = 16
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[15, 20], [25, 20], [25, 15]]
         template.itemWidth = 265
         template.itemHeight = 151
         template.scale = 1.188
+        
+        template.titlesBottom = 19
+        template.titlesSpace = 0
+        template.titleFontSize = 26
+        template.subtitleFontSize = 16
         template.radius = 14
         return template
     }()
     
     static let surf: UITemplates = {
         var template = UITemplates()
-        template.titlesBottom = 12
-        template.titlesSpace = 0
-        template.titleFontSize = 18
-        template.subtitleFontSize = 11
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[20, 20], [25, 20], [20, 15], [15, 15]]
         template.itemWidth = 157
         template.itemHeight = 89
         template.scale = 1.178
+        
+        template.titlesBottom = 12
+        template.titlesSpace = 0
+        template.titleFontSize = 18
+        template.subtitleFontSize = 11
         template.radius = 6
+        return template
+    }()
+    
+    static let watchLand: UITemplates = {
+        var template = UITemplates()
+        template.rowGaps = [35]
+        template.colGaps = [[35]]
+        template.itemWidth = 400
+        template.itemHeight = 225
+        template.scale = 1.08
+        template.radius = 14
+        
+        template.titlesBottom = 30
+        template.titlesSpace = 0
+        template.titleFontSize = 26
+        template.subtitleFontSize = 16
+        
+        return template
+    }()
+    
+    static let surfLand: UITemplates = {
+        var template = UITemplates()
+        template.rowGaps = [30]
+        template.colGaps = [[25, 20]]
+        template.itemWidth = 157
+        template.itemHeight = 89
+        template.scale = 1.08
+        template.radius = 6
+        
+        template.titlesBottom = 12
+        template.titlesSpace = 0
+        template.titleFontSize = 18
+        template.subtitleFontSize = 11
         return template
     }()
     
@@ -67,16 +102,4 @@ class UITemplates {
     var titlesSpace: CGFloat = 0
     var titleFontSize:CGFloat = 0
     var subtitleFontSize:CGFloat = 0
-    
-//
-//    let scale: CGFloat = 1.2
-//
-//    let itemHeight: CGFloat = 100
-//    let rowGaps: [CGFloat] = [30, 25, 20]
-//
-//    let itemWidth: CGFloat = 150
-//    let colGaps: [[CGFloat]] = [[25, 20], [20, 20], [15, 15]]
-//
-//    let itemWidthForWatching = itemWidth * 1.8
-//    let itemHeightForWatching = itemHeight * 1.8
 }
