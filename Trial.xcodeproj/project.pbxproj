@@ -27,6 +27,7 @@
 		890A7B032240E47700CDB6B1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 890A7B022240E47700CDB6B1 /* GoogleService-Info.plist */; };
 		890CED27226DC2AC00F58780 /* ScaleTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890CED26226DC2AC00F58780 /* ScaleTransition.swift */; };
 		890CED2A226DC5FD00F58780 /* VideoContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890CED29226DC5FD00F58780 /* VideoContainer.swift */; };
+		890CED2D2272EB0900F58780 /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890CED2C2272EB0900F58780 /* StateManager.swift */; };
 		896EA9052242209700780557 /* YTPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9042242209700780557 /* YTPlayerView.swift */; };
 		896EA9072242232700780557 /* youtube_iframe.html in Resources */ = {isa = PBXBuildFile; fileRef = 896EA9062242232700780557 /* youtube_iframe.html */; };
 		896EA90F22438C3600780557 /* RippleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA90E22438C3600780557 /* RippleCell.swift */; };
@@ -68,6 +69,7 @@
 		890A7B022240E47700CDB6B1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		890CED26226DC2AC00F58780 /* ScaleTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleTransition.swift; sourceTree = "<group>"; };
 		890CED29226DC5FD00F58780 /* VideoContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoContainer.swift; sourceTree = "<group>"; };
+		890CED2C2272EB0900F58780 /* StateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManager.swift; sourceTree = "<group>"; };
 		896EA9042242209700780557 /* YTPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTPlayerView.swift; sourceTree = "<group>"; };
 		896EA9062242232700780557 /* youtube_iframe.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = youtube_iframe.html; sourceTree = "<group>"; };
 		896EA90E22438C3600780557 /* RippleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleCell.swift; sourceTree = "<group>"; };
@@ -121,6 +123,14 @@
 				890CED29226DC5FD00F58780 /* VideoContainer.swift */,
 			);
 			path = VideoRelated;
+			sourceTree = "<group>";
+		};
+		890CED2B2272EAF700F58780 /* States */ = {
+			isa = PBXGroup;
+			children = (
+				890CED2C2272EB0900F58780 /* StateManager.swift */,
+			);
+			path = States;
 			sourceTree = "<group>";
 		};
 		890D600E22421C6F008B0198 /* UI */ = {
@@ -237,6 +247,7 @@
 		89F37A1C2237524800A9303D /* Trial */ = {
 			isa = PBXGroup;
 			children = (
+				890CED2B2272EAF700F58780 /* States */,
 				890CED28226DC5D800F58780 /* VideoRelated */,
 				89D487F22260A859009F2013 /* GlobalStates */,
 				89AA5448225C878700178341 /* Docs */,
@@ -404,6 +415,7 @@
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleAPIClientForREST/GoogleAPIClientForREST.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/ReSwift/ReSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/YoutubePlayer-in-WKWebView/YoutubePlayer_in_WKWebView.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -413,6 +425,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleAPIClientForREST.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/YoutubePlayer_in_WKWebView.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -431,6 +444,7 @@
 				896EA9202244AFCF00780557 /* extension.swift in Sources */,
 				890A7AFF223F8C7500CDB6B1 /* constants.swift in Sources */,
 				896EA9242248CA3200780557 /* RippleCollectionView.swift in Sources */,
+				890CED2D2272EB0900F58780 /* StateManager.swift in Sources */,
 				89006262224B68C600094F91 /* SharedResources.swift in Sources */,
 				890A7AFB223F824000CDB6B1 /* CollectionViewCell.swift in Sources */,
 				89006264224B8BA900094F91 /* YoutubeManagers.swift in Sources */,

@@ -45,6 +45,14 @@ extension RippleTransitionLayout: TransitionalResource {
         return getNewLayout(moveTo: index, layoutTemplate: layoutP1.template)
     }
     
+    func onFull() -> RippleTransitionLayout {
+        return getNewLayout(moveTo: nil, layoutTemplate: layoutP1.template.onFull())
+    }
+    
+    func backFromFull() -> RippleTransitionLayout {
+        return getNewLayout(moveTo: nil, layoutTemplate: layoutP1.template.backFromFull())
+    }
+    
     typealias Item = RippleTransitionLayout
     
     func getNewLayout(moveTo: IndexPath?, layoutTemplate: Template) -> RippleTransitionLayout {

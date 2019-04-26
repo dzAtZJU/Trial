@@ -21,11 +21,13 @@ PODS:
   - GTMSessionFetcher/Core (1.2.1)
   - GTMSessionFetcher/Full (1.2.1):
     - GTMSessionFetcher/Core (= 1.2.1)
+  - ReSwift (4.0.1)
   - YoutubePlayer-in-WKWebView (0.2.5)
 
 DEPENDENCIES:
   - GoogleAPIClientForREST/YouTube (~> 1.3)
   - GoogleSignIn (~> 4.4)
+  - ReSwift
   - YoutubePlayer-in-WKWebView (~> 0.2.0)
 
 SPEC REPOS:
@@ -34,6 +36,7 @@ SPEC REPOS:
     - GoogleSignIn
     - GoogleToolboxForMac
     - GTMSessionFetcher
+    - ReSwift
     - YoutubePlayer-in-WKWebView
 
 SPEC CHECKSUMS:
@@ -41,8 +44,9 @@ SPEC CHECKSUMS:
   GoogleSignIn: 7ff245e1a7b26d379099d3243a562f5747e23d39
   GoogleToolboxForMac: ff31605b7d66400dcec09bed5861689aebadda4d
   GTMSessionFetcher: 32aeca0aa144acea523e1c8e053089dec2cb98ca
+  ReSwift: f4012c613e13da7398827fe5aebdb938eaed40a3
   YoutubePlayer-in-WKWebView: 4dad12b3ece938a6456fa4374df78942f88b485a
 
-PODFILE CHECKSUM: 9a686c8b822d0e7f0d873a7e632e1eb5a8608605
+PODFILE CHECKSUM: 7985fd2362b6ae52563e73fef8bea9b203212553
 
 COCOAPODS: 1.6.1

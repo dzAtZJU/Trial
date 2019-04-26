@@ -48,7 +48,17 @@ class Template: NSObject {
         }
     }
     
-    let uiTemplates: UITemplates
+    func onFull() -> Template {
+        uiTemplates = uiTemplates.fulled()
+        return self
+    }
+    
+    func backFromFull() -> Template {
+        uiTemplates = uiTemplates.backFromFulled()
+        return self
+    }
+    
+    var uiTemplates: UITemplates
     
     init(uiTemplates: UITemplates) {
         self.uiTemplates = uiTemplates

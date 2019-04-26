@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
 class UITemplates {
     static var current: UITemplates {
@@ -91,6 +92,20 @@ class UITemplates {
         }
     }
     
+    func fulled() -> UITemplates {
+        originalItemWidth = itemWidth
+        originalItemHeight = itemHeight
+        itemWidth = UIScreen.main.bounds.width
+        itemHeight = UIScreen.main.bounds.height
+        return self
+    }
+    
+    func backFromFulled() -> UITemplates {
+        itemWidth = originalItemWidth
+        itemHeight = originalItemHeight
+        return self
+    }
+    
     var rowGaps = [CGFloat]()
     var colGaps = [[CGFloat]]()
     var itemHeight: CGFloat = 0
@@ -101,5 +116,8 @@ class UITemplates {
     var titlesBottom: CGFloat = 0
     var titlesSpace: CGFloat = 0
     var titleFontSize:CGFloat = 0
-    var subtitleFontSize:CGFloat = 0
+    var subtitleFontSize: CGFloat = 0
+    
+    private var originalItemHeight: CGFloat = 0
+    private var originalItemWidth: CGFloat = 0
 }

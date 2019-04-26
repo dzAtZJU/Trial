@@ -78,3 +78,10 @@ extension UIScrollView {
         return bounds.center
     }
 }
+
+extension UIDevice {
+    func triggerInterfaceRotate() {
+        let toggled = orientation == .portrait ? UIDeviceOrientation.portraitUpsideDown : .portrait
+        setValue(toggled.rawValue, forKey: "orientation")
+    }
+}
