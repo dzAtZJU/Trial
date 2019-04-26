@@ -142,6 +142,8 @@ extension RippleVC {
             return
         case .watching:
             runSceneAnimation()
+        case .initial:
+            runSceneAnimation()
         default:
             return
         }
@@ -175,17 +177,14 @@ extension RippleVC {
         for animator in animators {
             animator.startAnimation()
         }
-        
-        
-        
-        
+    }
+    
+    func setupScene() {
         let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
         shadow.frame = view.bounds
-        if sceneState == .initial {
-            collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
-            shadowAnimation()
-            shadowCompletion()
-        }
+        collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
+        shadowAnimation()
+        shadowCompletion()
     }
     
     func getCompletionForSceneTransit() -> () -> () {
@@ -328,7 +327,9 @@ class RippleVC: UIViewController,  StoreSubscriber {
         press = UILongPressGestureRecognizer(target: self, action: #selector(handlePress(_:)))
         collectionView.addGestureRecognizer(press!)
         
-        updateSceneState()
+//        updateSceneState()
+        setupScene()
+        
         collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
         YoutubeManagers.shared.getData(indexPath: layout.centerItem) { youtubeVideoData in
             DispatchQueue.main.async {
@@ -377,78 +378,78 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     /// User wants to transfer scene
     func updateSceneState(moveTo: IndexPath? = nil) {
-        switch sceneState {
-        case .surfing, .initial:
-            let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
-            shadow.frame = view.bounds
-            if sceneState == .initial {
-                collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
-                shadowAnimation()
-                shadowCompletion()
-            } else {
-                
-                var animators = [UIViewPropertyAnimator]()
-                let layoutAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
-                layoutAnimator.addAnimations {
-                    self.collectionView.collectionViewLayout = self.layout.nextOnScene().nextOnMove(moveTo)
-                    self.collectionView.visibleCells.forEach { cell in
-                        cell.layoutIfNeeded()
-                    }
-                    shadowAnimation()
-                }
-                layoutAnimator.addCompletion { (_) in
-                    YoutubeManagers.shared.getData(indexPath: self.layout.centerItem) { youtubeVideoData in
-                        DispatchQueue.main.async {
-                            let videoId = youtubeVideoData.videoId!
-                            if self.videoId2PlayerView[videoId] == nil {
-                                let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-                                self.videoId2PlayerView[videoId] = player
-                            }
-                            self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
-                        }
-                    }
-                    shadowCompletion()
-                }
-                animators.append(layoutAnimator)
-                
-                animators = animators + self.inFocusCell!.addSceneTransitionAnimation(toScene: .watching, duration: 0.3)
-                for animator in animators {
-                    animator.startAnimation()
-                }
-            }
-            sceneState = .watching
-            store.state.scene = .watching
-            collectionView.sceneState = .watching
-        case .watching:
-            let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
-            shadow.frame = view.bounds
-            
-            var animators = [UIViewPropertyAnimator]()
-
-            let layoutAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
-            layoutAnimator.addAnimations {
-                self.collectionView.collectionViewLayout = self.layout.nextOnScene()
-                self.collectionView.visibleCells.forEach { cell in
-                    cell.layoutIfNeeded()
-                }
-                shadowAnimation()
-            }
-            layoutAnimator.addCompletion { _ in
-                shadowCompletion()
-            }
-            animators.append(layoutAnimator)
-
-            animators = animators + self.inFocusCell!.addSceneTransitionAnimation(toScene: .surfing, duration: 0.3)
-
-            for animator in animators {
-                animator.startAnimation()
-            }
-            
-            sceneState = .surfing
-            collectionView.sceneState = .surfing
-        default:
-            return
-        }
+//        switch sceneState {
+//        case .surfing, .initial:
+//            let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
+//            shadow.frame = view.bounds
+//            if sceneState == .initial {
+//                collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
+//                shadowAnimation()
+//                shadowCompletion()
+//            } else {
+//
+//                var animators = [UIViewPropertyAnimator]()
+//                let layoutAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
+//                layoutAnimator.addAnimations {
+//                    self.collectionView.collectionViewLayout = self.layout.nextOnScene().nextOnMove(moveTo)
+//                    self.collectionView.visibleCells.forEach { cell in
+//                        cell.layoutIfNeeded()
+//                    }
+//                    shadowAnimation()
+//                }
+//                layoutAnimator.addCompletion { (_) in
+//                    YoutubeManagers.shared.getData(indexPath: self.layout.centerItem) { youtubeVideoData in
+//                        DispatchQueue.main.async {
+//                            let videoId = youtubeVideoData.videoId!
+//                            if self.videoId2PlayerView[videoId] == nil {
+//                                let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+//                                self.videoId2PlayerView[videoId] = player
+//                            }
+//                            self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
+//                        }
+//                    }
+//                    shadowCompletion()
+//                }
+//                animators.append(layoutAnimator)
+//
+//                animators = animators + self.inFocusCell!.addSceneTransitionAnimation(toScene: .watching, duration: 0.3)
+//                for animator in animators {
+//                    animator.startAnimation()
+//                }
+//            }
+//            sceneState = .watching
+//            store.state.scene = .watching
+//            collectionView.sceneState = .watching
+//        case .watching:
+//            let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
+//            shadow.frame = view.bounds
+//
+//            var animators = [UIViewPropertyAnimator]()
+//
+//            let layoutAnimator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
+//            layoutAnimator.addAnimations {
+//                self.collectionView.collectionViewLayout = self.layout.nextOnScene()
+//                self.collectionView.visibleCells.forEach { cell in
+//                    cell.layoutIfNeeded()
+//                }
+//                shadowAnimation()
+//            }
+//            layoutAnimator.addCompletion { _ in
+//                shadowCompletion()
+//            }
+//            animators.append(layoutAnimator)
+//
+//            animators = animators + self.inFocusCell!.addSceneTransitionAnimation(toScene: .surfing, duration: 0.3)
+//
+//            for animator in animators {
+//                animator.startAnimation()
+//            }
+//
+//            sceneState = .surfing
+//            collectionView.sceneState = .surfing
+//        default:
+//            return
+//        }
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
