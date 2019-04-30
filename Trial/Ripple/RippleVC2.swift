@@ -172,7 +172,9 @@ extension RippleVC {
         animators.append(layoutAnimator)
         
         // Cell
-        animators = animators + self.inFocusCell!.addSceneTransitionAnimation(toScene: store.state.scene, duration: 0.3)
+        if self.inFocusCell != nil {
+            animators = animators + self.inFocusCell!.addSceneTransitionAnimation(toScene: store.state.scene, duration: 0.3)
+        }
         
         for animator in animators {
             animator.startAnimation()
