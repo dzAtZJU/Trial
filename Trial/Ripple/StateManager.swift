@@ -10,7 +10,7 @@ import Foundation
 import ReSwift
 
 struct AppState: StateType {
-    var scene = SceneState.initial
+    var scene = SceneState.watching
 }
 
 func appReducer(action: Action, state: AppState?) -> AppState {
@@ -18,7 +18,7 @@ func appReducer(action: Action, state: AppState?) -> AppState {
 }
 
 func sceneReducer(action: Action, state: SceneState?) -> SceneState {
-    let scene = state ?? SceneState.initial
+    let scene = state ?? SceneState.watching
     
     guard case is SceneAction  = action else {
         return scene

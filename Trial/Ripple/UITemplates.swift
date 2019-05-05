@@ -95,14 +95,20 @@ class UITemplates {
     func fulled() -> UITemplates {
         originalItemWidth = itemWidth
         originalItemHeight = itemHeight
+        originalRowGaps = rowGaps
+        originalColGaps = colGaps
         itemWidth = UIScreen.main.bounds.width
         itemHeight = UIScreen.main.bounds.height
+        rowGaps = [1000]
+        colGaps = [[1000]]
         return self
     }
     
     func backFromFulled() -> UITemplates {
         itemWidth = originalItemWidth
         itemHeight = originalItemHeight
+        rowGaps = originalRowGaps
+        colGaps = originalColGaps
         return self
     }
     
@@ -120,4 +126,6 @@ class UITemplates {
     
     private var originalItemHeight: CGFloat = 0
     private var originalItemWidth: CGFloat = 0
+    private var originalRowGaps = [CGFloat]()
+    private var originalColGaps = [[CGFloat]]()
 }

@@ -112,7 +112,7 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
         guard indexPath == inFocusItem else {
             return CGSize(width: 120, height: 225)
         }
-        
+
         let layout = collectionViewLayout as! EpisodesLayout
         switch layout.sceneState {
         case .watching, .watching2Full:
@@ -125,7 +125,7 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
             return CGSize(width: 120, height: 225)
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         let layout = collectionViewLayout as! EpisodesLayout
         switch layout.sceneState {
@@ -139,7 +139,7 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
             return CGFloat(100)
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         let layout = collectionViewLayout as! EpisodesLayout
         switch layout.sceneState {
@@ -159,20 +159,44 @@ extension EpisodesVC: StoreSubscriber {
     func newState(state: EpisodesSceneState) {
         switch state {
         case .sliding:
-            collectionView.setCollectionViewLayout(EpisodesLayout.sliding, animated: true)
+            UIView.animate(withDuration: 0.3, animations: {
+                self.collectionView.collectionViewLayout = EpisodesLayout.sliding
+                for cell in self.collectionView.visibleCells {
+                    cell.layoutIfNeeded()
+                }
+            }, completion: nil)
         case .watching:
-            collectionView.setCollectionViewLayout(EpisodesLayout.watching, animated: true)
+            UIView.animate(withDuration: 0.3, animations: {
+                self.collectionView.collectionViewLayout = EpisodesLayout.watching
+                for cell in self.collectionView.visibleCells {
+                    cell.layoutIfNeeded()
+                }
+            }, completion: nil)
         case .watching2Full:
-            collectionView.setCollectionViewLayout(EpisodesLayout.watching2Full, animated: true) { _ in
+            UIView.animate(withDuration: 0.3, animations: {
+                self.collectionView.collectionViewLayout = EpisodesLayout.watching2Full
+                for cell in self.collectionView.visibleCells {
+                    cell.layoutIfNeeded()
+                }
+            }, completion: { _ in
                 episodesViewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
-            }
+            })
         case .full:
-            collectionView.setCollectionViewLayout(EpisodesLayout.full, animated: true)
+            UIView.animate(withDuration: 0.3, animations: {
+                self.collectionView.collectionViewLayout = EpisodesLayout.full
+                for cell in self.collectionView.visibleCells {
+                    cell.layoutIfNeeded()
+                }
+            }, completion: nil)
         case .full2Watching:
-            collectionView.setCollectionViewLayout(EpisodesLayout.full2Watching, animated: true) { _ in
+            UIView.animate(withDuration: 0.3, animations: {
+                self.collectionView.collectionViewLayout = EpisodesLayout.full2Watching
+                for cell in self.collectionView.visibleCells {
+                    cell.layoutIfNeeded()
+                }
+            }, completion: { _ in
                 episodesViewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
-                
-            }
+            })
         }
     }
 

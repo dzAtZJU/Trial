@@ -17,16 +17,29 @@ class EpisodesLayout: UICollectionViewFlowLayout {
     
     var sceneState: EpisodesSceneState
 
-    static let sliding = EpisodesLayout(sceneState: .sliding)
-    static let watching = EpisodesLayout(sceneState: .watching)
-    static let full = EpisodesLayout(sceneState: .full)
-    static let watching2Full = EpisodesLayout(sceneState: .watching2Full)
-    static let full2Watching = EpisodesLayout(sceneState: .full2Watching)
-
+//    static let sliding = EpisodesLayout(sceneState: .sliding)
+//    static let watching = EpisodesLayout(sceneState: .watching)
+//    static let full = EpisodesLayout(sceneState: .full)
+//    static let watching2Full = EpisodesLayout(sceneState: .watching2Full)
+//    static let full2Watching = EpisodesLayout(sceneState: .full2Watching)
+    
+    static let sliding = EpisodesLayout(sceneState: .sliding, size: CGSize(width: 120, height: 225))
+    static let watching = EpisodesLayout(sceneState: .watching, size:  CGSize(width: 432, height: 243))
+    static let full = EpisodesLayout(sceneState: .full, size: CGSize(width: 667, height: 375))
+    static let watching2Full = EpisodesLayout(sceneState: .watching2Full, size:  CGSize(width: 432, height: 243))
+    static let full2Watching = EpisodesLayout(sceneState: .full2Watching, size: CGSize(width: 518, height: 292))
+    
     private init(sceneState: EpisodesSceneState) {
         self.sceneState = sceneState
         super.init()
         scrollDirection = .horizontal
+    }
+    
+    private init(sceneState: EpisodesSceneState, size: CGSize) {
+        self.sceneState = sceneState
+        super.init()
+        scrollDirection = .horizontal
+        itemSize = size
     }
     
     required init?(coder aDecoder: NSCoder) {

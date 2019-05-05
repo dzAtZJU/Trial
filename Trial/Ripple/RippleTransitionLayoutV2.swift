@@ -106,6 +106,20 @@ class RippleTransitionLayout: UICollectionViewLayout {
         return (collectionView as! RippleCollectionView).sceneState == .watching
     }
     
+    static func from(template: Template, center1: IndexPath, position: CGPoint, center2: IndexPath, center3: IndexPath) -> RippleTransitionLayout {
+        let layoutP1 = RippleLayout(theCenter: center1, theCenterPosition: position, theTemplate: template)
+        let layoutP2 = RippleLayout(theCenter: center2, theCenterPosition: layoutP1.centerOf(center2), theTemplate: template)
+        let layoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: template)
+        
+        
+        return RippleTransitionLayout(layoutP1: layoutP1, layoutP2: layoutP2, layoutP3: layoutP3, uiTemplates: UITemplates.surf)
+    }
+    
+    static func initialLayoutForWatch(centerLayout: RippleLayout) -> RippleTransitionLayout {
+        let triangle = defaultIndexTriangleAround(centerLayout.center, maxRow: ytRows, maxCol: ytCols)
+        return from(template: Template.surf, center1: triangle.0, position: Template.surf.center(), center2: triangle.1, center3: triangle.2)
+    }
+    
     init(layoutP1: RippleLayout, layoutP2: RippleLayout, layoutP3: RippleLayout, uiTemplates: UITemplates) {
         self.layoutP1 = layoutP1
         self.layoutP2 = layoutP2
@@ -188,8 +202,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
     }
     
     override var collectionViewContentSize: CGSize {
-//        return CGSize(width: CGFloat(2 + ytCols) * layoutP1.template.width, height: CGFloat(3 + ytRows) * layoutP1.template.height)
-        return CGSize(width: 2400, height: 2000)
+        return CGSize(width: uiTemplates.itemHeight * CGFloat(ytRows + 1), height: uiTemplates.itemWidth * CGFloat(ytCols + 1))
     }
     
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -234,30 +247,6 @@ class RippleTransitionLayout: UICollectionViewLayout {
         layoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: layoutP1.template)
         
     }
-    
-    static func from(template: Template, center1: IndexPath, position: CGPoint, center2: IndexPath, center3: IndexPath) -> RippleTransitionLayout {
-        let layoutP1 = RippleLayout(theCenter: center1, theCenterPosition: position, theTemplate: template)
-        let layoutP2 = RippleLayout(theCenter: center2, theCenterPosition: layoutP1.centerOf(center2), theTemplate: template)
-        let layoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: template)
-        
-        
-        return RippleTransitionLayout(layoutP1: layoutP1, layoutP2: layoutP2, layoutP3: layoutP3, uiTemplates: UITemplates.watch)
-    }
-    
-//    static func nextLayoutForSurf(center: IndexPath, centerPosition: CGPoint) -> RippleTransitionLayout {
-//        let triangle = defaultIndexTriangleAround(center)
-//        return from(template: Template.surf, center1: triangle.0, position: centerPosition, center2: triangle.1, center3: triangle.2)
-//    }
-    
-    static func initialLayoutForWatch(centerLayout: RippleLayout) -> RippleTransitionLayout {
-        let triangle = defaultIndexTriangleAround(centerLayout.center, maxRow: ytRows, maxCol: ytCols)
-        return from(template: Template.watch, center1: triangle.0, position: Template.watch.center(), center2: triangle.1, center3: triangle.2)
-    }
-    
-//    static func nextLayoutForWatch(center: IndexPath, centerPosition: CGPoint) -> RippleTransitionLayout {
-//        let triangle = defaultIndexTriangleAround(center)
-//        return from(template: Template.watch, center1: triangle.0, position: centerPosition, center2: triangle.1, center3: triangle.2)
-//    }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
         let proposedCenter = proposedContentOffset + CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)

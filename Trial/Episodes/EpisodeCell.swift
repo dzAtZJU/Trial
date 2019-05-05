@@ -16,6 +16,7 @@ class EpisodeCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.backgroundColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 0.4) // 20 / 255
+        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         setupView()
     }
     
@@ -42,7 +43,8 @@ class EpisodeCell: UICollectionViewCell {
     
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
         super.apply(layoutAttributes)
-        let attributes = layoutAttributes as! EpisodeLayoutAttributes
-        contentView.layer.cornerRadius = attributes.radius
+        if let attributes = layoutAttributes as? EpisodeLayoutAttributes {
+            contentView.layer.cornerRadius = attributes.radius
+        }
     }
 }

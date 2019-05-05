@@ -182,11 +182,7 @@ extension RippleVC {
     }
     
     func setupScene() {
-        let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
-        shadow.frame = view.bounds
         collectionView.setCollectionViewLayout(RippleTransitionLayout.initialLayoutForWatch(centerLayout: initialLayout1), animated: false)
-        shadowAnimation()
-        shadowCompletion()
     }
     
     func getCompletionForSceneTransit() -> () -> () {
@@ -342,6 +338,11 @@ class RippleVC: UIViewController,  StoreSubscriber {
                 }
                 self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
             }
+        }
+        
+        NotificationCenter.default.addObserver(forName: .goToEpisodesView, object: nil, queue: nil) { notification in
+            let episodesVC = EpisodesVC()
+            self.present(episodesVC, animated: false, completion: nil)
         }
     }
     
