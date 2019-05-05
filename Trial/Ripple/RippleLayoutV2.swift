@@ -9,16 +9,9 @@
 import Foundation
 import UIKit
 
-class Template: NSObject {
-    static let watch = Template(uiTemplates: UITemplates.watch)
+class LayoutCalcuTemplate: NSObject {
     
-    static let surf = Template(uiTemplates: UITemplates.surf)
-    
-    static let watchLand = Template(uiTemplates: UITemplates.watchLand)
-    
-    static let surfLand = Template(uiTemplates: UITemplates.surfLand)
-    
-    func nextOnScene() -> Template {
+    func nextOnScene() -> LayoutCalcuTemplate {
         switch self {
         case .watch:
             return .surf
@@ -33,7 +26,7 @@ class Template: NSObject {
         }
     }
     
-    func nextOnRotate() -> Template {
+    func nextOnRotate() -> LayoutCalcuTemplate {
         switch self {
         case .watch:
             return .watchLand
@@ -48,19 +41,44 @@ class Template: NSObject {
         }
     }
     
-    func onFull() -> Template {
-        uiTemplates = uiTemplates.fulled()
-        return self
+    // One path covering different states
+    func nextOnFull() -> LayoutCalcuTemplate {
+        switch self {
+        case .watchLand:
+            return .full
+        default:
+            fatalError()
+        }
     }
     
-    func backFromFull() -> Template {
-        uiTemplates = uiTemplates.backFromFulled()
-        return self
+    // Another path covring different states
+    func nextOnStagedFull() -> LayoutCalcuTemplate {
+        switch self {
+        case .watchLand:
+            return .watching2Full
+        case .watching2Full:
+            return .full
+        default:
+            fatalError()
+        }
     }
     
-    var uiTemplates: UITemplates
     
-    init(uiTemplates: UITemplates) {
+    static let watch = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watch)
+    
+    static let surf = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.surf)
+    
+    private static let watchLand = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watchLand)
+    
+    private static let surfLand = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.surfLand)
+    
+    private static let watching2Full = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watching2Full)
+    
+    private static let full = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.full)
+    
+    var uiTemplates: UIMetricTemplate
+    
+    private init(uiTemplates: UIMetricTemplate) {
         self.uiTemplates = uiTemplates
     }
     
@@ -68,8 +86,8 @@ class Template: NSObject {
         return CGPoint(x: uiTemplates.itemWidth * CGFloat(initialCenter1.section + 2), y: uiTemplates.itemHeight * CGFloat(initialCenter1.row + 2))
     }
     
-    func toggledTemplate() -> Template {
-        return self === Template.watch ? Template.surf : Template.watch
+    func toggledTemplate() -> LayoutCalcuTemplate {
+        return self === LayoutCalcuTemplate.watch ? LayoutCalcuTemplate.surf : LayoutCalcuTemplate.watch
     }
     
     var dColRow2dX = [IndexPath: CGFloat]()
@@ -141,22 +159,19 @@ class Template: NSObject {
 
 class RippleLayout: UICollectionViewLayout {
     
-    let center: IndexPath
-    var centerPosition: CGPoint
-    var template: Template
-    
-    init(theCenter: IndexPath, theCenterPosition: CGPoint, theTemplate: Template) {
+    init(theCenter: IndexPath, theCenterPosition: CGPoint, theTemplate: LayoutCalcuTemplate) {
         center = theCenter
         centerPosition = theCenterPosition
         template = theTemplate
         super.init()
     }
     
+    let center: IndexPath
+    var centerPosition: CGPoint
+    var template: LayoutCalcuTemplate
+    
     required init?(coder aDecoder: NSCoder) {
-        center = initialCenter1
-        centerPosition = initialPosition1
-        template = Template.watch
-        super.init(coder: aDecoder)
+        fatalError("init(coder:) has not been implemented")
     }
     
     func dColRowOf(_ indexPath: IndexPath) -> (Int, Int) {
@@ -183,12 +198,6 @@ class RippleLayout: UICollectionViewLayout {
         attributes.center = centerOf(indexPath)
         attributes.timing = timingOf(indexPath)
         return attributes
-    }
-    
-    func nextLayoutOn(direction: Direction) -> RippleLayout {
-        let nextItem = nextItemOn(direction: direction, currentItem: center, maxRow: collectionView!.numberOfItems(inSection: 0) , maxCol: collectionView!.numberOfSections)
-        let nextPosition = centerOf(nextItem)
-        return RippleLayout(theCenter: nextItem, theCenterPosition: nextPosition, theTemplate: template)
     }
 }
 

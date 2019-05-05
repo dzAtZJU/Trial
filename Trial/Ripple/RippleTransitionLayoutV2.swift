@@ -9,53 +9,41 @@
 import Foundation
 import UIKit
 
-
-let initialCenterTriangle = (CGPoint(x: 2, y: 2), CGPoint(x: 2, y: 1), CGPoint(x: 3, y: 2))
-
 let initialCenter1 = IndexPath(row: 2, section: 2)
-let initialPosition1 = CGPoint(x: Template.watch.dXOf(dCol: initialCenter1.section, dRow: initialCenter1.row) + 200, y: Template.watch.dYOf(initialCenter1.section) + 200)
-let initialLayout1 = RippleLayout(theCenter: initialCenter1, theCenterPosition: initialPosition1, theTemplate: Template.watch)
-
-let initialCenter2 = IndexPath(row: 1, section: 2)
-let initialPosition2 = initialLayout1.centerOf(initialCenter2)
-let initialLayout2 = RippleLayout(theCenter: initialCenter2, theCenterPosition: initialPosition2, theTemplate: Template.watch)
-
-let initialCenter3 = IndexPath(row: 2, section: 3)
-let initialPosition3 = initialLayout1.centerOf(initialCenter3)
-let initialLayout3 = RippleLayout(theCenter: initialCenter3, theCenterPosition: initialPosition3, theTemplate: Template.watch)
-
-let initialCenter1ForSurf = IndexPath(row: 2, section: 2)
-let initialPosition1ForSurf = CGPoint(x: Template.surf.dXOf(dCol: initialCenter1.section, dRow: initialCenter1.row) + 200, y: Template.surf.dYOf(initialCenter1.section) + 200)
-let initialLayout1ForSurf = RippleLayout(theCenter: initialCenter1ForSurf, theCenterPosition: initialPosition1ForSurf, theTemplate: Template.surf)
-
+let initialPosition1 = CGPoint(x: LayoutCalcuTemplate.watch.dXOf(dCol: initialCenter1.section, dRow: initialCenter1.row) + 200, y: LayoutCalcuTemplate.watch.dYOf(initialCenter1.section) + 200)
+let initialLayout1 = RippleLayout(theCenter: initialCenter1, theCenterPosition: initialPosition1, theTemplate: LayoutCalcuTemplate.watch)
 
 extension RippleTransitionLayout: TransitionalResource {
     
+    // Wrapper for LayoutCalcuTemplate
+    // Assembler for three rippple layouts
     func nextOnScene() -> RippleTransitionLayout {
         let toggledLayoutTemplate = layoutP1.template.nextOnScene()
-        return getNewLayout(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
+        return assembleThreeNewLayouts(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
     }
     
     func nextOnRotate() -> RippleTransitionLayout {
         let toggledLayoutTemplate = layoutP1.template.nextOnRotate()
-        return getNewLayout(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
+        return assembleThreeNewLayouts(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
+    }
+    
+    func nextOnFull() -> RippleTransitionLayout {
+        let toggledLayoutTemplate = layoutP1.template.nextOnFull()
+        return assembleThreeNewLayouts(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
+    }
+    
+    func nextOnStagedFull() -> RippleTransitionLayout {
+        let toggledLayoutTemplate = layoutP1.template.nextOnStagedFull()
+        return assembleThreeNewLayouts(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
     }
     
     func nextOnMove(_ index: IndexPath?) -> RippleTransitionLayout {
-        return getNewLayout(moveTo: index, layoutTemplate: layoutP1.template)
-    }
-    
-    func onFull() -> RippleTransitionLayout {
-        return getNewLayout(moveTo: nil, layoutTemplate: layoutP1.template.onFull())
-    }
-    
-    func backFromFull() -> RippleTransitionLayout {
-        return getNewLayout(moveTo: nil, layoutTemplate: layoutP1.template.backFromFull())
+        return assembleThreeNewLayouts(moveTo: index, layoutTemplate: layoutP1.template)
     }
     
     typealias Item = RippleTransitionLayout
     
-    func getNewLayout(moveTo: IndexPath?, layoutTemplate: Template) -> RippleTransitionLayout {
+    func assembleThreeNewLayouts(moveTo: IndexPath?, layoutTemplate: LayoutCalcuTemplate) -> RippleTransitionLayout {
         var layoutP1 = self.layoutP1, layoutP2 = self.layoutP2, layoutP3 = self.layoutP3
         if centerItem == layoutP2.center {
             swap(&layoutP1, &layoutP2)
@@ -100,27 +88,24 @@ class RippleTransitionLayout: UICollectionViewLayout {
         }
     }
     
-    var uiTemplates: UITemplates
+    var uiTemplates: UIMetricTemplate
     
     var shouldPagedMove: Bool {
-        return (collectionView as! RippleCollectionView).sceneState == .watching
+        return rippleViewStore.state.scene == .watching
     }
     
-    static func from(template: Template, center1: IndexPath, position: CGPoint, center2: IndexPath, center3: IndexPath) -> RippleTransitionLayout {
-        let layoutP1 = RippleLayout(theCenter: center1, theCenterPosition: position, theTemplate: template)
-        let layoutP2 = RippleLayout(theCenter: center2, theCenterPosition: layoutP1.centerOf(center2), theTemplate: template)
-        let layoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: template)
+    static var genesisLayout: RippleTransitionLayout {
+        let triangle = defaultIndexTriangleAround(IndexPath(row: 2, section: 2), maxRow: ytRows, maxCol: ytCols)
+    
+        let layoutP1 = RippleLayout(theCenter: triangle.0, theCenterPosition: CGPoint(x: 2000, y: 2000), theTemplate: LayoutCalcuTemplate.surf)
+        let layoutP2 = RippleLayout(theCenter: triangle.1, theCenterPosition: layoutP1.centerOf(triangle.1), theTemplate: LayoutCalcuTemplate.surf)
+        let layoutP3 = RippleLayout(theCenter: triangle.2, theCenterPosition: layoutP1.centerOf(triangle.2), theTemplate: LayoutCalcuTemplate.surf)
         
         
-        return RippleTransitionLayout(layoutP1: layoutP1, layoutP2: layoutP2, layoutP3: layoutP3, uiTemplates: UITemplates.surf)
+        return RippleTransitionLayout(layoutP1: layoutP1, layoutP2: layoutP2, layoutP3: layoutP3, uiTemplates: UIMetricTemplate.surf)
     }
     
-    static func initialLayoutForWatch(centerLayout: RippleLayout) -> RippleTransitionLayout {
-        let triangle = defaultIndexTriangleAround(centerLayout.center, maxRow: ytRows, maxCol: ytCols)
-        return from(template: Template.surf, center1: triangle.0, position: Template.surf.center(), center2: triangle.1, center3: triangle.2)
-    }
-    
-    init(layoutP1: RippleLayout, layoutP2: RippleLayout, layoutP3: RippleLayout, uiTemplates: UITemplates) {
+    init(layoutP1: RippleLayout, layoutP2: RippleLayout, layoutP3: RippleLayout, uiTemplates: UIMetricTemplate) {
         self.layoutP1 = layoutP1
         self.layoutP2 = layoutP2
         self.layoutP3 = layoutP3
@@ -132,14 +117,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
     }
     
     required init?(coder aDecoder: NSCoder) {
-        self.layoutP1 = initialLayout1
-        self.layoutP2 = initialLayout2
-        self.layoutP3 = initialLayout3
-        self.centerTriangle = (CGPoint(layoutP1.center), CGPoint(layoutP2.center), CGPoint(layoutP3.center))
-        self.lastCenterP = layoutP1.center
-        self.baryCentrics = [1, 0, 0]
-        self.uiTemplates = UITemplates.watch
-        super.init(coder: aDecoder)
+        fatalError()
     }
     
     func getToggledLayout() -> RippleTransitionLayout {
@@ -180,7 +158,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
         result.subtitleFontSize = uiTemplates.subtitleFontSize
         result.titlesBottom = uiTemplates.titlesBottom
         result.radius = uiTemplates.radius
-        result.sceneState = sceneState
+        result.sceneState = rippleViewStore.state.scene
         #if VERBOSE
         if indexPath == IndexPath(row: 2, section: 2) {
             print("\(collectionView!.viewPortCenter), \(layoutP1.centerPosition), \(layoutP2.centerPosition), \(layoutP3.centerPosition)")
@@ -202,7 +180,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
     }
     
     override var collectionViewContentSize: CGSize {
-        return CGSize(width: uiTemplates.itemHeight * CGFloat(ytRows + 1), height: uiTemplates.itemWidth * CGFloat(ytCols + 1))
+        return CGSize(width: 5000, height: 5000)
     }
     
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {

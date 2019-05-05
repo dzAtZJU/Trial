@@ -52,7 +52,7 @@ class RippleCell: UICollectionViewCell, VideoContainer {
     
     /// One place to configure timing contents
     func handleUserLeave() {
-        guard sceneState == .watching else {
+        guard rippleViewStore.state.scene == .watching else {
             return
         }
         
@@ -84,7 +84,7 @@ class RippleCell: UICollectionViewCell, VideoContainer {
         }
     }
     
-    func addSceneTransitionAnimation(toScene: SceneState, duration: TimeInterval) -> [UIViewPropertyAnimator] {
+    func addSceneTransitionAnimation(toScene: RippleSceneState, duration: TimeInterval) -> [UIViewPropertyAnimator] {
         var inVOutVs = [(UIView, UIView, NSLayoutConstraint?, NSLayoutConstraint?)]()
         switch toScene {
             case .surfing:
@@ -147,18 +147,18 @@ class RippleCell: UICollectionViewCell, VideoContainer {
     
     private func setupTitles() {
         subtitleWatch = UILabel(frame: .zero)
-        subtitleWatch.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.watch.subtitleFontSize)
+        subtitleWatch.font = UIFont(name: "PingFangSC-Regular", size: UIMetricTemplate.watch.subtitleFontSize)
         subtitleWatch.text = "Cigerrete 2019-04"
         subtitleWatch.textColor = UIColor.white
         addSubview(subtitleWatch)
         subtitleWatch.alpha = 1
         subtitleWatch.translatesAutoresizingMaskIntoConstraints = false
-        subtitleWatchBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: subtitleWatch, attribute: .bottom, multiplier: 1, constant: UITemplates.watch.titlesBottom)
+        subtitleWatchBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: subtitleWatch, attribute: .bottom, multiplier: 1, constant: UIMetricTemplate.watch.titlesBottom)
         self.addConstraints([subtitleWatchBottomConstraint,
                              NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: subtitleWatch, attribute: .centerX, multiplier: 1, constant: 0)])
         
         titleWatch = UILabel(frame: .zero)
-        titleWatch.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.watch.titleFontSize)
+        titleWatch.font = UIFont(name: "PingFangSC-Regular", size: UIMetricTemplate.watch.titleFontSize)
         titleWatch.textColor = UIColor.white
         titleWatch.text = "音乐"
         addSubview(titleWatch)
@@ -168,18 +168,18 @@ class RippleCell: UICollectionViewCell, VideoContainer {
                              NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: titleWatch, attribute: .centerX, multiplier: 1, constant: 0)])
         
         subtitleSurf = UILabel(frame: .zero)
-        subtitleSurf.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.surf.subtitleFontSize)
+        subtitleSurf.font = UIFont(name: "PingFangSC-Regular", size: UIMetricTemplate.surf.subtitleFontSize)
         subtitleSurf.text = "Cigerrete 2019-04"
         subtitleSurf.textColor = UIColor.white
         addSubview(subtitleSurf)
         subtitleSurf.alpha = 0
         subtitleSurf.translatesAutoresizingMaskIntoConstraints = false
-        subtitleSurfBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: subtitleSurf, attribute: .bottom, multiplier: 1, constant: UITemplates.surf.titlesBottom)
+        subtitleSurfBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: subtitleSurf, attribute: .bottom, multiplier: 1, constant: UIMetricTemplate.surf.titlesBottom)
         self.addConstraints([subtitleSurfBottomConstraint,
                              NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: subtitleSurf, attribute: .centerX, multiplier: 1, constant: 0)])
         
         titleSurf = UILabel(frame: .zero)
-        titleSurf.font = UIFont(name: "PingFangSC-Regular", size: UITemplates.surf.titleFontSize)
+        titleSurf.font = UIFont(name: "PingFangSC-Regular", size: UIMetricTemplate.surf.titleFontSize)
         titleSurf.textColor = UIColor.white
         titleSurf.text = "音乐"
         addSubview(titleSurf)

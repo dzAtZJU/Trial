@@ -9,61 +9,72 @@
 import Foundation
 import ReSwift
 
-struct AppState: StateType {
-    var scene = SceneState.watching
-}
-
-func appReducer(action: Action, state: AppState?) -> AppState {
-    return AppState(scene: sceneReducer(action: action, state: state?.scene))
-}
-
-func sceneReducer(action: Action, state: SceneState?) -> SceneState {
-    let scene = state ?? SceneState.watching
+struct RippleViewState: StateType {
+    var scene = RippleSceneState.watching
     
-    guard case is SceneAction  = action else {
-        return scene
+    static func appReducer(action: Action, state: RippleViewState?) -> RippleViewState {
+        return RippleViewState(scene: sceneReducer(action: action, state: state?.scene))
     }
     
-    switch action as! SceneAction {
-        case .touchCell:
+    static func sceneReducer(action: Action, state: RippleSceneState?) -> RippleSceneState {
+        let scene = state ?? RippleSceneState.watching
+        
+        guard case is SceneAction  = action else {
+            return scene
+        }
+        
+        switch action as! SceneAction {
+        case .fullScreen:
             switch state! {
-                case .surfing:
-                    return  .watching
-                case .watching:
-                    return .full
-                case .full:
-                    return .full2Watching
-                default:
-                    return scene
+            case .watching:
+                return .full
+            case .full:
+                return .watching
+            default:
+                fatalError()
             }
-        case .exitFullScreen:
-            return .full2Watching
-        case .exitFullScreenCompleted:
+        case .stagedFullScreen:
             switch state! {
-                case .full2Watching:
-                    return .watching
-            case .surf2Watching:
-                    return  .surfing
-                default:
-                    return scene
+            case .watching:
+                return .watching2Full
+            case .watching2Full:
+                return .full
+            case .full:
+                return .full2Watching
+            case .full2Watching:
+                return .watching
+            default:
+                fatalError()
             }
-        case .press:
+        case .surf:
             switch state! {
-                case .watching:
-                    return .surfing
-                case .surfing:
-                    return .watching
-                default:
-                    return scene
+            case .watching:
+                return .surfing
+            case .surfing:
+                return .watching
+            default:
+                fatalError()
             }
+        default:
+            fatalError()
+        }
+    }
+    
+    indirect enum SceneAction: Action {
+        case fullScreen
+        case stagedFullScreen
+        case surf
     }
 }
 
-let store = Store(reducer: appReducer, state: AppState())
-
-indirect enum SceneAction: Action {
-    case touchCell
-    case exitFullScreen
-    case exitFullScreenCompleted
-    case press
+enum RippleSceneState: StateType {
+    case surfing
+    case watching
+    case watching2Full
+    case full
+    case full2Watching
 }
+
+let rippleViewStore = Store(reducer: RippleViewState.appReducer, state: RippleViewState())
+
+

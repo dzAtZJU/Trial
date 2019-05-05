@@ -13,7 +13,7 @@ class RippleCollectionView: UICollectionView {
     
     var transitionDirection: Direction?
     
-    var sceneState: SceneState = .initial {
+    var sceneState: RippleSceneState = .watching {
         willSet {
             switch newValue {
                 case .watching:

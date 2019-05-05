@@ -11,13 +11,13 @@ import CoreGraphics
 import UIKit
 
 class UIMetricTemplate {
-    static var current: UIMetricTemplate {
-        switch sceneState {
-            case .surfing: return surf
-            case .watching: return watch
-            default: return watch
-        }
-    }
+//    static var current: UIMetricTemplate {
+//        switch sceneState {
+//            case .surfing: return surf
+//            case .watching: return watch
+//            default: return watch
+//        }
+//    }
     
     static let watch: UIMetricTemplate = {
         var template = UIMetricTemplate()
@@ -84,32 +84,30 @@ class UIMetricTemplate {
         return template
     }()
     
+    static let watching2Full: UIMetricTemplate = {
+        var template = UIMetricTemplate()
+        template.itemWidth = 400
+        template.itemHeight = 225
+        template.rowGaps = [100]
+        template.colGaps = [[100]]
+        return template
+    }()
+    
+    static let full: UIMetricTemplate = {
+        var template = UIMetricTemplate()
+        template.itemWidth = UIScreen.main.bounds.width
+        template.itemHeight = UIScreen.main.bounds.height
+        template.rowGaps = [5000]
+        template.colGaps = [[5000]]
+        return template
+    }()
+    
     func toggled() -> UIMetricTemplate {
         if self === UIMetricTemplate.watch {
             return .surf
         } else {
             return .watch
         }
-    }
-    
-    func fulled() -> UIMetricTemplate {
-        originalItemWidth = itemWidth
-        originalItemHeight = itemHeight
-        originalRowGaps = rowGaps
-        originalColGaps = colGaps
-        itemWidth = UIScreen.main.bounds.width
-        itemHeight = UIScreen.main.bounds.height
-        rowGaps = [1000]
-        colGaps = [[1000]]
-        return self
-    }
-    
-    func backFromFulled() -> UIMetricTemplate {
-        itemWidth = originalItemWidth
-        itemHeight = originalItemHeight
-        rowGaps = originalRowGaps
-        colGaps = originalColGaps
-        return self
     }
     
     var rowGaps = [CGFloat]()
@@ -123,9 +121,4 @@ class UIMetricTemplate {
     var titlesSpace: CGFloat = 0
     var titleFontSize:CGFloat = 0
     var subtitleFontSize: CGFloat = 0
-    
-    private var originalItemHeight: CGFloat = 0
-    private var originalItemWidth: CGFloat = 0
-    private var originalRowGaps = [CGFloat]()
-    private var originalColGaps = [[CGFloat]]()
 }

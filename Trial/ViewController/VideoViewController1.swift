@@ -13,7 +13,7 @@ import YoutubePlayer_in_WKWebView
 extension VideoViewController {
     /// One place to configure timing contents
     func handleUserLeave() {
-        guard sceneState == .watching else {
+        guard rippleViewStore.state.scene == .watching else {
             return
         }
         videoWithPlayer.fallOff()

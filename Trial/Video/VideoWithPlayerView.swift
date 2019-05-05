@@ -53,7 +53,7 @@ class VideoWithPlayerView: UIView {
         }
     }
     
-    lazy var renderer = UIGraphicsImageRenderer(size: CGSize(width: UITemplates.watch.itemWidth, height: UITemplates.watch.itemHeight))
+    lazy var renderer = UIGraphicsImageRenderer(size: CGSize(width: UIMetricTemplate.watch.itemWidth, height: UIMetricTemplate.watch.itemHeight))
     func snapshot() -> UIImage {
         return renderer.image { ctx in
             videoView.drawHierarchy(in: ctx.format.bounds, afterScreenUpdates: false)

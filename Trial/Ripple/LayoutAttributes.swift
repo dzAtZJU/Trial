@@ -20,7 +20,7 @@ class LayoutAttributes: UICollectionViewLayoutAttributes {
     
     var radius: CGFloat = 0
     
-    var sceneState: SceneState = .watching
+    var sceneState: RippleSceneState = .watching
     
     override func copy(with zone: NSZone? = nil) -> Any {
         let instance = super.copy(with: zone) as! LayoutAttributes
