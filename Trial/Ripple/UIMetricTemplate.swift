@@ -10,8 +10,8 @@ import Foundation
 import CoreGraphics
 import UIKit
 
-class UITemplates {
-    static var current: UITemplates {
+class UIMetricTemplate {
+    static var current: UIMetricTemplate {
         switch sceneState {
             case .surfing: return surf
             case .watching: return watch
@@ -19,8 +19,8 @@ class UITemplates {
         }
     }
     
-    static let watch: UITemplates = {
-        var template = UITemplates()
+    static let watch: UIMetricTemplate = {
+        var template = UIMetricTemplate()
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[15, 20], [25, 20], [25, 15]]
         template.itemWidth = 265
@@ -35,8 +35,8 @@ class UITemplates {
         return template
     }()
     
-    static let surf: UITemplates = {
-        var template = UITemplates()
+    static let surf: UIMetricTemplate = {
+        var template = UIMetricTemplate()
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[20, 20], [25, 20], [20, 15], [15, 15]]
         template.itemWidth = 157
@@ -51,8 +51,8 @@ class UITemplates {
         return template
     }()
     
-    static let watchLand: UITemplates = {
-        var template = UITemplates()
+    static let watchLand: UIMetricTemplate = {
+        var template = UIMetricTemplate()
         template.rowGaps = [35]
         template.colGaps = [[35]]
         template.itemWidth = 400
@@ -68,8 +68,8 @@ class UITemplates {
         return template
     }()
     
-    static let surfLand: UITemplates = {
-        var template = UITemplates()
+    static let surfLand: UIMetricTemplate = {
+        var template = UIMetricTemplate()
         template.rowGaps = [30]
         template.colGaps = [[25, 20]]
         template.itemWidth = 157
@@ -84,15 +84,15 @@ class UITemplates {
         return template
     }()
     
-    func toggled() -> UITemplates {
-        if self === UITemplates.watch {
+    func toggled() -> UIMetricTemplate {
+        if self === UIMetricTemplate.watch {
             return .surf
         } else {
             return .watch
         }
     }
     
-    func fulled() -> UITemplates {
+    func fulled() -> UIMetricTemplate {
         originalItemWidth = itemWidth
         originalItemHeight = itemHeight
         originalRowGaps = rowGaps
@@ -104,7 +104,7 @@ class UITemplates {
         return self
     }
     
-    func backFromFulled() -> UITemplates {
+    func backFromFulled() -> UIMetricTemplate {
         itemWidth = originalItemWidth
         itemHeight = originalItemHeight
         rowGaps = originalRowGaps
