@@ -97,6 +97,7 @@ class UIMetricTemplate {
         var template = UIMetricTemplate()
         template.itemWidth = UIScreen.main.bounds.width
         template.itemHeight = UIScreen.main.bounds.height
+        template.scale = 1
         template.rowGaps = [5000]
         template.colGaps = [[5000]]
         return template

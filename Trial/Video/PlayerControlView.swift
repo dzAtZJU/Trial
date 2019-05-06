@@ -11,7 +11,9 @@ import UIKit
 
 class PlayerControlView: UIView {
     
-    var button: UIButton!
+    var exitButton: UIButton!
+    
+    var episodesButton: UIButton!
     
     var label: UILabel!
     
@@ -29,17 +31,21 @@ class PlayerControlView: UIView {
         label.backgroundColor = UIColor.white
         addSubview(label)
         
-        button = UIButton(type: .roundedRect)
-        button.frame = CGRect(x: 600, y: 300, width: 100, height: 50)
-        button.autoresizingMask = [.flexibleTopMargin, .flexibleLeftMargin]
-        addSubview(button)
+        exitButton = UIButton(type: .roundedRect)
+        exitButton.backgroundColor = UIColor.red
+        exitButton.frame = CGRect(x: 550, y: 0, width: 100, height: 50)
+        addSubview(exitButton)
+        exitButton.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
         
-        button.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
-        
-
+        episodesButton = UIButton(type: .roundedRect)
+        episodesButton.backgroundColor = UIColor.blue
+        episodesButton.frame = CGRect(x: 550, y: 80, width: 100, height: 50)
+        addSubview(episodesButton)
+        episodesButton.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
     }
     
-    @objc func handleButton() {
-        NotificationCenter.default.post(name: .goToEpisodesView, object: self)
+    @objc func handleButton(_ sender: UIButton) {
+        let notification = sender == exitButton ? Notification.Name.exitFullscreen : .goToEpisodesView
+        NotificationCenter.default.post(name: notification, object: self)
     }
 }

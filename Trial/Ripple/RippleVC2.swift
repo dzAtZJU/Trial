@@ -44,13 +44,6 @@ extension RippleVC: UICollectionViewDataSource {
     }
 }
 
-extension RippleVC: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let action = UIDevice.current.orientation.isPortrait ? RippleViewState.SceneAction.fullScreen : .stagedFullScreen
-        rippleViewStore.dispatch(action)
-    }
-}
-
 extension RippleVC: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         layout.viewPortCenterChanged()
@@ -80,7 +73,32 @@ extension RippleVC: UIScrollViewDelegate {
 }
 
 // MARK: Animation
-extension RippleVC {
+extension RippleVC: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let action = UIDevice.current.orientation.isPortrait ? RippleViewState.SceneAction.fullScreen : .stagedFullScreen
+        rippleViewStore.dispatch(action)
+    }
+    
+    @objc func handleNotification(_ notification: Notification) {
+        switch notification.name {
+        case .exitFullscreen:
+            let window = self.view.window!
+            let video  = window.subviews[1] as! VideoWithPlayerView
+            inFocusCell?.handleUserEnter(video: video)
+            let action = UIDevice.current.orientation.isPortrait ? RippleViewState.SceneAction.fullScreen : .stagedFullScreen
+            let newLayout = action == RippleViewState.SceneAction.fullScreen ? self.layout.nextOnFull(): self.layout.nextOnStagedFull()
+            animationQueue.append {
+                self.collectionView.collectionViewLayout = newLayout
+            }
+            rippleViewStore.dispatch(action)
+        case .goToEpisodesView:
+            let episodesVC = EpisodesVC()
+            self.present(episodesVC, animated: false, completion: nil)
+            return
+        default:
+            return
+        }
+    }
     
     // Animation Category 1: Scene State change
     func newState(state: RippleSceneState) {
@@ -88,41 +106,42 @@ extension RippleVC {
         
         switch state {
         case .watching, .surfing:
-            runSceneAnimation()
+            break
         case .watching2Full:
+            let (shadowAnimation, shadowCompletion) = installShadow(nil)
             animationQueue.append {
                 self.collectionView.collectionViewLayout = self.layout.nextOnStagedFull()
+                shadowAnimation()
             }
             completionQueue.append {
                 rippleViewStore.dispatch(RippleViewState.SceneAction.stagedFullScreen)
+                shadowCompletion()
             }
         case .full:
+            let (shadowAnimation, shadowCompletion) = installShadow(nil)
+            animationQueue.append {
+                self.collectionView.collectionViewLayout = self.layout.nextOnFull()
+                shadowAnimation()
+            }
+            completionQueue.append {
+                shadowCompletion()
+                self.view.window!.addSubview(self.inFocusCell!.videoWithPlayer!)
+            }
             if UIDevice.current.orientation.isPortrait {
                 executeAnimationByNewState = false
                 UIDevice.current.triggerInterfaceRotate()
-            }
-            animationQueue.append {
-                self.collectionView.collectionViewLayout = self.layout.nextOnFull()
             }
         default:
             fatalError()
         }
         
         if executeAnimationByNewState {
-            runQueuedAnimatoin()
-        }
-    }
-    
-    func runQueuedAnimatoin() {
-        if executeAnimationByNewState {
             UIView.animate(withDuration: 0.3, animations: {
-                for animation in self.animationQueue {
-                    animation()
-                }
+                self.runQueuedAnimation()
             }) { _ in
-                for completion in self.completionQueue {
-                    completion()
-                }
+                self.runQueuedCompletion()
+                self.animationQueue.removeAll()
+                self.completionQueue.removeAll()
             }
         }
     }
@@ -130,9 +149,25 @@ extension RippleVC {
     // Animation Category 2: Orientation change
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-//        let (animation, completion) = doAnimationWhenRotate(layoutAnimation: getLayoutAnimationForRotate())
+        //        let (animation, completion) = doAnimationWhenRotate(layoutAnimation: getLayoutAnimationForRotate())
         if !executeAnimationByNewState {
-            runQueuedAnimatoin()
+            coordinator.animate(alongsideTransition: { _ in
+                self.runQueuedAnimation()
+            }, completion: { _ in
+                self.runQueuedCompletion()
+            })
+        }
+    }
+    
+    func runQueuedAnimation() {
+        for animation in self.animationQueue {
+            animation()
+        }
+    }
+    
+    func runQueuedCompletion() {
+        for completion in self.completionQueue {
+            completion()
         }
     }
     
@@ -199,8 +234,8 @@ extension RippleVC {
     
     func runSceneAnimation(moveTo: IndexPath? = nil) {
         // Shadow
-        let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
-        shadow.frame = view.bounds
+        let (shadowAnimation, shadowCompletion) = installShadow(shadow?.nextOnScene())
+        shadow?.frame = view.bounds
         
         var animators = [UIViewPropertyAnimator]()
         
@@ -252,16 +287,18 @@ extension RippleVC {
         }
     }
     
-    func installShadow(_ newShadow: Shadow) -> (() -> Void, () -> Void) {
-        newShadow.frame = view.bounds
-        newShadow.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        newShadow.alpha = 0
-        view.addSubview(newShadow)
+    func installShadow(_ newShadow: Shadow?) -> (() -> Void, () -> Void) {
+        newShadow?.frame = view.bounds
+        newShadow?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        newShadow?.alpha = 0
+        if newShadow != nil {
+            view.addSubview(newShadow!)
+        }
         
-        return ({ self.shadow.alpha = 0
-            newShadow.alpha = 1
+        return ({ self.shadow?.alpha = 0
+            newShadow?.alpha = 1
         }, {
-            self.shadow.removeFromSuperview()
+            self.shadow?.removeFromSuperview()
             self.shadow = newShadow
         })
     }
@@ -276,7 +313,7 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     private var isForceRotated = false
     
-    var shadow = Shadow.dumb
+    var shadow: Shadow? = Shadow.dumb
     
     var videoId2PlayerView = [VideoId: VideoWithPlayerView]()
     
@@ -318,10 +355,8 @@ class RippleVC: UIViewController,  StoreSubscriber {
             }
         }
         
-        NotificationCenter.default.addObserver(forName: .goToEpisodesView, object: nil, queue: nil) { notification in
-            let episodesVC = EpisodesVC()
-            self.present(episodesVC, animated: false, completion: nil)
-        }
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .goToEpisodesView, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
     }
     
     func setupViews() {
@@ -338,6 +373,9 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        animationQueue.append {
+            self.collectionView.collectionViewLayout = self.layout.nextOnScene()
+        }
         rippleViewStore.subscribe(self) { subcription in
             subcription.select { appState in
                 appState.scene
@@ -447,6 +485,9 @@ class RippleVC: UIViewController,  StoreSubscriber {
         switch press.state {
             case .began:
                     inFocusCell?.handleUserLeave()
+                    animationQueue.append {
+                        self.collectionView.collectionViewLayout = self.layout.nextOnScene()
+                    }
                     rippleViewStore.dispatch(RippleViewState.SceneAction.surf)
             default:
                 return

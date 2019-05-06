@@ -10,4 +10,5 @@ import Foundation
 
 extension NSNotification.Name {
     static let goToEpisodesView = Notification.Name("goToEpisodesView")
+    static let exitFullscreen = Notification.Name("exitFullscreen")
 }
