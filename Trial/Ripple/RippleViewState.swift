@@ -33,19 +33,6 @@ struct RippleViewState: StateType {
             default:
                 fatalError()
             }
-        case .stagedFullScreen:
-            switch state! {
-            case .watching:
-                return .watching2Full
-            case .watching2Full:
-                return .full
-            case .full:
-                return .full2Watching
-            case .full2Watching:
-                return .watching
-            default:
-                fatalError()
-            }
         case .surf:
             switch state! {
             case .watching:
@@ -62,7 +49,6 @@ struct RippleViewState: StateType {
     
     indirect enum SceneAction: Action {
         case fullScreen
-        case stagedFullScreen
         case surf
     }
 }
@@ -70,9 +56,7 @@ struct RippleViewState: StateType {
 enum RippleSceneState: StateType {
     case surfing
     case watching
-    case watching2Full
     case full
-    case full2Watching
 }
 
 let rippleViewStore = Store(reducer: RippleViewState.appReducer, state: RippleViewState())

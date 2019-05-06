@@ -174,9 +174,6 @@
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="PNx-82-AFe">
-                                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
-                                                </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3TZ-Je-SUM">
                                                     <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -185,20 +182,15 @@
                                                 </label>
                                             </subviews>
                                         </view>
-                                        <color key="backgroundColor" red="1" green="0.95666110710516272" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
-                                            <constraint firstItem="PNx-82-AFe" firstAttribute="leading" secondItem="dxh-7J-9sF" secondAttribute="leading" id="4Im-wn-RfS"/>
                                             <constraint firstAttribute="trailing" secondItem="3TZ-Je-SUM" secondAttribute="trailing" id="9wy-Q0-lvM"/>
-                                            <constraint firstAttribute="bottom" secondItem="PNx-82-AFe" secondAttribute="bottom" id="El1-eJ-Gb5"/>
-                                            <constraint firstItem="PNx-82-AFe" firstAttribute="top" secondItem="dxh-7J-9sF" secondAttribute="top" id="Nzi-jy-7TW"/>
                                             <constraint firstAttribute="bottom" secondItem="3TZ-Je-SUM" secondAttribute="bottom" id="cvi-vC-1NL"/>
-                                            <constraint firstAttribute="trailing" secondItem="PNx-82-AFe" secondAttribute="trailing" id="i51-K3-vAa"/>
                                             <constraint firstItem="3TZ-Je-SUM" firstAttribute="top" secondItem="dxh-7J-9sF" secondAttribute="top" id="j32-hI-Weu"/>
                                             <constraint firstItem="3TZ-Je-SUM" firstAttribute="leading" secondItem="dxh-7J-9sF" secondAttribute="leading" id="zgi-2X-n0u"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="label" destination="3TZ-Je-SUM" id="W5Y-ej-GEf"/>
-                                            <outlet property="thumbnailImageView" destination="PNx-82-AFe" id="0sc-Js-9aS"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>

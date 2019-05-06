@@ -42,12 +42,23 @@ class LayoutCalcuTemplate: NSObject {
     }
     
     // One path covering different states
-    func nextOnFull() -> LayoutCalcuTemplate {
+    func nextOnFullPortrait() -> LayoutCalcuTemplate {
         switch self {
-        case .watch, .watchLand:
+        case .watch:
             return .full
         case .full:
             return .watch
+        default:
+            fatalError()
+        }
+    }
+    
+    func nextOnFullLandscape() -> LayoutCalcuTemplate {
+        switch self {
+        case .watchLand:
+            return .full
+        case .full:
+            return .watchLand
         default:
             fatalError()
         }

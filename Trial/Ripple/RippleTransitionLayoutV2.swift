@@ -27,8 +27,13 @@ extension RippleTransitionLayout: TransitionalResource {
         return assembleThreeNewLayouts(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
     }
     
-    func nextOnFull() -> RippleTransitionLayout {
-        let toggledLayoutTemplate = layoutP1.template.nextOnFull()
+    func nextOnFullPortrait() -> RippleTransitionLayout {
+        let toggledLayoutTemplate = layoutP1.template.nextOnFullPortrait()
+        return assembleThreeNewLayouts(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
+    }
+    
+    func nextOnFullLandscape() -> RippleTransitionLayout {
+        let toggledLayoutTemplate = layoutP1.template.nextOnFullLandscape()
         return assembleThreeNewLayouts(moveTo: nil, layoutTemplate: toggledLayoutTemplate)
     }
     

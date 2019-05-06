@@ -29,6 +29,7 @@ class PlayerControlView: UIView {
     func setupView() {
         label = UILabel(frame: CGRect(origin: .zero, size: CGSize(width: 375, height: 30)))
         label.backgroundColor = UIColor.white
+        label.isHidden = true
         addSubview(label)
         
         exitButton = UIButton(type: .roundedRect)

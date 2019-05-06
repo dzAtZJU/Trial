@@ -54,4 +54,29 @@ class Shadow: UIImageView, TransitionalResource {
             fatalError("")
         }
     }
+    
+    func nextOnExit(isPortrait: Bool) -> Shadow {
+        if isPortrait {
+            return .watch
+        }
+        
+        return .watchLand
+    }
+    
+    override var description: String {
+        switch self {
+        case .surf:
+            return "surf"
+        case .watch:
+            return "watch"
+        case .surfLand:
+            return "surfLand"
+        case .watchLand:
+            return "watchLand"
+        case .dumb:
+            return "dumb"
+        default:
+            fatalError("")
+        }
+    }
 }

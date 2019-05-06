@@ -74,23 +74,59 @@ extension RippleVC: UIScrollViewDelegate {
 
 // MARK: Animation
 extension RippleVC: UICollectionViewDelegate {
+    
+    @objc func handlePress(_ press: UILongPressGestureRecognizer) {
+        guard rippleViewStore.state.scene == .watching else {
+            return
+        }
+        
+        switch press.state {
+        case .began:
+            inFocusCell?.handleUserLeave()
+            rippleViewStore.dispatch(RippleViewState.SceneAction.surf)
+        default:
+            return
+        }
+        return
+    }
+    
+    // Animation Category 2: Orientation change
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        if animationQueue.isEmpty {
+            executeAnimationByNewState = false
+            let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnRotate())
+            animationQueue.append {
+                self.collectionView.collectionViewLayout = self.layout.nextOnRotate()
+                shadowAnimation()
+            }
+            completionQueue.append {
+                shadowCompletion()
+            }
+        }
+        
+        //        let (animation, completion) = doAnimationWhenRotate(layoutAnimation: getLayoutAnimationForRotate())
+        if !executeAnimationByNewState {
+            coordinator.animate(alongsideTransition: { _ in
+                self.runQueuedAnimation()
+            }, completion: { _ in
+                self.runQueuedCompletion()
+                self.animationQueue.removeAll()
+                self.completionQueue.removeAll()
+            })
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let action = UIDevice.current.orientation.isPortrait ? RippleViewState.SceneAction.fullScreen : .stagedFullScreen
+        let action = rippleViewStore.state.scene == .watching ? RippleViewState.SceneAction.fullScreen : RippleViewState.SceneAction.surf
         rippleViewStore.dispatch(action)
     }
     
     @objc func handleNotification(_ notification: Notification) {
         switch notification.name {
         case .exitFullscreen:
-            let window = self.view.window!
-            let video  = window.subviews[1] as! VideoWithPlayerView
-            inFocusCell?.handleUserEnter(video: video)
-            let action = UIDevice.current.orientation.isPortrait ? RippleViewState.SceneAction.fullScreen : .stagedFullScreen
-            let newLayout = action == RippleViewState.SceneAction.fullScreen ? self.layout.nextOnFull(): self.layout.nextOnStagedFull()
-            animationQueue.append {
-                self.collectionView.collectionViewLayout = newLayout
-            }
-            rippleViewStore.dispatch(action)
+            rippleViewStore.dispatch(RippleViewState.SceneAction.fullScreen)
         case .goToEpisodesView:
             let episodesVC = EpisodesVC()
             self.present(episodesVC, animated: false, completion: nil)
@@ -105,22 +141,49 @@ extension RippleVC: UICollectionViewDelegate {
         executeAnimationByNewState = true
         
         switch state {
-        case .watching, .surfing:
-            break
-        case .watching2Full:
-            let (shadowAnimation, shadowCompletion) = installShadow(nil)
+        case .watching:
+            switch preSceneState {
+            case .full:
+                let newLayout = UIDevice.current.orientation.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
+                self.inFocusCell!.handleUserEnter(video: self.view.window!.subviews[1] as! VideoWithPlayerView)
+                let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnExit(isPortrait: UIDevice.current.orientation.isPortrait))
+                animationQueue.append {
+                    self.collectionView.collectionViewLayout = newLayout
+                    shadowAnimation()
+                }
+                completionQueue.append {
+                    shadowCompletion()
+                }
+                if UIDevice.current.orientation.isPortrait {
+                    executeAnimationByNewState = false
+                    UIDevice.current.triggerInterfaceRotate()
+                }
+            case .surfing:
+                let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
+                animationQueue.append {
+                    self.collectionView.collectionViewLayout = self.layout.nextOnScene()
+                    shadowAnimation()
+                }
+                completionQueue.append {
+                    shadowCompletion()
+                }
+            default:
+                fatalError()
+            }
+        case .surfing:
+            let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
             animationQueue.append {
-                self.collectionView.collectionViewLayout = self.layout.nextOnStagedFull()
+                self.collectionView.collectionViewLayout = self.layout.nextOnScene()
                 shadowAnimation()
             }
             completionQueue.append {
-                rippleViewStore.dispatch(RippleViewState.SceneAction.stagedFullScreen)
                 shadowCompletion()
             }
         case .full:
-            let (shadowAnimation, shadowCompletion) = installShadow(nil)
+            let (shadowAnimation, shadowCompletion) = installShadow(Shadow.dumb)
+            let newLayout = UIDevice.current.orientation.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
             animationQueue.append {
-                self.collectionView.collectionViewLayout = self.layout.nextOnFull()
+                self.collectionView.collectionViewLayout = newLayout
                 shadowAnimation()
             }
             completionQueue.append {
@@ -144,25 +207,15 @@ extension RippleVC: UICollectionViewDelegate {
                 self.completionQueue.removeAll()
             }
         }
-    }
-    
-    // Animation Category 2: Orientation change
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        //        let (animation, completion) = doAnimationWhenRotate(layoutAnimation: getLayoutAnimationForRotate())
-        if !executeAnimationByNewState {
-            coordinator.animate(alongsideTransition: { _ in
-                self.runQueuedAnimation()
-            }, completion: { _ in
-                self.runQueuedCompletion()
-            })
-        }
+        
+        preSceneState = state
     }
     
     func runQueuedAnimation() {
         for animation in self.animationQueue {
             animation()
         }
+        subviewsReLayoutAnimation()
     }
     
     func runQueuedCompletion() {
@@ -234,8 +287,8 @@ extension RippleVC: UICollectionViewDelegate {
     
     func runSceneAnimation(moveTo: IndexPath? = nil) {
         // Shadow
-        let (shadowAnimation, shadowCompletion) = installShadow(shadow?.nextOnScene())
-        shadow?.frame = view.bounds
+        let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
+        shadow.frame = view.bounds
         
         var animators = [UIViewPropertyAnimator]()
         
@@ -287,20 +340,28 @@ extension RippleVC: UICollectionViewDelegate {
         }
     }
     
-    func installShadow(_ newShadow: Shadow?) -> (() -> Void, () -> Void) {
-        newShadow?.frame = view.bounds
-        newShadow?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        newShadow?.alpha = 0
-        if newShadow != nil {
-            view.addSubview(newShadow!)
+    func installShadow(_ newShadow: Shadow) -> (() -> Void, () -> Void) {
+        if newShadow != Shadow.dumb {
+            newShadow.frame = view.bounds
+            newShadow.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            newShadow.alpha = 0
+            view.addSubview(newShadow)
         }
         
-        return ({ self.shadow?.alpha = 0
-            newShadow?.alpha = 1
+        return ({ self.shadow.alpha = 0
+            if newShadow != Shadow.dumb {
+                newShadow.alpha = 1
+            }
         }, {
-            self.shadow?.removeFromSuperview()
+            self.shadow.removeFromSuperview()
             self.shadow = newShadow
         })
+    }
+    
+    func subviewsReLayoutAnimation() {
+        for cell in self.collectionView.visibleCells {
+            cell.layoutIfNeeded()
+        }
     }
 }
 
@@ -313,7 +374,9 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     private var isForceRotated = false
     
-    var shadow: Shadow? = Shadow.dumb
+    private var preSceneState = RippleSceneState.surfing
+    
+    var shadow = Shadow.dumb
     
     var videoId2PlayerView = [VideoId: VideoWithPlayerView]()
     
@@ -323,8 +386,14 @@ class RippleVC: UIViewController,  StoreSubscriber {
         return collectionView.cellForItem(at: layout.centerItem) as? RippleCell
     }
     
+    var inFocusVideo: VideoWithPlayerView?
+    
     var layout: RippleTransitionLayout {
         return collectionView.collectionViewLayout as! RippleTransitionLayout
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
     }
     
     //MARK: Scene
@@ -373,9 +442,6 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        animationQueue.append {
-            self.collectionView.collectionViewLayout = self.layout.nextOnScene()
-        }
         rippleViewStore.subscribe(self) { subcription in
             subcription.select { appState in
                 appState.scene
@@ -477,23 +543,6 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     // MARK: Interaction
     var press: UILongPressGestureRecognizer?
-    @objc func handlePress(_ press: UILongPressGestureRecognizer) {
-        guard rippleViewStore.state.scene == .watching else {
-            return
-        }
-        
-        switch press.state {
-            case .began:
-                    inFocusCell?.handleUserLeave()
-                    animationQueue.append {
-                        self.collectionView.collectionViewLayout = self.layout.nextOnScene()
-                    }
-                    rippleViewStore.dispatch(RippleViewState.SceneAction.surf)
-            default:
-                return
-        }
-        return
-    }
     
     // MARK: Miscellaneous
 }
