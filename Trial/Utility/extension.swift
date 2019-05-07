@@ -80,8 +80,20 @@ extension UIScrollView {
 }
 
 extension UIDevice {
-    func triggerInterfaceRotate() {
-        let toggled = orientation == .portrait ? UIDeviceOrientation.portraitUpsideDown : .portrait
-        setValue(toggled.rawValue, forKey: "orientation")
+    func triggerInterfaceRotateForEixtFullscreen() {
+        setValue(UIDeviceOrientation.portraitUpsideDown.rawValue, forKey: "orientation")
+        setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
+    }
+    
+    func triggerInterfaceRotateForFullscreen() {
+        setValue(UIDeviceOrientation.portraitUpsideDown.rawValue, forKey: "orientation")
+    }
+}
+
+extension UIWindow {
+    func mountVideo(_ video: VideoWithPlayerView) {
+        video.frame = bounds
+        insertSubview(video, at: subviews.count - 1)
+        video.play()
     }
 }

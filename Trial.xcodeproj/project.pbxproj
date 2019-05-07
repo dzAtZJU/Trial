@@ -47,6 +47,8 @@
 		89DD148B2277EE0D0008512A /* EpisodesVC1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD148A2277EE0D0008512A /* EpisodesVC1.swift */; };
 		89DD148D22781ACC0008512A /* EpisodeLayoutAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD148C22781ACC0008512A /* EpisodeLayoutAttributes.swift */; };
 		89DD1490227852880008512A /* communication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD148F227852880008512A /* communication.swift */; };
+		89DD925C2281514100765769 /* VideoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD925B2281514100765769 /* VideoCell.swift */; };
+		89DD925E228159DA00765769 /* RippleCellV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD925D228159DA00765769 /* RippleCellV2.swift */; };
 		89F37A1E2237524800A9303D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F37A1D2237524800A9303D /* AppDelegate.swift */; };
 		89F37A232237524800A9303D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 89F37A212237524800A9303D /* Main.storyboard */; };
 		89F37A252237524A00A9303D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 89F37A242237524A00A9303D /* Assets.xcassets */; };
@@ -98,6 +100,8 @@
 		89DD148A2277EE0D0008512A /* EpisodesVC1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodesVC1.swift; sourceTree = "<group>"; };
 		89DD148C22781ACC0008512A /* EpisodeLayoutAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeLayoutAttributes.swift; sourceTree = "<group>"; };
 		89DD148F227852880008512A /* communication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = communication.swift; sourceTree = "<group>"; };
+		89DD925B2281514100765769 /* VideoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCell.swift; sourceTree = "<group>"; };
+		89DD925D228159DA00765769 /* RippleCellV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleCellV2.swift; sourceTree = "<group>"; };
 		89F37A1A2237524800A9303D /* Trial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trial.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		89F37A1D2237524800A9303D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		89F37A222237524800A9303D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -233,6 +237,7 @@
 				8900626E224E214300094F91 /* RippleTransitionLayoutV2.swift */,
 				890CED2C2272EB0900F58780 /* RippleViewState.swift */,
 				890A7AFC223F833F00CDB6B1 /* LayoutAttributes.swift */,
+				89DD925D228159DA00765769 /* RippleCellV2.swift */,
 			);
 			path = Ripple;
 			sourceTree = "<group>";
@@ -248,6 +253,14 @@
 				89DD148F227852880008512A /* communication.swift */,
 			);
 			path = Video;
+			sourceTree = "<group>";
+		};
+		89DD925A2281511200765769 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				89DD925B2281514100765769 /* VideoCell.swift */,
+			);
+			path = Base;
 			sourceTree = "<group>";
 		};
 		89F37A112237524800A9303D = {
@@ -271,6 +284,7 @@
 		89F37A1C2237524800A9303D /* Trial */ = {
 			isa = PBXGroup;
 			children = (
+				89DD925A2281511200765769 /* Base */,
 				89DD148E227852230008512A /* Video */,
 				89DD14872276EB3A0008512A /* Ripple */,
 				89DD14822275C0B70008512A /* Episodes */,
@@ -476,6 +490,7 @@
 				89006262224B68C600094F91 /* SharedResources.swift in Sources */,
 				89DD1489227701490008512A /* EpisodesViewState.swift in Sources */,
 				890CED31227588C900F58780 /* EpisodesTransitionLayout.swift in Sources */,
+				89DD925E228159DA00765769 /* RippleCellV2.swift in Sources */,
 				890A7AFB223F824000CDB6B1 /* CollectionViewCell.swift in Sources */,
 				89006264224B8BA900094F91 /* YoutubeManagers.swift in Sources */,
 				8995A5CB22686DCE0062A474 /* TransitionalResource.swift in Sources */,
@@ -489,6 +504,7 @@
 				8900627722521A7800094F91 /* RotatedTransitioning1.swift in Sources */,
 				8900626F224E214400094F91 /* RippleTransitionLayoutV2.swift in Sources */,
 				89006267224C87B200094F91 /* Datas.swift in Sources */,
+				89DD925C2281514100765769 /* VideoCell.swift in Sources */,
 				8995A5CD226870FE0062A474 /* Shadow.swift in Sources */,
 				89D487EF226083B0009F2013 /* ViewMorphing.swift in Sources */,
 				890CED332275898B00F58780 /* EpisodesVC.swift in Sources */,

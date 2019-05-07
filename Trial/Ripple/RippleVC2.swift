@@ -12,6 +12,7 @@ import YoutubePlayer_in_WKWebView
 import ReSwift
 
 var activityIndicator: UIActivityIndicatorView!
+var inFocusVideo: VideoWithPlayerView!
 
 extension RippleVC: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -24,8 +25,8 @@ extension RippleVC: UICollectionViewDataSource {
     
     /// Configure global cell contents, that is, each cell has such contents
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCell
-        cell.label.text = indexPath.description + "\(Int(cell.frame.midX)) \(Int(cell.frame.midY))"
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCellV2
+//        cell.label.text = indexPath.description + "\(Int(cell.frame.midX)) \(Int(cell.frame.midY))"
         cell.positionId = indexPath
         
         YoutubeManagers.shared.getData(indexPath: indexPath) { youtubeVideoData in
@@ -35,7 +36,7 @@ extension RippleVC: UICollectionViewDataSource {
                 }
                 
                 let videoId = youtubeVideoData.videoId!
-                cell.label.text = cell.label.text! + " \(videoId)"
+//                cell.label.text = cell.label.text! + " \(videoId)"
                 cell.loadThumbnailImage(youtubeVideoData.thumbnail)
             }
         }
@@ -50,7 +51,7 @@ extension RippleVC: UIScrollViewDelegate {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        inFocusCell?.handleUserLeave()
+        inFocusCell?.unMountVideo()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -66,7 +67,7 @@ extension RippleVC: UIScrollViewDelegate {
                     let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
                     self.videoId2PlayerView[videoId] = player
                 }
-                self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
+                self.inFocusCell?.mountVideo(self.videoId2PlayerView[videoId]!)
             }
         }
     }
@@ -82,7 +83,6 @@ extension RippleVC: UICollectionViewDelegate {
         
         switch press.state {
         case .began:
-            inFocusCell?.handleUserLeave()
             rippleViewStore.dispatch(RippleViewState.SceneAction.surf)
         default:
             return
@@ -94,15 +94,17 @@ extension RippleVC: UICollectionViewDelegate {
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         
-        if animationQueue.isEmpty {
+        if animationQueue.isEmpty && (rippleViewStore.state.scene != .full) {
             executeAnimationByNewState = false
             let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnRotate())
+            self.inFocusCell!.unMountVideo()
             animationQueue.append {
                 self.collectionView.collectionViewLayout = self.layout.nextOnRotate()
                 shadowAnimation()
             }
             completionQueue.append {
                 shadowCompletion()
+                self.inFocusCell!.mountVideo(inFocusVideo)
             }
         }
         
@@ -145,7 +147,8 @@ extension RippleVC: UICollectionViewDelegate {
             switch preSceneState {
             case .full:
                 let newLayout = UIDevice.current.orientation.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
-                self.inFocusCell!.handleUserEnter(video: self.view.window!.subviews[1] as! VideoWithPlayerView)
+                self.inFocusCell!.mountVideo(inFocusVideo)
+                self.inFocusCell!.unMountVideo()
                 let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnExit(isPortrait: UIDevice.current.orientation.isPortrait))
                 animationQueue.append {
                     self.collectionView.collectionViewLayout = newLayout
@@ -153,10 +156,11 @@ extension RippleVC: UICollectionViewDelegate {
                 }
                 completionQueue.append {
                     shadowCompletion()
+                    self.inFocusCell!.mountVideo(inFocusVideo)
                 }
                 if UIDevice.current.orientation.isPortrait {
                     executeAnimationByNewState = false
-                    UIDevice.current.triggerInterfaceRotate()
+                    UIDevice.current.triggerInterfaceRotateForEixtFullscreen()
                 }
             case .surfing:
                 let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
@@ -166,11 +170,13 @@ extension RippleVC: UICollectionViewDelegate {
                 }
                 completionQueue.append {
                     shadowCompletion()
+                    self.mountVideoForInFocusItem()
                 }
             default:
                 fatalError()
             }
         case .surfing:
+            inFocusCell!.unMountVideo()
             let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
             animationQueue.append {
                 self.collectionView.collectionViewLayout = self.layout.nextOnScene()
@@ -180,6 +186,7 @@ extension RippleVC: UICollectionViewDelegate {
                 shadowCompletion()
             }
         case .full:
+            self.inFocusCell!.unMountVideo()
             let (shadowAnimation, shadowCompletion) = installShadow(Shadow.dumb)
             let newLayout = UIDevice.current.orientation.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
             animationQueue.append {
@@ -188,11 +195,11 @@ extension RippleVC: UICollectionViewDelegate {
             }
             completionQueue.append {
                 shadowCompletion()
-                self.view.window!.addSubview(self.inFocusCell!.videoWithPlayer!)
+                self.view.window!.mountVideo(inFocusVideo)
             }
             if UIDevice.current.orientation.isPortrait {
                 executeAnimationByNewState = false
-                UIDevice.current.triggerInterfaceRotate()
+                UIDevice.current.triggerInterfaceRotateForFullscreen()
             }
         default:
             fatalError()
@@ -274,7 +281,7 @@ extension RippleVC: UICollectionViewDelegate {
                             let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
                             self.videoId2PlayerView[videoId] = player
                         }
-                        self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
+                        self.inFocusCell?.mountVideo(self.videoId2PlayerView[videoId]!)
                     }
                 }
             }
@@ -334,10 +341,12 @@ extension RippleVC: UICollectionViewDelegate {
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         if rippleViewStore.state.scene == .full {
-            return .landscapeRight
-        } else {
+            return .landscape
+        }
+        if preSceneState == .full {
             return .all
         }
+        return .allButUpsideDown
     }
     
     func installShadow(_ newShadow: Shadow) -> (() -> Void, () -> Void) {
@@ -382,11 +391,9 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     @IBOutlet weak var collectionView: RippleCollectionView!
     
-    var inFocusCell: RippleCell? {
-        return collectionView.cellForItem(at: layout.centerItem) as? RippleCell
+    var inFocusCell: RippleCellV2? {
+        return collectionView.cellForItem(at: layout.centerItem) as? RippleCellV2
     }
-    
-    var inFocusVideo: VideoWithPlayerView?
     
     var layout: RippleTransitionLayout {
         return collectionView.collectionViewLayout as! RippleTransitionLayout
@@ -420,7 +427,7 @@ class RippleVC: UIViewController,  StoreSubscriber {
                     let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
                     self.videoId2PlayerView[videoId] = player
                 }
-                self.inFocusCell?.handleUserEnter(video: self.videoId2PlayerView[videoId]!)
+                self.inFocusCell?.mountVideo(self.videoId2PlayerView[videoId]!)
             }
         }
         
@@ -456,10 +463,23 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        inFocusCell?.play()
+//        inFocusCell?.play()
     }
     
     let indexPath2VideoId = [IndexPath: String]()
+    
+    func mountVideoForInFocusItem() {
+        YoutubeManagers.shared.getData(indexPath: self.layout.centerItem) { youtubeVideoData in
+            DispatchQueue.main.async {
+                let videoId = youtubeVideoData.videoId!
+                if self.videoId2PlayerView[videoId] == nil {
+                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+                    self.videoId2PlayerView[videoId] = player
+                }
+                self.inFocusCell?.mountVideo(self.videoId2PlayerView[videoId]!)
+            }
+        }
+    }
     
     /// User wants to transfer scene
     func updateSceneState(moveTo: IndexPath? = nil) {

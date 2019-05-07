@@ -41,18 +41,38 @@ class Shadow: UIImageView, TransitionalResource {
     }
     
     func nextOnRotate() -> Shadow {
-        switch self {
-        case .surf:
-            return .surfLand
-        case .watch:
-            return .watchLand
-        case .surfLand:
-            return .surf
-        case .watchLand:
-            return .watch
-        default:
-            fatalError("")
+        if UIDevice.current.orientation.isPortrait {
+            switch rippleViewStore.state.scene {
+            case .surfing:
+                return .surf
+            case .watching:
+                return .watch
+            default:
+                fatalError()
+            }
+        } else {
+            switch rippleViewStore.state.scene {
+            case .surfing:
+                return .surfLand
+            case .watching:
+                return .watchLand
+            default:
+                fatalError()
+            }
         }
+        
+//        switch self {
+//        case .surf:
+//            return .surfLand
+//        case .watch:
+//            return .watchLand
+//        case .surfLand:
+//            return .surf
+//        case .watchLand:
+//            return .watch
+//        default:
+//            fatalError("")
+//        }
     }
     
     func nextOnExit(isPortrait: Bool) -> Shadow {

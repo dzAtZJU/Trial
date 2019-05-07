@@ -16,13 +16,15 @@ class VideoWithPlayerView: UIView {
     
     private var playerControl: PlayerControlView?
     
-    var screenshot: UIImage!
+    private var screenshot: UIImage!
     
     /// Leave cell then pack up
-    func fallOff() {
-        window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
+    func fallOff() -> UIImage {
         pause()
         screenshot = snapshot()
+        inFocusVideo = self
+        window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
+        return screenshot
     }
     
     func play() {
@@ -56,10 +58,9 @@ class VideoWithPlayerView: UIView {
     lazy var renderer = UIGraphicsImageRenderer(size: CGSize(width: UIMetricTemplate.watch.itemWidth, height: UIMetricTemplate.watch.itemHeight))
     func snapshot() -> UIImage {
         return renderer.image { ctx in
-            videoView.drawHierarchy(in: ctx.format.bounds, afterScreenUpdates: false)
+            videoView.drawHierarchy(in: ctx.format.bounds, afterScreenUpdates: true)
         }
     }
-    
     
     func getVideoState(_ block: @escaping (WKYTPlayerState) -> ()) {
         videoView.getPlayerState { (state, _) in
@@ -81,6 +82,7 @@ class VideoWithPlayerView: UIView {
     private init(videoId: VideoId) {
         videoView = WKYTPlayerView()
         super.init(frame: CGRect.zero)
+        backgroundColor = UIColor.purple
         isHidden = true
         videoView.delegate = self
         setupSubview(videoView)
@@ -89,7 +91,7 @@ class VideoWithPlayerView: UIView {
                 return
             }
             self.videoId = videoId
-            self.loaded = self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1])
+            self.loaded = self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "enablejsapi": 1, "iv_load_policy": 0, "modestbranding": 1])
             self.playerControl?.label.text = self.videoId + "loaded: \(self.loaded)"
         }
     }
@@ -116,7 +118,7 @@ class VideoWithPlayerView: UIView {
     
     var boundsInLastWindow: CGRect!
     
-    var cell: RippleCell!
+    var cell: RippleCellV2!
 }
 
 var yTPlayerView: WKYTPlayerView?

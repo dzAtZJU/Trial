@@ -147,7 +147,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rzN-RL-Lnb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2838" y="61"/>
+            <point key="canvasLocation" x="-2935" y="11"/>
         </scene>
         <!--RippleVC-->
         <scene sceneID="k2q-QV-iss">
@@ -167,31 +167,14 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="cell" id="dxh-7J-9sF" customClass="RippleCell" customModule="Trial" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="cell" id="dxh-7J-9sF" customClass="RippleCellV2" customModule="Trial" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3TZ-Je-SUM">
-                                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
                                         </view>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="trailing" secondItem="3TZ-Je-SUM" secondAttribute="trailing" id="9wy-Q0-lvM"/>
-                                            <constraint firstAttribute="bottom" secondItem="3TZ-Je-SUM" secondAttribute="bottom" id="cvi-vC-1NL"/>
-                                            <constraint firstItem="3TZ-Je-SUM" firstAttribute="top" secondItem="dxh-7J-9sF" secondAttribute="top" id="j32-hI-Weu"/>
-                                            <constraint firstItem="3TZ-Je-SUM" firstAttribute="leading" secondItem="dxh-7J-9sF" secondAttribute="leading" id="zgi-2X-n0u"/>
-                                        </constraints>
-                                        <connections>
-                                            <outlet property="label" destination="3TZ-Je-SUM" id="W5Y-ej-GEf"/>
-                                        </connections>
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
@@ -211,7 +194,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RSS-LT-ZnB" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2041" y="47"/>
+            <point key="canvasLocation" x="-2183.1999999999998" y="-7.6461769115442282"/>
         </scene>
     </scenes>
 </document>

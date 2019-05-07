@@ -101,13 +101,16 @@ class RippleTransitionLayout: UICollectionViewLayout {
     
     static var genesisLayout: RippleTransitionLayout {
         let triangle = defaultIndexTriangleAround(IndexPath(row: 2, section: 2), maxRow: ytRows, maxCol: ytCols)
-    
-        let layoutP1 = RippleLayout(theCenter: triangle.0, theCenterPosition: CGPoint(x: 2000, y: 2000), theTemplate: LayoutCalcuTemplate.surf)
-        let layoutP2 = RippleLayout(theCenter: triangle.1, theCenterPosition: layoutP1.centerOf(triangle.1), theTemplate: LayoutCalcuTemplate.surf)
-        let layoutP3 = RippleLayout(theCenter: triangle.2, theCenterPosition: layoutP1.centerOf(triangle.2), theTemplate: LayoutCalcuTemplate.surf)
         
+        let isPortrait = UIScreen.main.bounds.height > UIScreen.main.bounds.width
+        let calcu = isPortrait ? LayoutCalcuTemplate.surf : LayoutCalcuTemplate.surfLand
         
-        return RippleTransitionLayout(layoutP1: layoutP1, layoutP2: layoutP2, layoutP3: layoutP3, uiTemplates: UIMetricTemplate.surf)
+        let layoutP1 = RippleLayout(theCenter: triangle.0, theCenterPosition: CGPoint(x: 2000, y: 2000), theTemplate: calcu)
+        let layoutP2 = RippleLayout(theCenter: triangle.1, theCenterPosition: layoutP1.centerOf(triangle.1), theTemplate: calcu)
+        let layoutP3 = RippleLayout(theCenter: triangle.2, theCenterPosition: layoutP1.centerOf(triangle.2), theTemplate: calcu)
+        
+        let template = isPortrait ? UIMetricTemplate.surf : UIMetricTemplate.surfLand
+        return RippleTransitionLayout(layoutP1: layoutP1, layoutP2: layoutP2, layoutP3: layoutP3, uiTemplates: template)
     }
     
     init(layoutP1: RippleLayout, layoutP2: RippleLayout, layoutP3: RippleLayout, uiTemplates: UIMetricTemplate) {

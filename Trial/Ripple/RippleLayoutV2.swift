@@ -27,18 +27,38 @@ class LayoutCalcuTemplate: NSObject {
     }
     
     func nextOnRotate() -> LayoutCalcuTemplate {
-        switch self {
-        case .watch:
-            return .watchLand
-        case .surf:
-            return .surfLand
-        case .watchLand:
-            return .watch
-        case .surfLand:
-            return .surf
-        default:
-            fatalError("")
+        if UIDevice.current.orientation.isPortrait {
+            switch rippleViewStore.state.scene {
+            case .surfing:
+                return .surf
+            case .watching:
+                return .watch
+            default:
+                fatalError()
+            }
+        } else {
+            switch rippleViewStore.state.scene {
+            case .surfing:
+                return .surfLand
+            case .watching:
+                return .watchLand
+            default:
+                fatalError()
+            }
         }
+        
+//        switch self {
+//        case .watch:
+//            return .watchLand
+//        case .surf:
+//            return .surfLand
+//        case .watchLand:
+//            return .watch
+//        case .surfLand:
+//            return .surf
+//        default:
+//            fatalError("")
+//        }
     }
     
     // One path covering different states
@@ -87,7 +107,7 @@ class LayoutCalcuTemplate: NSObject {
     
     private static let watchLand = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watchLand)
     
-    private static let surfLand = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.surfLand)
+    static let surfLand = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.surfLand)
     
     private static let watching2Full = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watching2Full)
     
