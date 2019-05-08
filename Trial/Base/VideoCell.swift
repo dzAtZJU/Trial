@@ -50,7 +50,8 @@ class VideoCell: UICollectionViewCell {
             return
         }
         
-        self.screenshotView.image = videoWithPlayer.fallOff()
+        videoWithPlayer.fallOff()
+        self.screenshotView.image = videoWithPlayer.screenshot
         self.videoWithPlayer = nil
     }
     
@@ -76,13 +77,16 @@ class VideoCell: UICollectionViewCell {
     
     private func setupGradientMask() {
         gradientView = GradientView()
+        gradientView.isHidden = true
         addSubview(gradientView)
         setupFillConstraintsFor(view: gradientView)
     }
     
-    private func setupVideoView(_ newVideoWithPlayer: VideoWithPlayerView) {
-        newVideoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+    func setupVideoView(_ newVideoWithPlayer: VideoWithPlayerView) {
+        //newVideoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        newVideoWithPlayer.layer.anchorPoint = .zero
         newVideoWithPlayer.frame = self.bounds
+        newVideoWithPlayer.transform = .identity
         self.videoWithPlayer = newVideoWithPlayer
         self.insertSubview(newVideoWithPlayer, belowSubview: gradientView)
     }

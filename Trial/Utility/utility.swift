@@ -158,3 +158,9 @@ func nearestFiveTo(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPa
     })
     return Array(Set(array))
 }
+
+func validItems(candidates: [IndexPath], maxRow: Int, maxCol: Int) -> [IndexPath] {
+    return candidates.filter({
+        $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
+    })
+}

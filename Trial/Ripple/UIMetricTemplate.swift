@@ -19,6 +19,10 @@ class UIMetricTemplate {
 //        }
 //    }
     
+    func transformForCenterItemTo(_ newTemplate: UIMetricTemplate) -> CGAffineTransform {
+        return CGAffineTransform(scaleX: newTemplate.itemWidth * newTemplate.scale / (itemWidth * scale), y: newTemplate.itemHeight * newTemplate.scale / (itemHeight * scale))
+    }
+    
     static let watch: UIMetricTemplate = {
         var template = UIMetricTemplate()
         template.rowGaps = [30, 25, 20]

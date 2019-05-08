@@ -10,21 +10,36 @@ import Foundation
 import UIKit
 import YoutubePlayer_in_WKWebView
 
+// 1. initialized
+// 2. Ready to be called
+
 class VideoWithPlayerView: UIView {
-    
-    private let videoView: WKYTPlayerView
+    let videoView: WKYTPlayerView
     
     private var playerControl: PlayerControlView?
     
-    private var screenshot: UIImage!
+    var screenshot: UIImage!
     
-    /// Leave cell then pack up
-    func fallOff() -> UIImage {
-        pause()
-        screenshot = snapshot()
-        inFocusVideo = self
-        window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
-        return screenshot
+    static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
+        let result = VideoWithPlayerView(videoId: videoId)
+        result.setPlayerControl(PlayerControlView())
+        return result
+    }
+    
+    private init(videoId: VideoId) {
+        videoView = WKYTPlayerView()
+        super.init(frame: CGRect.zero)
+        backgroundColor = UIColor.purple
+//        isHidden = true
+        videoView.delegate = self
+        setupSubview(videoView)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.videoId = videoId
+            self.videoView.load(withVideoId: videoId, playerVars: ["controls":1, "playsinline":1, "start": 1, "enablejsapi": 1, "iv_load_policy": 0, "modestbranding": 1])
+        }
     }
     
     func play() {
@@ -35,12 +50,23 @@ class VideoWithPlayerView: UIView {
             activityIndicator.startAnimating()
         }
         self.requestToPlay = true
+        videoView.getCurrentTime { time, error in
+            print("video time: \(time)")
+        }
         DispatchQueue.main.async { [weak self] in
             guard let theSelf = self else {
                 return
             }
             theSelf.videoView.playVideo()
         }
+    }
+    
+    /// Leave cell then pack up
+    func fallOff() {
+        window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
+        pause()
+        screenshot = snapshot()
+        inFocusVideo = self
     }
     
     func pause() {
@@ -55,44 +81,22 @@ class VideoWithPlayerView: UIView {
         }
     }
     
+    private func setPlayerControl(_ playerControl: PlayerControlView) {
+        self.playerControl = playerControl
+        setupSubview(playerControl)
+    }
+    
     lazy var renderer = UIGraphicsImageRenderer(size: CGSize(width: UIMetricTemplate.watch.itemWidth, height: UIMetricTemplate.watch.itemHeight))
     func snapshot() -> UIImage {
         return renderer.image { ctx in
-            videoView.drawHierarchy(in: ctx.format.bounds, afterScreenUpdates: true)
+            videoView.drawHierarchy(in: ctx.format.bounds, afterScreenUpdates: false)
         }
     }
     
     func getVideoState(_ block: @escaping (WKYTPlayerState) -> ()) {
         videoView.getPlayerState { (state, _) in
+            print(state.rawValue)
             block(state)
-        }
-    }
-    
-    static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
-        let result = VideoWithPlayerView(videoId: videoId)
-        result.setPlayerControl(PlayerControlView())
-        return result
-    }
-    
-    func setPlayerControl(_ playerControl: PlayerControlView) {
-        self.playerControl = playerControl
-        setupSubview(playerControl)
-    }
-    
-    private init(videoId: VideoId) {
-        videoView = WKYTPlayerView()
-        super.init(frame: CGRect.zero)
-        backgroundColor = UIColor.purple
-        isHidden = true
-        videoView.delegate = self
-        setupSubview(videoView)
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
-            self.videoId = videoId
-            self.loaded = self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "enablejsapi": 1, "iv_load_policy": 0, "modestbranding": 1])
-            self.playerControl?.label.text = self.videoId + "loaded: \(self.loaded)"
         }
     }
     
@@ -149,8 +153,12 @@ extension VideoWithPlayerView: WKYTPlayerViewDelegate {
     }
     
     func playerViewDidBecomeReady(_ playerView: WKYTPlayerView) {
+        print("yt player ready")
         if self.requestToPlay {
             play()
+        } else {
+            videoView.seek(toSeconds: 3, allowSeekAhead: true)
+            videoView.seek(toSeconds: 0, allowSeekAhead: true)
         }
     }
 }
