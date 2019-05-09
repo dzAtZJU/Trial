@@ -34,14 +34,37 @@ class VideoCell: UICollectionViewCell {
         setupView()
     }
     
+    func clearContents() {
+        thumbnailImageView.image = nil
+        screenshotView.image = nil
+    }
+    
     func loadThumbnailImage(_ image: UIImage?) {
         thumbnailImageView.image = image
+    }
+    
+    func loadScreenshot(_ image: UIImage?) {
+        screenshotView.image = image
     }
     
     // One place to configure timing contents
     func mountVideo(_ video: VideoWithPlayerView) {
         setupVideoView(video)
         video.play()
+        activityIndicator.startAnimating()
+    }
+    
+    func mountVideoForBuffering(_ video: VideoWithPlayerView) {
+        setupVideoView(video)
+        video.buffer()
+    }
+    
+    func unmountVideoForBuffering() {
+        guard let videoWithPlayer = videoWithPlayer else {
+            return
+        }
+        
+        videoWithPlayer.endBuffer()
     }
     
     /// One place to configure timing contents
@@ -50,7 +73,9 @@ class VideoCell: UICollectionViewCell {
             return
         }
         
-        videoWithPlayer.fallOff()
+        videoWithPlayer.fallOff {
+            inFocusVideo = $0
+        }
         self.screenshotView.image = videoWithPlayer.screenshot
         self.videoWithPlayer = nil
     }
@@ -87,6 +112,7 @@ class VideoCell: UICollectionViewCell {
         newVideoWithPlayer.layer.anchorPoint = .zero
         newVideoWithPlayer.frame = self.bounds
         newVideoWithPlayer.transform = .identity
+        newVideoWithPlayer.isHidden = true
         self.videoWithPlayer = newVideoWithPlayer
         self.insertSubview(newVideoWithPlayer, belowSubview: gradientView)
     }

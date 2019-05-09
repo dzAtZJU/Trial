@@ -167,11 +167,6 @@ class RippleTransitionLayout: UICollectionViewLayout {
         result.titlesBottom = uiTemplates.titlesBottom
         result.radius = uiTemplates.radius
         result.sceneState = rippleViewStore.state.scene
-        #if VERBOSE
-        if indexPath == IndexPath(row: 2, section: 2) {
-            print("\(collectionView!.viewPortCenter), \(layoutP1.centerPosition), \(layoutP2.centerPosition), \(layoutP3.centerPosition)")
-        }
-        #endif
         return result
     }
     

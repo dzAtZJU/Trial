@@ -19,6 +19,8 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         inFocusCell?.unMountVideo()
+        
+//        cancelPreFetchVideoForTwoNeighborItems()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -27,11 +29,11 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
         }
         
         /// TODO: where to maintain centerItem
-        fetchVideoForItem(layout.centerItem) { video in
+        fetchVideoForItem(layout.centerItem) { video, _ in
             self.inFocusCell?.mountVideo(video)
         }
         
-        preFetchVideoForTwoNeighborItems()
+//        preFetchVideoForTwoNeighborItems()
     }
     
     @objc func handlePinch(_ press: UIPinchGestureRecognizer) {
@@ -53,7 +55,9 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
         case .exitFullscreen:
             rippleViewStore.dispatch(RippleViewState.SceneAction.fullScreen)
         case .goToEpisodesView:
+            self.inFocusCell?.addSubview(inFocusVideo)
             let episodesVC = EpisodesVC()
+            episodesVC.prepareForPresent(inFocusItem: IndexPath(row: 20, section: 0), transferredVideo: inFocusVideo)
             self.present(episodesVC, animated: false, completion: nil)
             return
         default:

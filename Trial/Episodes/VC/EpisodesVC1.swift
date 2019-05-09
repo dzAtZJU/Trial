@@ -15,6 +15,8 @@ class EpisodesVC: UIViewController {
     
     var inFocusItem: IndexPath!
     
+    var transferredVideo: VideoWithPlayerView!
+    
     var blurredThumbnailBg: UIImageView!
     
     var shadowBlurredThumbnailBg: UIImageView!
@@ -37,7 +39,7 @@ class EpisodesVC: UIViewController {
         shadowBlurredThumbnailBg.autoresizingMask = [.flexibleHeight, .flexibleWidth]
 //        view.addSubview(shadowBlurredThumbnailBg)
         
-        let layout = EpisodesLayout.watching
+        let layout = EpisodesLayout.full
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -103,7 +105,7 @@ extension EpisodesVC: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 200
+        return 40
     }
 }
 
@@ -156,49 +158,6 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
 }
 
 extension EpisodesVC: StoreSubscriber {
-    func newState(state: EpisodesSceneState) {
-        switch state {
-        case .sliding:
-            UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = EpisodesLayout.sliding
-                for cell in self.collectionView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
-            }, completion: nil)
-        case .watching:
-            UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = EpisodesLayout.watching
-                for cell in self.collectionView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
-            }, completion: nil)
-        case .watching2Full:
-            UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = EpisodesLayout.watching2Full
-                for cell in self.collectionView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
-            }, completion: { _ in
-                episodesViewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
-            })
-        case .full:
-            UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = EpisodesLayout.full
-                for cell in self.collectionView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
-            }, completion: nil)
-        case .full2Watching:
-            UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = EpisodesLayout.full2Watching
-                for cell in self.collectionView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
-            }, completion: { _ in
-                episodesViewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
-            })
-        }
-    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -209,6 +168,10 @@ extension EpisodesVC: StoreSubscriber {
         }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        collectionView.cellForItem(at: inFocusItem)?.addSubview(transferredVideo)
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         episodesViewStore.unsubscribe(self)

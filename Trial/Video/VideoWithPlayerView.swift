@@ -20,6 +20,10 @@ class VideoWithPlayerView: UIView {
     
     var screenshot: UIImage!
     
+    private var isFirstPlayed = true
+    
+    private var requestToBuffer = false
+    
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
         let result = VideoWithPlayerView(videoId: videoId)
         result.setPlayerControl(PlayerControlView())
@@ -30,7 +34,6 @@ class VideoWithPlayerView: UIView {
         videoView = WKYTPlayerView()
         super.init(frame: CGRect.zero)
         backgroundColor = UIColor.purple
-//        isHidden = true
         videoView.delegate = self
         setupSubview(videoView)
         DispatchQueue.main.async { [weak self] in
@@ -38,39 +41,45 @@ class VideoWithPlayerView: UIView {
                 return
             }
             self.videoId = videoId
-            self.videoView.load(withVideoId: videoId, playerVars: ["controls":1, "playsinline":1, "start": 1, "enablejsapi": 1, "iv_load_policy": 0, "modestbranding": 1])
+            self.videoView.load(withVideoId: videoId, playerVars: ["controls":1, "playsinline":1, "start": 1, "modestbranding": 1])
         }
     }
     
     func play() {
-        getVideoState { state in
-            guard state != WKYTPlayerState.playing else {
-                return
-            }
-            activityIndicator.startAnimating()
-        }
         self.requestToPlay = true
-        videoView.getCurrentTime { time, error in
-            print("video time: \(time)")
+        DispatchQueue.main.async {
+            self.videoView.playVideo()
+            self.isFirstPlayed = false
         }
-        DispatchQueue.main.async { [weak self] in
-            guard let theSelf = self else {
-                return
-            }
-            theSelf.videoView.playVideo()
+    }
+    
+    func buffer() {
+        self.requestToBuffer = true
+        DispatchQueue.main.async {
+          self.videoView.seek(toSeconds: 0, allowSeekAhead: true)
+        }
+    }
+    
+    func endBuffer() {
+        requestToBuffer = false
+        DispatchQueue.main.async {
+            self.videoView.pauseVideo()
+            self.window?.insertSubview(self, at: 0)
         }
     }
     
     /// Leave cell then pack up
-    func fallOff() {
-        window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
-        pause()
+    func fallOff(completion: ((VideoWithPlayerView) -> ())? = nil) {
         screenshot = snapshot()
-        inFocusVideo = self
+        pause()
+        window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
+        
+        if let completion = completion {
+            completion(self)
+        }
     }
     
     func pause() {
-        self.requestToPlay = false
         self.isHidden = true
         activityIndicator.stopAnimating()
         DispatchQueue.main.async { [weak self] in
@@ -78,6 +87,14 @@ class VideoWithPlayerView: UIView {
                 return
             }
             theSelf.videoView.pauseVideo()
+        }
+    }
+    
+    private func beforeAppear() {
+        activityIndicator.stopAnimating()
+        isHidden = false
+        if requestToBuffer && !requestToPlay {
+            endBuffer()
         }
     }
     
@@ -132,14 +149,14 @@ extension VideoWithPlayerView: WKYTPlayerViewDelegate {
         switch state {
         case .unstarted:
             layer.borderColor = UIColor.gray.cgColor
+            beforeAppear()
         case .queued:
             layer.borderColor = UIColor.yellow.cgColor
         case .buffering:
             layer.borderColor = UIColor.orange.cgColor
         case .playing:
             layer.borderColor = UIColor.green.cgColor
-            activityIndicator.stopAnimating()
-            isHidden = false
+            beforeAppear()
         case .paused:
             layer.borderColor = UIColor.red.cgColor
         case .ended:
@@ -149,26 +166,17 @@ extension VideoWithPlayerView: WKYTPlayerViewDelegate {
         default:
             return
         }
-        playerControl?.label.text = playerControl?.label.text ?? "" + "\(state)"
     }
     
     func playerViewDidBecomeReady(_ playerView: WKYTPlayerView) {
-        print("yt player ready")
         if self.requestToPlay {
             play()
-        } else {
-            videoView.seek(toSeconds: 3, allowSeekAhead: true)
-            videoView.seek(toSeconds: 0, allowSeekAhead: true)
+            return
+        }
+        
+        if self.requestToBuffer {
+            buffer()
+            return
         }
     }
 }
-
-//extension YTPlayerView {
-//    func fixWebViewLayout() {
-//        webView!.scrollView.translatesAutoresizingMaskIntoConstraints = false
-//        addConstraints([NSLayoutConstraint(item: webView!.scrollView, attribute: .bottom, relatedBy: .equal, toItem: webView, attribute: .bottom, multiplier: 1, constant: 0),
-//                        NSLayoutConstraint(item: webView!.scrollView, attribute: .top, relatedBy: .equal, toItem: webView, attribute: .top, multiplier: 1, constant: 0),
-//                        NSLayoutConstraint(item: webView!.scrollView, attribute: .leading, relatedBy: .equal, toItem: webView, attribute: .leading, multiplier: 1, constant: 0),
-//                        NSLayoutConstraint(item: webView!.scrollView, attribute: .trailing, relatedBy: .equal, toItem: webView, attribute: .trailing, multiplier: 1, constant: 0)])
-//    }
-//}

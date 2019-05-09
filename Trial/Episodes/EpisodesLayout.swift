@@ -93,12 +93,12 @@ class EpisodesLayout: UICollectionViewFlowLayout {
 //        return ori
 //    }
 //
-//    override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-//        if let item = (collectionView as? EpisodesView)?.delegate?, let attributes = layoutAttributesForItem(at: item) {
-//            print("before: \(item) \(attributes.frame)")
-//            return attributes.frame.center - collectionView!.frame.center
-//        }
-//
-//        return proposedContentOffset
-//    }
+    override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+        if let item = (collectionView?.delegate as? InFocusItemManager)?.inFocusItem, let attributes = layoutAttributesForItem(at: item) {
+            print("before: \(item) \(attributes.frame)")
+            return attributes.frame.center - collectionView!.frame.center
+        }
+
+        return proposedContentOffset
+    }
 }
