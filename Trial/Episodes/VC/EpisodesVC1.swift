@@ -15,7 +15,7 @@ class EpisodesVC: UIViewController {
     
     var inFocusItem: IndexPath!
     
-    var transferredVideo: VideoWithPlayerView!
+    var inFocusVideo: VideoWithPlayerView!
     
     var blurredThumbnailBg: UIImageView!
     
@@ -24,6 +24,10 @@ class EpisodesVC: UIViewController {
     var shadowLeft: UIImageView!
     
     var shadowRight: UIImageView!
+    
+    var layout: EpisodesLayout {
+        return collectionView.collectionViewLayout as! EpisodesLayout
+    }
     
     override func loadView() {
         super.loadView()
@@ -39,7 +43,7 @@ class EpisodesVC: UIViewController {
         shadowBlurredThumbnailBg.autoresizingMask = [.flexibleHeight, .flexibleWidth]
 //        view.addSubview(shadowBlurredThumbnailBg)
         
-        let layout = EpisodesLayout.full
+        let layout = EpisodesLayout.sliding
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -169,7 +173,7 @@ extension EpisodesVC: StoreSubscriber {
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        collectionView.cellForItem(at: inFocusItem)?.addSubview(transferredVideo)
+//        collectionView.cellForItem(at: inFocusItem)?.addSubview(inFocusVideo)
     }
     
     override func viewWillDisappear(_ animated: Bool) {

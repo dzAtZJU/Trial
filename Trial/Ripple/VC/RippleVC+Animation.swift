@@ -50,7 +50,7 @@ extension RippleVC {
             switch preSceneState {
             case .full:
                 let newLayout = UIDevice.current.orientation.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
-                self.inFocusCell?.addSubview(inFocusVideo)
+                self.inFocusCell?.addVideoToHierarchy(inFocusVideo)
                 let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
                 let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnExit(isPortrait: UIDevice.current.orientation.isPortrait))
                 animationQueue.append {

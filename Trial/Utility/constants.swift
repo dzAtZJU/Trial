@@ -18,3 +18,7 @@ let velocityThreshold: CGFloat = 600
 let ytRows: Int = 5
 
 let ytCols: Int = 5
+
+var screenWidth: CGFloat = 0
+
+var screenHeight: CGFloat = 0

@@ -30,7 +30,7 @@ class VideoCell: UICollectionViewCell {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        backgroundColor = UIColor.blue
+//        backgroundColor = UIColor.blue
         setupView()
     }
     
@@ -41,9 +41,15 @@ class VideoCell: UICollectionViewCell {
     
     func loadThumbnailImage(_ image: UIImage?) {
         thumbnailImageView.image = image
+        if screenshotView.image == nil {
+            screenshotView.image = image
+        }
     }
     
     func loadScreenshot(_ image: UIImage?) {
+        guard let image = image else {
+            return
+        }
         screenshotView.image = image
     }
     
@@ -80,6 +86,11 @@ class VideoCell: UICollectionViewCell {
         self.videoWithPlayer = nil
     }
     
+    func addVideoToHierarchy(_ video: VideoWithPlayerView) {
+        self.videoWithPlayer = video
+        self.insertSubview(video, belowSubview: gradientView)
+    }
+    
     private func setupView() {
         setupThumbnailImageView()
         setupScreenshotView()
@@ -102,19 +113,16 @@ class VideoCell: UICollectionViewCell {
     
     private func setupGradientMask() {
         gradientView = GradientView()
-        gradientView.isHidden = true
         addSubview(gradientView)
         setupFillConstraintsFor(view: gradientView)
     }
     
     func setupVideoView(_ newVideoWithPlayer: VideoWithPlayerView) {
-        //newVideoWithPlayer.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         newVideoWithPlayer.layer.anchorPoint = .zero
-        newVideoWithPlayer.frame = self.bounds
-        newVideoWithPlayer.transform = .identity
+        newVideoWithPlayer.bounds = CGRect(origin: .zero, size: CGSize(width: screenHeight, height: screenWidth))
+        newVideoWithPlayer.transform = CGAffineTransform(scaleX: bounds.width / newVideoWithPlayer.bounds.width, y: bounds.height / newVideoWithPlayer.bounds.height)
         newVideoWithPlayer.isHidden = true
-        self.videoWithPlayer = newVideoWithPlayer
-        self.insertSubview(newVideoWithPlayer, belowSubview: gradientView)
+        addVideoToHierarchy(newVideoWithPlayer)
     }
     
     private func setupFillConstraintsFor(view: UIView) {

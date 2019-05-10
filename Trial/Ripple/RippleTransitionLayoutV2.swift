@@ -196,22 +196,40 @@ class RippleTransitionLayout: UICollectionViewLayout {
         return CGPoint(x: frame.midX, y: frame.midY)
     }
     
-    private func reComputeCenterTriangle() -> (CGPoint, CGPoint, CGPoint)?{
-        var centerTriangle: (CGPoint, CGPoint, CGPoint)?
+    func isViewCenterIn(indexTriangle: (CGPoint, CGPoint, CGPoint)) -> [CGFloat]? {
+        let triangle = (centerOf(item: indexTriangle.0), centerOf(item: indexTriangle.1), centerOf(item: indexTriangle.2))
+        let newBarycentric = barycentricOf(collectionView!.viewPortCenter, P1: triangle.0, P2: triangle.1, P3: triangle.2)
+        if newBarycentric.allSatisfy({ $0 >= 0 }) {
+            return newBarycentric
+        }
+        
+        return nil
+    }
+    
+    private func reComputeCenterTriangle() -> (CGPoint, CGPoint, CGPoint)? {
+        var nextCenterTriangle: (CGPoint, CGPoint, CGPoint)?
+        
+        for indexTriangle in eightTrianglesAround(centerTriangle) {
+            if let newBarycentric = isViewCenterIn(indexTriangle: indexTriangle) {
+                nextCenterTriangle = indexTriangle
+                baryCentrics = newBarycentric
+                return nextCenterTriangle
+            }
+        }
+        
         doIn2DRange(maxRow: maxRow, maxCol: maxCol) {
             (row, col, stop) in
-            for indexTriangle in indexTrianglesAround(CGPoint(x: row, y: col)) {
-                let triangle = (centerOf(item: indexTriangle.0), centerOf(item: indexTriangle.1), centerOf(item: indexTriangle.2))
-                let theBarycentric = barycentricOf(collectionView!.viewPortCenter, P1: triangle.0, P2: triangle.1, P3: triangle.2)
-                if theBarycentric.allSatisfy({ $0 >= 0 }) {
-                    centerTriangle = indexTriangle
-                    baryCentrics = theBarycentric
+            for indexTriangle in indexTrianglesAround(CGPoint(x: row, y: col), maxRow: ytRows, maxCol: ytCols) {
+                if let newBarycentric = isViewCenterIn(indexTriangle: indexTriangle) {
+                    nextCenterTriangle = indexTriangle
+                    baryCentrics = newBarycentric
                     stop = true
                     break
                 }
             }
         }
-        return centerTriangle
+        
+        return nextCenterTriangle
     }
     
     private func updateCenterTriangle(_ new: (CGPoint, CGPoint, CGPoint)) {

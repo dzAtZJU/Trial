@@ -81,10 +81,9 @@ class RippleCellV2: VideoCell {
             thumbnailImageView.alpha = 1
             return
         }
-        if screenshotView.image != nil {
-            thumbnailImageView.alpha = 1 - timing
-            screenshotView.alpha = timing
-        }
+        
+        thumbnailImageView.alpha = 1 - timing
+        screenshotView.alpha = timing
         /// Notice for cell reusing
     }
     

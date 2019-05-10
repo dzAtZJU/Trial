@@ -10,14 +10,14 @@ import Foundation
 import ReSwift
 
 struct EpisodesViewState: StateType {
-    var scene = EpisodesSceneState.full
+    var scene = EpisodesSceneState.watching
     
     static func appReducer(action: Action, state: EpisodesViewState?) -> EpisodesViewState {
         return EpisodesViewState(scene: sceneReducer(action: action, state: state?.scene))
     }
     
     static func sceneReducer(action: Action, state: EpisodesSceneState?) -> EpisodesSceneState {
-        let scene = state ?? EpisodesSceneState.full
+        let scene = state ?? EpisodesSceneState.watching
         
         guard case is SceneAction  = action else {
             return scene

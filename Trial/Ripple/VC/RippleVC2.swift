@@ -57,19 +57,13 @@ class RippleVC: UIViewController,  StoreSubscriber {
         collectionView.dataSource = self
         collectionView.collectionViewLayout = RippleTransitionLayout.genesisLayout
         collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
-        YoutubeManagers.shared.getData(indexPath: layout.centerItem) { youtubeVideoData in
-            DispatchQueue.main.async {
-                let videoId = youtubeVideoData.videoId!
-                if self.videoId2PlayerView[videoId] == nil {
-                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-                    self.videoId2PlayerView[videoId] = player
-                }
-                self.inFocusCell?.mountVideo(self.videoId2PlayerView[videoId]!)
-            }
+       
+        fetchVideoForItem(layout.centerItem) { video, _ in
+            self.inFocusCell?.mountVideo(video)
         }
+        preFetchVideoForTwoNeighborItems()
         
         setupViews()
-        
         
         collectionView.addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:))))
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .goToEpisodesView, object: nil)

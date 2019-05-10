@@ -12,6 +12,6 @@ import UIKit
 extension EpisodesVC {
     func prepareForPresent(inFocusItem: IndexPath, transferredVideo: VideoWithPlayerView) {
         self.inFocusItem = inFocusItem
-        self.transferredVideo = transferredVideo
+        self.inFocusVideo = transferredVideo
     }
 }

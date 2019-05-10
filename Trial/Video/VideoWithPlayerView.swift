@@ -33,7 +33,7 @@ class VideoWithPlayerView: UIView {
     private init(videoId: VideoId) {
         videoView = WKYTPlayerView()
         super.init(frame: CGRect.zero)
-        backgroundColor = UIColor.purple
+//        backgroundColor = UIColor.purple
         videoView.delegate = self
         setupSubview(videoView)
         DispatchQueue.main.async { [weak self] in
@@ -41,7 +41,7 @@ class VideoWithPlayerView: UIView {
                 return
             }
             self.videoId = videoId
-            self.videoView.load(withVideoId: videoId, playerVars: ["controls":1, "playsinline":1, "start": 1, "modestbranding": 1])
+            self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "modestbranding": 1])
         }
     }
     
@@ -92,7 +92,7 @@ class VideoWithPlayerView: UIView {
     
     private func beforeAppear() {
         activityIndicator.stopAnimating()
-        isHidden = false
+        self.isHidden = false
         if requestToBuffer && !requestToPlay {
             endBuffer()
         }
@@ -145,24 +145,31 @@ class VideoWithPlayerView: UIView {
 var yTPlayerView: WKYTPlayerView?
 extension VideoWithPlayerView: WKYTPlayerViewDelegate {
     func playerView(_ playerView: WKYTPlayerView, didChangeTo state: WKYTPlayerState) {
-        layer.borderWidth = 5
+//        layer.borderWidth = 5
+//        switch state {
+//        case .unstarted:
+//            layer.borderColor = UIColor.gray.cgColor
+//            beforeAppear()
+//        case .queued:
+//            layer.borderColor = UIColor.yellow.cgColor
+//        case .buffering:
+//            layer.borderColor = UIColor.orange.cgColor
+//        case .playing:
+//            layer.borderColor = UIColor.green.cgColor
+//            beforeAppear()
+//        case .paused:
+//            layer.borderColor = UIColor.red.cgColor
+//        case .ended:
+//            layer.borderColor = UIColor.black.cgColor
+//        case .unknown:
+//            layer.borderColor = UIColor.blue.cgColor
+//        default:
+//            return
+//        }
+        
         switch state {
-        case .unstarted:
-            layer.borderColor = UIColor.gray.cgColor
+        case .unstarted, .playing:
             beforeAppear()
-        case .queued:
-            layer.borderColor = UIColor.yellow.cgColor
-        case .buffering:
-            layer.borderColor = UIColor.orange.cgColor
-        case .playing:
-            layer.borderColor = UIColor.green.cgColor
-            beforeAppear()
-        case .paused:
-            layer.borderColor = UIColor.red.cgColor
-        case .ended:
-            layer.borderColor = UIColor.black.cgColor
-        case .unknown:
-            layer.borderColor = UIColor.blue.cgColor
         default:
             return
         }
