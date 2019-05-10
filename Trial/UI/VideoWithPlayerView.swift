@@ -12,13 +12,13 @@ import YoutubePlayer_in_WKWebView
 
 class VideoWithPlayerView: UIView {
     
-    var screenshot: UIView!
+    var screenshot: UIImage!
     
     /// Leave cell then pack up
     func fallOff() {
         window?.addSubview(self) // remove from super view will somehow clear up the video, so instead just move to elsewhere
         pause()
-        screenshot = snapshot()!
+        screenshot = snapshot()
     }
     
     func play() {
@@ -43,8 +43,14 @@ class VideoWithPlayerView: UIView {
         }
     }
     
-    func snapshot() -> UIView? {
-        return videoView.snapshotView(afterScreenUpdates: true)
+    
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 225, height: 143))
+    
+    func snapshot() -> UIImage {
+        let image = renderer.image { ctx in
+            videoView.drawHierarchy(in: ctx.format.bounds, afterScreenUpdates: true)
+        }
+        return image
     }
     
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {

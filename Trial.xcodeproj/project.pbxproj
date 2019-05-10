@@ -52,6 +52,7 @@
 		89F37A3522392C4500A9303D /* utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F37A3422392C4500A9303D /* utility.swift */; };
 		89F37A37223A234500A9303D /* VideoViewController0.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F37A36223A234500A9303D /* VideoViewController0.swift */; };
 		89F37A39223A24F300A9303D /* ViewControllerAnimatedTransitioning.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89F37A38223A24F300A9303D /* ViewControllerAnimatedTransitioning.swift */; };
+		89FCDB812285902E0078D679 /* TestVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FCDB802285902E0078D679 /* TestVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -103,6 +104,7 @@
 		89F37A3422392C4500A9303D /* utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = utility.swift; sourceTree = "<group>"; };
 		89F37A36223A234500A9303D /* VideoViewController0.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewController0.swift; sourceTree = "<group>"; };
 		89F37A38223A24F300A9303D /* ViewControllerAnimatedTransitioning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerAnimatedTransitioning.swift; sourceTree = "<group>"; };
+		89FCDB802285902E0078D679 /* TestVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVC.swift; sourceTree = "<group>"; };
 		E7265217AF9A13858B30C80E /* Pods_Trial.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Trial.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F265275D0EED763C65F3C2F2 /* Pods-Trial.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trial.release.xcconfig"; path = "Target Support Files/Pods-Trial/Pods-Trial.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -174,6 +176,7 @@
 				8997F2CC2249F17F00C2DC72 /* RippleVC1.swift */,
 				890062722251ED5300094F91 /* RippleVC2.swift */,
 				8900627422521A2C00094F91 /* VideoViewController1.swift */,
+				89FCDB802285902E0078D679 /* TestVC.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -464,6 +467,7 @@
 				89D487F12260A82D009F2013 /* GlobalStates.swift in Sources */,
 				896EA9052242209700780557 /* YTPlayerView.swift in Sources */,
 				89F37A1E2237524800A9303D /* AppDelegate.swift in Sources */,
+				89FCDB812285902E0078D679 /* TestVC.swift in Sources */,
 				89006271224E218900094F91 /* RippleLayoutV2.swift in Sources */,
 				896EA918224496C300780557 /* RippleTransitionLayout.swift in Sources */,
 				8900627722521A7800094F91 /* RotatedTransitioning1.swift in Sources */,

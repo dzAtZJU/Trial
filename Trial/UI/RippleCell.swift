@@ -19,7 +19,7 @@ class RippleCell: UICollectionViewCell {
     @IBOutlet weak var thumbnailImageView: UIImageView!
     
     /// One of timing contents
-    var screenshotView: UIView?
+    var screenshotView: UIImageView?
     
     var titleWatch: UILabel!
     
@@ -51,15 +51,11 @@ class RippleCell: UICollectionViewCell {
             return
         }
         
-        if let videoWithPlayer = videoWithPlayer {
-            videoWithPlayer.fallOff()
+        
+            videoWithPlayer!.fallOff()
             
-            screenshotView?.removeFromSuperview()
-            screenshotView  = videoWithPlayer.screenshot
-            screenshotView!.frame = bounds
-            screenshotView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            addSubview(screenshotView!)
-        }
+            screenshotView!.image  = videoWithPlayer!.screenshot
+        
     }
     
     func play() {
@@ -116,6 +112,10 @@ class RippleCell: UICollectionViewCell {
         
         setupGradientMask()
         setupTitles()
+        
+        screenshotView = UIImageView(frame: bounds)
+        screenshotView!.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(screenshotView!)
     }
     
     private func setupGradientMask() {
