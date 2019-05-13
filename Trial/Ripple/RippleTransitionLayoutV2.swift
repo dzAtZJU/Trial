@@ -252,7 +252,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
         var minDistance = CGFloat(Int.max)
         var minCenter = CGPoint.zero
         var minIndex = lastCenterP
-        for indexPath in nearestFiveTo(lastCenterP, maxRow: ytRows, maxCol: ytCols) {
+        for indexPath in nearestFiveTo(lastCenterP, maxRow: ytRows, maxCol: ytCols) + fourDiagonalNeighborsOf(lastCenterP, maxRow: ytRows, maxCol: ytCols){
             let center = centerOf(item: CGPoint(indexPath))
             let distance = distanceBetween(left: center, right: proposedCenter)
             if distance < minDistance {

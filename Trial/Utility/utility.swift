@@ -163,16 +163,26 @@ func defaultIndexTriangleAround(_ indexPath: IndexPath, maxRow: Int, maxCol: Int
 
 // 垂直四个邻居点
 func nearestFiveTo(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPath] {
-    var array: [IndexPath] = [indexPath,
+    let array = [indexPath,
                  indexPath + IndexPath(row: 0, section: 1),
                  indexPath + IndexPath(row: 0, section: -1),
                  indexPath + IndexPath(row: 1, section: 0),
                  indexPath + IndexPath(row: -1, section: 0)]
     
-    array = array.filter({
+    return array.filter({
         $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
     })
-    return Array(Set(array))
+}
+
+// 斜对角四个邻居点
+func fourDiagonalNeighborsOf(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPath] {
+    let array = [indexPath + IndexPath(row: 1, section: 1),
+                              indexPath + IndexPath(row: -1, section: 1),
+                              indexPath + IndexPath(row: -1, section: -1),
+                              indexPath + IndexPath(row: 1, section: -1)]
+    return array.filter({
+        $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
+    })
 }
 
 // 界内的点
