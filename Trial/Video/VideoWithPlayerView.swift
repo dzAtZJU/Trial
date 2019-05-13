@@ -18,11 +18,13 @@ class VideoWithPlayerView: UIView {
     
     private var playerControl: PlayerControlView?
     
-    var screenshot: UIImage!
+    var screenshot: UIView?
     
     private var isFirstPlayed = true
     
     private var requestToBuffer = false
+    
+    private var ready = false
     
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
         let result = VideoWithPlayerView(videoId: videoId)
@@ -70,7 +72,9 @@ class VideoWithPlayerView: UIView {
     
     /// Leave cell then pack up
     func fallOff(completion: ((VideoWithPlayerView) -> ())? = nil) {
-        screenshot = snapshot()
+        if ready {
+            screenshot = videoView.snapshotView(afterScreenUpdates: false)
+        }
         pause()
         window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
         
@@ -91,6 +95,7 @@ class VideoWithPlayerView: UIView {
     }
     
     private func beforeAppear() {
+        ready = true
         activityIndicator.stopAnimating()
         self.isHidden = false
         if requestToBuffer && !requestToPlay {
@@ -101,13 +106,6 @@ class VideoWithPlayerView: UIView {
     private func setPlayerControl(_ playerControl: PlayerControlView) {
         self.playerControl = playerControl
         setupSubview(playerControl)
-    }
-    
-    lazy var renderer = UIGraphicsImageRenderer(size: CGSize(width: UIMetricTemplate.watch.itemWidth, height: UIMetricTemplate.watch.itemHeight))
-    func snapshot() -> UIImage {
-        return renderer.image { ctx in
-            videoView.drawHierarchy(in: ctx.format.bounds, afterScreenUpdates: false)
-        }
     }
     
     func getVideoState(_ block: @escaping (WKYTPlayerState) -> ()) {

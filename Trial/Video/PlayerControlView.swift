@@ -34,20 +34,22 @@ class PlayerControlView: UIView {
         
         exitButton = UIButton(type: .roundedRect)
         exitButton.backgroundColor = UIColor.red
-        exitButton.bounds.size = CGSize(width: 100, height: 60)
         addSubview(exitButton)
         exitButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: exitButton, attribute: .top, multiplier: 1, constant: 8),
-                                     NSLayoutConstraint(item: self, attribute: .right, relatedBy: .equal, toItem: exitButton, attribute: .right, multiplier: 1, constant: 8)])
+                                     NSLayoutConstraint(item: self, attribute: .right, relatedBy: .equal, toItem: exitButton, attribute: .right, multiplier: 1, constant: 8),
+                                     NSLayoutConstraint(item: self, attribute: .width, relatedBy: .equal, toItem: exitButton, attribute: .width, multiplier: 7, constant: 0),
+                                     NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: exitButton, attribute: .height, multiplier: 7, constant: 0)])
         exitButton.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
         
         episodesButton = UIButton(type: .roundedRect)
         episodesButton.backgroundColor = UIColor.blue
-        episodesButton.bounds.size = CGSize(width: 100, height: 60)
         addSubview(episodesButton)
         episodesButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: episodesButton, attribute: .top, multiplier: 1, constant: 8),
-                                     NSLayoutConstraint(item: episodesButton, attribute: .right, relatedBy: .equal, toItem: exitButton, attribute: .left, multiplier: 1, constant: 8)])
+                                     NSLayoutConstraint(item: episodesButton, attribute: .right, relatedBy: .equal, toItem: exitButton, attribute: .left, multiplier: 1, constant: 8),
+                                     NSLayoutConstraint(item: self, attribute: .width, relatedBy: .equal, toItem: episodesButton, attribute: .width, multiplier: 7, constant: 0),
+                                     NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: episodesButton, attribute: .height, multiplier: 7, constant: 0)])
         episodesButton.addTarget(self, action: #selector(handleButton), for: .touchUpInside)
     }
     

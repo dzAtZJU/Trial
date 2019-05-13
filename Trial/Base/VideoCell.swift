@@ -16,7 +16,7 @@ class VideoCell: UICollectionViewCell {
     var thumbnailImageView: UIImageView!
     
     /// One of timing contents
-    var screenshotView: UIImageView!
+    var screenshotView: UIView!
     
     private var gradientView: UIView!
     
@@ -30,27 +30,29 @@ class VideoCell: UICollectionViewCell {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-//        backgroundColor = UIColor.blue
+        backgroundColor = UIColor.blue
         setupView()
     }
     
     func clearContents() {
         thumbnailImageView.image = nil
-        screenshotView.image = nil
+        screenshotView.subviews.first?.removeFromSuperview()
     }
     
     func loadThumbnailImage(_ image: UIImage?) {
         thumbnailImageView.image = image
-        if screenshotView.image == nil {
-            screenshotView.image = image
+        if screenshotView.subviews.first == nil {
+            let copyOfThumbnail = UIImageView(image: image)
+            copyOfThumbnail.contentMode = .scaleAspectFill
+            addScreenshotImage(copyOfThumbnail)
         }
     }
     
-    func loadScreenshot(_ image: UIImage?) {
+    func loadScreenshot(_ image: UIView?) {
         guard let image = image else {
             return
         }
-        screenshotView.image = image
+        addScreenshotImage(image)
     }
     
     // One place to configure timing contents
@@ -82,7 +84,7 @@ class VideoCell: UICollectionViewCell {
         videoWithPlayer.fallOff {
             inFocusVideo = $0
         }
-        self.screenshotView.image = videoWithPlayer.screenshot
+        addScreenshotImage(videoWithPlayer.screenshot)
         self.videoWithPlayer = nil
     }
     
@@ -105,8 +107,7 @@ class VideoCell: UICollectionViewCell {
     }
     
     private func setupScreenshotView() {
-        screenshotView = UIImageView()
-        screenshotView.contentMode = .scaleAspectFill
+        screenshotView = UIView()
         addSubview(screenshotView)
         setupFillConstraintsFor(view: screenshotView)
     }
@@ -123,6 +124,16 @@ class VideoCell: UICollectionViewCell {
         newVideoWithPlayer.transform = CGAffineTransform(scaleX: bounds.width / newVideoWithPlayer.bounds.width, y: bounds.height / newVideoWithPlayer.bounds.height)
         newVideoWithPlayer.isHidden = true
         addVideoToHierarchy(newVideoWithPlayer)
+    }
+    
+    private func addScreenshotImage(_ image: UIView?) {
+        guard let image = image else {
+            return
+        }
+        
+        image.frame = screenshotView.bounds
+        image.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        screenshotView.addSubview(image)
     }
     
     private func setupFillConstraintsFor(view: UIView) {
