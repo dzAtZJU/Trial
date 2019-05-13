@@ -199,7 +199,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
     func isViewCenterIn(indexTriangle: (CGPoint, CGPoint, CGPoint)) -> [CGFloat]? {
         let triangle = (centerOf(item: indexTriangle.0), centerOf(item: indexTriangle.1), centerOf(item: indexTriangle.2))
         let newBarycentric = barycentricOf(collectionView!.viewPortCenter, P1: triangle.0, P2: triangle.1, P3: triangle.2)
-        if newBarycentric.allSatisfy({ $0 >= 0 }) {
+        if newBarycentric.allSatisfy({ $0 >= -0.02 }) { // To soften Numeric effect
             return newBarycentric
         }
         
