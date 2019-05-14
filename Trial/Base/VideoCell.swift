@@ -20,6 +20,8 @@ class VideoCell: UICollectionViewCell {
     
     private var gradientView: UIView!
     
+    var wkWebView: WKWebView!
+    
     var videoWithPlayer: VideoWithPlayerView?
     
     override init(frame: CGRect) {
@@ -80,12 +82,14 @@ class VideoCell: UICollectionViewCell {
         guard let videoWithPlayer = videoWithPlayer else {
             return
         }
-        
+//        let t0 = Date().timeIntervalSince1970
         videoWithPlayer.fallOff {
             inFocusVideo = $0
         }
         addScreenshotImage(videoWithPlayer.screenshot)
         self.videoWithPlayer = nil
+//        let t3 = Date().timeIntervalSince1970
+//        print("t3-t0: \(t3-t0)")
     }
     
     func addVideoToHierarchy(_ video: VideoWithPlayerView) {
@@ -97,6 +101,7 @@ class VideoCell: UICollectionViewCell {
         setupThumbnailImageView()
         setupScreenshotView()
         setupGradientMask()
+        createWKWebview()
     }
     
     private func setupThumbnailImageView() {
@@ -116,6 +121,9 @@ class VideoCell: UICollectionViewCell {
         gradientView = GradientView()
         addSubview(gradientView)
         setupFillConstraintsFor(view: gradientView)
+    }
+    
+    private func createWKWebview() {
     }
     
     func setupVideoView(_ newVideoWithPlayer: VideoWithPlayerView) {

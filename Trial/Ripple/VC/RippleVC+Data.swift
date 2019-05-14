@@ -46,43 +46,41 @@ extension RippleVC: UICollectionViewDataSource {
     }
     
     func preFetchVideoForTwoNeighborItems() {
-//        twoNeighborsOfInFocusItem().forEach { item in
-//            fetchVideoForItem(item) { video, cached in
-//                guard !cached else {
-//                    return
-//                }
-//
-//                let cell = self.collectionView.cellForItem(at: item) as! RippleCellV2
-//                cell.mountVideoForBuffering(video)
-//            }
-//        }
+        twoNeighborsOfInFocusItem().forEach { item in
+            fetchVideoForItem(item) { video, cached in
+                guard !cached else {
+                    return
+                }
+
+                let cell = self.collectionView.cellForItem(at: item) as! RippleCellV2
+                cell.mountVideoForBuffering(video)
+            }
+        }
     }
     
     func cancelPreFetchVideoForTwoNeighborItems() {
-//        twoNeighborsOfInFocusItem().forEach { item in
-//            fetchVideoForItem(item) { video, cached in
-//                guard !cached else {
-//                    return
-//                }
-//
-//                let cell = self.collectionView.cellForItem(at: item) as! RippleCellV2
-//                cell.unmountVideoForBuffering()
-//            }
-//        }
+        twoNeighborsOfInFocusItem().forEach { item in
+            fetchVideoForItem(item) { video, cached in
+                guard !cached else {
+                    return
+                }
+
+                let cell = self.collectionView.cellForItem(at: item) as! RippleCellV2
+                cell.unmountVideoForBuffering()
+            }
+        }
     }
     
     func fetchVideoForItem(_ indexPath: IndexPath, completion: ((VideoWithPlayerView, Bool) -> ())? = nil) {
         YoutubeManagers.shared.getData(indexPath: indexPath) { youtubeVideoData in
-            DispatchQueue.main.async {
-                let videoId = youtubeVideoData.videoId!
-                let cached = self.videoId2PlayerView[videoId] != nil
-                if !cached {
-                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-                    self.videoId2PlayerView[videoId] = player
-                }
-                if let completion = completion {
-                    completion(self.videoId2PlayerView[videoId]!, cached)
-                }
+            let videoId = youtubeVideoData.videoId!
+            let cached = self.videoId2PlayerView[videoId] != nil
+            if !cached {
+                let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+                self.videoId2PlayerView[videoId] = player
+            }
+            if let completion = completion {
+                completion(self.videoId2PlayerView[videoId]!, cached)
             }
         }
     }

@@ -41,7 +41,9 @@ class YoutubeManagers {
                     data.videoId = videoId
                     data.thumbnail = operation.image
                     self.videoId2Data[videoId] = data
-                    self.invokeCompletionHandlers(for: videoId, with: data)
+                    DispatchQueue.main.sync {
+                        self.invokeCompletionHandlers(for: videoId, with: data)
+                    }
                 }
                 YoutubeOperationQueue.addOperation(operation)
             }

@@ -19,8 +19,7 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         inFocusCell?.unMountVideo()
-        
-        cancelPreFetchVideoForTwoNeighborItems()
+//        cancelPreFetchVideoForTwoNeighborItems()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -32,8 +31,7 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
         fetchVideoForItem(layout.centerItem) { video, _ in
             self.inFocusCell?.mountVideo(video)
         }
-        
-        preFetchVideoForTwoNeighborItems()
+//        preFetchVideoForTwoNeighborItems()
     }
     
     @objc func handlePinch(_ press: UIPinchGestureRecognizer) {

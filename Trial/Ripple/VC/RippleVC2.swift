@@ -61,7 +61,7 @@ class RippleVC: UIViewController,  StoreSubscriber {
         fetchVideoForItem(layout.centerItem) { video, _ in
             self.inFocusCell?.mountVideo(video)
         }
-        preFetchVideoForTwoNeighborItems()
+//        preFetchVideoForTwoNeighborItems()
         
         setupViews()
         

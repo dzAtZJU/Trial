@@ -38,43 +38,41 @@ class VideoWithPlayerView: UIView {
 //        backgroundColor = UIColor.purple
         videoView.delegate = self
         setupSubview(videoView)
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else {
-                return
-            }
+//        DispatchQueue.main.async { [weak self] in
+//
+//            guard let self = self else {
+//                return
+//            }
             self.videoId = videoId
             self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "modestbranding": 1])
-        }
+//        }
     }
     
     func play() {
         self.requestToPlay = true
-        DispatchQueue.main.async {
-            self.videoView.playVideo()
-            self.isFirstPlayed = false
-        }
+        self.videoView.playVideo()
+        self.isFirstPlayed = false
     }
     
     func buffer() {
         self.requestToBuffer = true
-        DispatchQueue.main.async {
-          self.videoView.seek(toSeconds: 0, allowSeekAhead: true)
-        }
+        self.videoView.seek(toSeconds: 0, allowSeekAhead: true)
     }
     
     func endBuffer() {
         requestToBuffer = false
-        DispatchQueue.main.async {
-            self.videoView.pauseVideo()
-            self.window?.insertSubview(self, at: 0)
-        }
+        self.window?.insertSubview(self, at: 0)
+        self.videoView.pauseVideo()
     }
     
     /// Leave cell then pack up
     func fallOff(completion: ((VideoWithPlayerView) -> ())? = nil) {
+//        let t1 = Date().timeIntervalSince1970
         if ready {
             screenshot = videoView.snapshotView(afterScreenUpdates: false)
         }
+//        let t2 = Date().timeIntervalSince1970
+//        print("t2-t1: \(t2-t1)")
         pause()
         window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
         
@@ -84,17 +82,22 @@ class VideoWithPlayerView: UIView {
     }
     
     func pause() {
+        self.requestToPlay = false
         self.isHidden = true
         activityIndicator.stopAnimating()
-        DispatchQueue.main.async { [weak self] in
-            guard let theSelf = self else {
-                return
-            }
-            theSelf.videoView.pauseVideo()
-        }
+//        DispatchQueue.main.async { [weak self] in
+//            guard let theSelf = self else {
+//                return
+//            }
+            videoView.pauseVideo()
+//        }
     }
     
     private func beforeAppear() {
+        if rippleViewStore.state.scene == .full {
+            inFocusVideo = self
+            window!.addSubview(self)
+        }
         ready = true
         activityIndicator.stopAnimating()
         self.isHidden = false

@@ -99,8 +99,10 @@ extension RippleVC {
             }
             completionQueue.append {
                 shadowCompletion()
-                inFocusVideo = self.inFocusCell?.videoWithPlayer!
-                self.view.window?.addSubview(inFocusVideo)
+                inFocusVideo = self.inFocusCell?.videoWithPlayer
+                if inFocusVideo != nil {
+                    self.view.window!.addSubview(inFocusVideo)
+                }
             }
             if UIDevice.current.orientation.isPortrait {
                 executeAnimationByNewState = false
