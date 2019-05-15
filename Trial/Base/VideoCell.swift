@@ -101,7 +101,6 @@ class VideoCell: UICollectionViewCell {
         setupThumbnailImageView()
         setupScreenshotView()
         setupGradientMask()
-        createWKWebview()
     }
     
     private func setupThumbnailImageView() {
@@ -121,9 +120,6 @@ class VideoCell: UICollectionViewCell {
         gradientView = GradientView()
         addSubview(gradientView)
         setupFillConstraintsFor(view: gradientView)
-    }
-    
-    private func createWKWebview() {
     }
     
     func setupVideoView(_ newVideoWithPlayer: VideoWithPlayerView) {

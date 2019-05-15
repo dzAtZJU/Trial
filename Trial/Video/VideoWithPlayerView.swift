@@ -13,6 +13,11 @@ import YoutubePlayer_in_WKWebView
 // 1. initialized
 // 2. Ready to be called
 
+// Aspect
+// Ready -> 播放/暂停 指令队列
+// Buffer -> 转圈圈/隐藏
+// 控件
+
 class VideoWithPlayerView: UIView {
     let videoView: WKYTPlayerView
     
