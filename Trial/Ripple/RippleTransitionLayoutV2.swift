@@ -199,7 +199,8 @@ class RippleTransitionLayout: UICollectionViewLayout {
     func isViewCenterIn(indexTriangle: (CGPoint, CGPoint, CGPoint)) -> [CGFloat]? {
         let triangle = (centerOf(item: indexTriangle.0), centerOf(item: indexTriangle.1), centerOf(item: indexTriangle.2))
         let newBarycentric = barycentricOf(collectionView!.viewPortCenter, P1: triangle.0, P2: triangle.1, P3: triangle.2)
-        if newBarycentric.allSatisfy({ $0 >= -0.02 }) { // To soften Numeric effect
+        let threshold: CGFloat = rippleViewStore.state.scene == .watching ? -0.02 : 0 // To soften Numeric effect
+        if newBarycentric.allSatisfy({ $0 >= threshold }) {
             return newBarycentric
         }
         
@@ -248,6 +249,16 @@ class RippleTransitionLayout: UICollectionViewLayout {
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
+        lastCenterP = centerItem
+        
+        if !shouldPagedMove {
+            return proposedContentOffset
+        }
+        
+        if let translate = collectionView?.panGestureRecognizer.translation(in: collectionView), abs(translate.x) < 50 && abs(translate.y) < 50 {
+            return centerOf(item: CGPoint(centerItem)) - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
+        }
+        
         let proposedCenter = proposedContentOffset + CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
         var minDistance = CGFloat(Int.max)
         var minCenter = CGPoint.zero
@@ -261,22 +272,15 @@ class RippleTransitionLayout: UICollectionViewLayout {
                 minIndex = indexPath
             }
         }
+        
         let r = minCenter - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
-        
-        if shouldPagedMove {
-            lastCenterP = minIndex
-            return r
-        } else {
-            lastCenterP = centerItem
-            return proposedContentOffset
-        }
-        
+        lastCenterP = minIndex
+        return r
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
         return centerOf(item: CGPoint(centerItem)) - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
     }
-    
     
     private var maxRow: Int {
         return collectionView!.numberOfItems(inSection: 0)

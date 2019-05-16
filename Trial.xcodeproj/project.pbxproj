@@ -100,6 +100,7 @@
 		8995A5CA22686DCE0062A474 /* TransitionalResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitionalResource.swift; sourceTree = "<group>"; };
 		8995A5CC226870FE0062A474 /* Shadow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shadow.swift; sourceTree = "<group>"; };
 		89AA5449225C879E00178341 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		89BD5D9A228D6D9B00C7C52C /* Optimization.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Optimization.md; sourceTree = "<group>"; };
 		89D487EC2260642D009F2013 /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		89D487EE226083B0009F2013 /* ViewMorphing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewMorphing.swift; sourceTree = "<group>"; };
 		89DD14832275C0D60008512A /* EpisodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeCell.swift; sourceTree = "<group>"; };
@@ -225,6 +226,7 @@
 			isa = PBXGroup;
 			children = (
 				89AA5449225C879E00178341 /* README.md */,
+				89BD5D9A228D6D9B00C7C52C /* Optimization.md */,
 			);
 			path = Docs;
 			sourceTree = "<group>";
@@ -324,12 +326,12 @@
 		89F37A1C2237524800A9303D /* Trial */ = {
 			isa = PBXGroup;
 			children = (
+				89AA5448225C878700178341 /* Docs */,
 				89DD925A2281511200765769 /* Base */,
 				89DD148E227852230008512A /* Video */,
 				89DD14872276EB3A0008512A /* Ripple */,
 				89DD14822275C0B70008512A /* Episodes */,
 				890CED2B2272EAF700F58780 /* States */,
-				89AA5448225C878700178341 /* Docs */,
 				89006265224C879500094F91 /* Tests */,
 				8997F2CE224A06DA00C2DC72 /* Animations */,
 				896EA9252248F32C00780557 /* Network */,

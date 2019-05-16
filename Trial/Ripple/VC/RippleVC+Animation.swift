@@ -102,6 +102,8 @@ extension RippleVC {
                 inFocusVideo = self.inFocusCell?.videoWithPlayer
                 if inFocusVideo != nil {
                     self.view.window!.addSubview(inFocusVideo)
+                } else {
+                    
                 }
             }
             if UIDevice.current.orientation.isPortrait {

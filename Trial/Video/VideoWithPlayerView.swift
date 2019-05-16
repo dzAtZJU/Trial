@@ -29,7 +29,7 @@ class VideoWithPlayerView: UIView {
     
     private var requestToBuffer = false
     
-    private var ready = false
+    var isReady = false
     
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
         let result = VideoWithPlayerView(videoId: videoId)
@@ -73,7 +73,7 @@ class VideoWithPlayerView: UIView {
     /// Leave cell then pack up
     func fallOff(completion: ((VideoWithPlayerView) -> ())? = nil) {
 //        let t1 = Date().timeIntervalSince1970
-        if ready {
+        if isReady {
             screenshot = videoView.snapshotView(afterScreenUpdates: false)
         }
 //        let t2 = Date().timeIntervalSince1970
@@ -88,7 +88,7 @@ class VideoWithPlayerView: UIView {
     
     func pause() {
         self.requestToPlay = false
-        self.isHidden = true
+        self.videoView.isHidden = false
         activityIndicator.stopAnimating()
 //        DispatchQueue.main.async { [weak self] in
 //            guard let theSelf = self else {
@@ -103,9 +103,9 @@ class VideoWithPlayerView: UIView {
             inFocusVideo = self
             window!.addSubview(self)
         }
-        ready = true
+        isReady = true
         activityIndicator.stopAnimating()
-        self.isHidden = false
+        self.videoView.isHidden = false
         if requestToBuffer && !requestToPlay {
             endBuffer()
         }

@@ -13,19 +13,6 @@ class RippleCollectionView: UICollectionView {
     
     var transitionDirection: Direction?
     
-    var sceneState: RippleSceneState = .watching {
-        willSet {
-            switch newValue {
-                case .watching:
-                    isDirectionalLockEnabled = true
-                case .surfing :
-                    isDirectionalLockEnabled = false
-                default:
-                    return
-            }
-        }
-    }
-    
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
         setup()

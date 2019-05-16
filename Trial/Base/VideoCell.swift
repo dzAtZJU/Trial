@@ -26,13 +26,13 @@ class VideoCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = UIColor.blue
+//        backgroundColor = UIColor.blue
         setupView()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        backgroundColor = UIColor.blue
+//        backgroundColor = UIColor.blue
         setupView()
     }
     
@@ -82,14 +82,18 @@ class VideoCell: UICollectionViewCell {
         guard let videoWithPlayer = videoWithPlayer else {
             return
         }
-//        let t0 = Date().timeIntervalSince1970
+        
+        guard videoWithPlayer.isReady else {
+            videoWithPlayer.removeFromSuperview()
+            self.videoWithPlayer = nil
+            return
+        }
+        
         videoWithPlayer.fallOff {
             inFocusVideo = $0
         }
         addScreenshotImage(videoWithPlayer.screenshot)
         self.videoWithPlayer = nil
-//        let t3 = Date().timeIntervalSince1970
-//        print("t3-t0: \(t3-t0)")
     }
     
     func addVideoToHierarchy(_ video: VideoWithPlayerView) {
@@ -126,7 +130,7 @@ class VideoCell: UICollectionViewCell {
         newVideoWithPlayer.layer.anchorPoint = .zero
         newVideoWithPlayer.bounds = CGRect(origin: .zero, size: CGSize(width: screenHeight, height: screenWidth))
         newVideoWithPlayer.transform = CGAffineTransform(scaleX: bounds.width / newVideoWithPlayer.bounds.width, y: bounds.height / newVideoWithPlayer.bounds.height)
-        newVideoWithPlayer.isHidden = true
+        newVideoWithPlayer.videoView.isHidden = true
         addVideoToHierarchy(newVideoWithPlayer)
     }
     
