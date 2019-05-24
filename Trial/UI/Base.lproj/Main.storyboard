@@ -134,6 +134,82 @@
             </objects>
             <point key="canvasLocation" x="-690.39999999999998" y="11.244377811094454"/>
         </scene>
+        <!--Test3VC-->
+        <scene sceneID="jjf-9m-Qcg">
+            <objects>
+                <viewController id="WVg-Bn-xKa" customClass="Test3VC" customModule="Trial" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="GHt-ih-UJR">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mcx-bM-0Sd">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="389"/>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="5fV-1I-8Da" firstAttribute="bottom" secondItem="mcx-bM-0Sd" secondAttribute="bottom" constant="278" id="8Jp-6H-xNg"/>
+                            <constraint firstAttribute="trailing" secondItem="mcx-bM-0Sd" secondAttribute="trailing" id="Icx-1b-hPJ"/>
+                            <constraint firstItem="mcx-bM-0Sd" firstAttribute="leading" secondItem="GHt-ih-UJR" secondAttribute="leading" id="P93-qH-GVc"/>
+                            <constraint firstItem="mcx-bM-0Sd" firstAttribute="top" secondItem="GHt-ih-UJR" secondAttribute="top" id="Sy4-Q6-FwA"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="5fV-1I-8Da"/>
+                    </view>
+                    <connections>
+                        <outlet property="scrollView" destination="mcx-bM-0Sd" id="4q2-iy-x4e"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="0Xd-9y-rZf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-5756" y="-63.418290854572717"/>
+        </scene>
+        <!--Collection View Controller-->
+        <scene sceneID="h4b-cL-3wS">
+            <objects>
+                <collectionViewController id="PPu-bD-BYD" customClass="CollectionViewController" customModule="Trial" customModuleProvider="target" sceneMemberID="viewController">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" minimumZoomScale="0.5" maximumZoomScale="2" dataMode="prototypes" id="eyZ-Vc-2vZ">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="0.35285869939999998" green="1" blue="0.14678470369999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="1pi-9S-Rdg">
+                            <size key="itemSize" width="50" height="50"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        </collectionViewFlowLayout>
+                        <cells>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="cell" id="Equ-Vm-mSO" customClass="Cell" customModule="Trial" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XB7-Ks-6xq">
+                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </view>
+                                <color key="backgroundColor" red="1" green="0.95666110709999996" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <connections>
+                                    <outlet property="label" destination="XB7-Ks-6xq" id="RUM-II-cWK"/>
+                                </connections>
+                            </collectionViewCell>
+                        </cells>
+                        <connections>
+                            <outlet property="dataSource" destination="PPu-bD-BYD" id="gLf-Gf-Klw"/>
+                            <outlet property="delegate" destination="PPu-bD-BYD" id="Cvg-P4-kwt"/>
+                        </connections>
+                    </collectionView>
+                </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="juJ-EU-a8S" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-4612" y="-42"/>
+        </scene>
         <!--TestVC-->
         <scene sceneID="exj-c5-mK6">
             <objects>
@@ -141,31 +217,13 @@
                     <view key="view" contentMode="scaleToFill" id="a6X-86-3L3">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xph-UN-rAq">
-                                <rect key="frame" x="196" y="318" width="46" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                                <connections>
-                                    <action selector="onBackClick:" destination="fkq-aW-HvA" eventType="touchUpInside" id="6qv-hb-NIE"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="068-AW-HD1">
-                                <rect key="frame" x="127" y="318" width="46" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                                <connections>
-                                    <action selector="onClick:" destination="fkq-aW-HvA" eventType="touchUpInside" id="Lkc-la-llG"/>
-                                </connections>
-                            </button>
-                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="BiC-W3-flh"/>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Mxm-Tt-vPh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3993" y="2"/>
+            <point key="canvasLocation" x="-3759" y="-52"/>
         </scene>
         <!--EpisodesVC-->
         <scene sceneID="l6n-hg-uYh">
@@ -180,7 +238,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rzN-RL-Lnb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2935" y="11"/>
+            <point key="canvasLocation" x="-2910" y="-32"/>
         </scene>
         <!--RippleVC-->
         <scene sceneID="k2q-QV-iss">

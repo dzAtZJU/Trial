@@ -48,3 +48,5 @@ struct TestDatas {
         return result
     }()
 }
+
+let TestState = 2 // 无阴影

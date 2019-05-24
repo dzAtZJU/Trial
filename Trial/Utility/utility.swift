@@ -129,24 +129,33 @@ func doIn2DRange(maxRow: Int, maxCol: Int, block: (Int, Int, inout Bool) -> Void
 // 点的四个垂直三角
 func indexTrianglesAround(_ point: CGPoint, maxRow: Int, maxCol: Int) -> [(CGPoint, CGPoint, CGPoint)] {
     let dPoints = [CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: -1, y: 0), CGPoint(x: 0, y: -1)]
-    return [(point, point + dPoints[0], point + dPoints[1]),
-            (point, point + dPoints[1], point + dPoints[2]),
-            (point, point + dPoints[2], point + dPoints[3]),
-            (point, point + dPoints[3], point + dPoints[0])].filter({
-                validItems(candidates: [IndexPath($0.0), IndexPath($0.1), IndexPath($0.2)], maxRow: maxRow, maxCol: maxCol).count == 3
-            })
+    var candidates = [(point, point + dPoints[0], point + dPoints[1]),
+                      (point, point + dPoints[1], point + dPoints[2]),
+                      (point, point + dPoints[2], point + dPoints[3]),
+                      (point, point + dPoints[3], point + dPoints[0])]
+    validateTriangles(candidates: &candidates, center: point, maxRow: maxRow, maxCol: maxCol)
+    return candidates
 }
 
 // 点的四个斜对面三角
 func flipTrianglesAround(_ point: CGPoint, maxRow: Int, maxCol: Int) -> [(CGPoint, CGPoint, CGPoint)] {
     let dPoints = [CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: -1, y: 0), CGPoint(x: 0, y: -1)]
     let dDiagonalPoints = [CGPoint(x: 1, y: 1), CGPoint(x: -1, y: 1), CGPoint(x: -1, y: -1), CGPoint(x: 1, y: -1)]
-    return [(point + dPoints[0], point + dPoints[1], point + dDiagonalPoints[0]),
-            (point + dPoints[1], point + dPoints[2], point + dDiagonalPoints[1]),
-            (point + dPoints[2], point + dPoints[3], point + dDiagonalPoints[2]),
-            (point + dPoints[3], point + dPoints[0], point + dDiagonalPoints[3])].filter({
-                validItems(candidates: [IndexPath($0.0), IndexPath($0.1), IndexPath($0.2)], maxRow: maxRow, maxCol: maxCol).count == 3
-                })
+    
+    var candidates = [(point + dPoints[0], point + dPoints[1], point + dDiagonalPoints[0]),
+                      (point + dPoints[1], point + dPoints[2], point + dDiagonalPoints[1]),
+                      (point + dPoints[2], point + dPoints[3], point + dDiagonalPoints[2]),
+                      (point + dPoints[3], point + dPoints[0], point + dDiagonalPoints[3])]
+    validateTriangles(candidates: &candidates, center: point, maxRow: maxRow, maxCol: maxCol)
+    return candidates
+}
+
+func validateTriangles(candidates: inout [(CGPoint, CGPoint, CGPoint)], center: CGPoint,  maxRow: Int, maxCol: Int) {
+    if isOnEdge(item: IndexPath(center), maxRow: maxRow, maxCol: maxCol) {
+        candidates.removeAll {
+            !isItemsAllValid(candidates: [IndexPath($0.0), IndexPath($0.1), IndexPath($0.2)], maxRow: maxRow, maxCol: maxCol)
+        }
+    }
 }
 
 // 点的默认垂直三角
@@ -168,7 +177,7 @@ func nearestFiveTo(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPa
                  indexPath + IndexPath(row: 0, section: -1),
                  indexPath + IndexPath(row: 1, section: 0),
                  indexPath + IndexPath(row: -1, section: 0)]
-    
+    print("five: \(array)")
     return array.filter({
         $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
     })
@@ -180,16 +189,29 @@ func fourDiagonalNeighborsOf(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -
                               indexPath + IndexPath(row: -1, section: 1),
                               indexPath + IndexPath(row: -1, section: -1),
                               indexPath + IndexPath(row: 1, section: -1)]
+    print("diag: \(array)")
     return array.filter({
         $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
     })
 }
 
 // 界内的点
-func validItems(candidates: [IndexPath], maxRow: Int, maxCol: Int) -> [IndexPath] {
-    return candidates.filter({
-        $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
-    })
+func isItemsAllValid(candidates: [IndexPath], maxRow: Int, maxCol: Int) -> Bool {
+    for candidate in candidates {
+        if !isValidItem(candidate, maxRow: maxRow, maxCol: maxCol) {
+            return false
+        }
+    }
+    
+    return true
+}
+
+func isValidItem(_ item: IndexPath, maxRow: Int, maxCol: Int) -> Bool {
+    return item.section >= 0 && item.section < maxCol && item.row >= 0 && item.row < maxRow
+}
+
+func isOnEdge(item: IndexPath, maxRow: Int, maxCol: Int) -> Bool {
+    return item.row == 0 || item.section == 0 || item.row == maxRow - 1 || item.section == maxCol - 1
 }
 
 func diagonalVertexOf(_ triangle: (CGPoint, CGPoint, CGPoint)) -> CGPoint {
@@ -207,6 +229,22 @@ func diagonalVertexOf(_ triangle: (CGPoint, CGPoint, CGPoint)) -> CGPoint {
     }
     
     return triangle.0
+}
+
+let ds: [IndexPath] = [IndexPath(row: 1, section: 0), IndexPath(row: 0, section: 1), IndexPath(row: -1, section: 0), IndexPath(row: 0, section: -1)]
+let dDiagonals: [IndexPath] = [IndexPath(row: 1, section: 1), IndexPath(row: -1, section: 1), IndexPath(row: -1, section: -1), IndexPath(row: 1, section: -1)]
+let dNeighbors = ds + dDiagonals
+
+func eightNeighborsOf(item: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPath] {
+    var neighbors = [IndexPath]()
+    let isItemOnEdge = isOnEdge(item: item, maxRow: maxRow, maxCol: maxCol)
+    for d in dNeighbors {
+        let neighbor = d + item
+        if !isItemOnEdge || isValidItem(neighbor, maxRow: maxRow, maxCol: maxCol) {
+            neighbors.append(neighbor)
+        }
+    }
+    return neighbors
 }
 
 func eightTrianglesAround(_ triangle: (CGPoint, CGPoint, CGPoint)) -> [(CGPoint, CGPoint, CGPoint)] {

@@ -101,6 +101,8 @@ class VideoWithPlayerView: UIView {
     private func beforeAppear() {
         if rippleViewStore.state.scene == .full {
             inFocusVideo = self
+            self.transform = .identity
+            self.frame = self.window!.bounds
             window!.addSubview(self)
         }
         isReady = true

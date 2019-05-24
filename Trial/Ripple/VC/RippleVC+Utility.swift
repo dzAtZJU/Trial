@@ -16,8 +16,16 @@ extension RippleVC {
             [IndexPath(row: 1, section: 0), IndexPath(row: -1, section: 0)] :
         [IndexPath(row: 0, section: 1), IndexPath(row: 0, section: -1)]
         
-        return validItems(candidates: possibleDIndex.map {
-            $0 + inFocusItem
-        }, maxRow: ytRows, maxCol: ytCols)
+
+        fatalError()
+//        return validItems(candidates: possibleDIndex.map {
+//            $0 + inFocusItem
+//        }, maxRow: ytRows, maxCol: ytCols)
+    }
+    
+    func updateContentInset() {
+        let topInset = UIScreen.main.bounds.height / 2
+        let leftInset = UIScreen.main.bounds.width / 2
+        collectionView.contentInset = UIEdgeInsets(top: topInset, left: leftInset, bottom: topInset, right: leftInset)
     }
 }

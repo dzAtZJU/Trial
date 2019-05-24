@@ -33,6 +33,7 @@ extension RippleVC {
         if !executeAnimationByNewState {
             coordinator.animate(alongsideTransition: { _ in
                 self.runQueuedAnimation()
+                self.updateContentInset()
             }, completion: { _ in
                 self.runQueuedCompletion()
                 self.animationQueue.removeAll()
@@ -101,6 +102,8 @@ extension RippleVC {
                 shadowCompletion()
                 inFocusVideo = self.inFocusCell?.videoWithPlayer
                 if inFocusVideo != nil {
+                    inFocusVideo.transform = .identity
+                    inFocusVideo.frame = self.view.window!.bounds
                     self.view.window!.addSubview(inFocusVideo)
                 } else {
                     
@@ -145,6 +148,9 @@ extension RippleVC {
     }
     
     func installShadow(_ newShadow: Shadow) -> (() -> Void, () -> Void) {
+        guard TestState != 1 else {
+            return ({}, {})
+        }
         if newShadow != Shadow.dumb {
             newShadow.frame = view.bounds
             newShadow.autoresizingMask = [.flexibleWidth, .flexibleHeight]

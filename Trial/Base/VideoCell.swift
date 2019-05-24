@@ -98,6 +98,10 @@ class VideoCell: UICollectionViewCell {
     
     func addVideoToHierarchy(_ video: VideoWithPlayerView) {
         self.videoWithPlayer = video
+        if gradientView == nil {
+            addSubview(video)
+            return
+        }
         self.insertSubview(video, belowSubview: gradientView)
     }
     
@@ -121,6 +125,9 @@ class VideoCell: UICollectionViewCell {
     }
     
     private func setupGradientMask() {
+        guard TestState != 1 else {
+            return
+        }
         gradientView = GradientView()
         addSubview(gradientView)
         setupFillConstraintsFor(view: gradientView)

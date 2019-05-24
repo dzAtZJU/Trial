@@ -29,13 +29,13 @@ struct EpisodesViewState: StateType {
             case .sliding:
                 return .watching
             case .watching:
-                return .watching2Full
-            case .watching2Full:
                 return .full
             case .full:
                 return .full2Watching
             case .full2Watching:
                 return .watching
+            default:
+                fatalError()
             }
         case .scroll:
             switch scene {

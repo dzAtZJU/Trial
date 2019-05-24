@@ -68,7 +68,7 @@ class EpisodesVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.frame = view.bounds
+        collectionView.frame = view.bounds.insetBy(dx: -100, dy: 0)
         blurredThumbnailBg.frame = view.bounds
         shadowBlurredThumbnailBg.frame = view.bounds
         shadowLeft.frame = view.bounds
@@ -121,12 +121,12 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
 
         let layout = collectionViewLayout as! EpisodesLayout
         switch layout.sceneState {
-        case .watching, .watching2Full:
+        case .watching, .full2Watching:
             return CGSize(width: 432, height: 243)
+        case .watching2Full:
+            return CGSize(width: 240, height: 225)
         case .full:
             return CGSize(width: 667, height: 375)
-        case .full2Watching:
-            return CGSize(width: 518, height: 292)
         case .sliding:
             return CGSize(width: 120, height: 225)
         }
@@ -140,7 +140,7 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
         case .watching:
             return CGFloat(20)
         case .full, .full2Watching:
-            return CGFloat(200)
+            return CGFloat(100)
         case .watching2Full:
             return CGFloat(100)
         }
@@ -154,9 +154,9 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
         case .watching:
             return CGFloat(20)
         case .full, .full2Watching:
-            return CGFloat(200)
+            return CGFloat(80)
         case .watching2Full:
-            return CGFloat(100)
+            return CGFloat(80)
         }
     }
 }

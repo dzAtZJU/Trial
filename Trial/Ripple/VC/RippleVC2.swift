@@ -56,6 +56,7 @@ class RippleVC: UIViewController,  StoreSubscriber {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.collectionViewLayout = RippleTransitionLayout.genesisLayout
+        updateContentInset()
         collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
        
         fetchVideoForItem(layout.centerItem) { video, _ in

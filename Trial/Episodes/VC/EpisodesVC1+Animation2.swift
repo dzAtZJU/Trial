@@ -11,6 +11,7 @@ import Foundation
 import UIKit
 import CoreGraphics
 
+let animator = UIViewPropertyAnimator(duration: 1, curve: UIView.AnimationCurve.easeInOut, animations: nil)
 extension EpisodesVC {
     func newState(state: EpisodesSceneState) {
         switch state {
@@ -31,24 +32,21 @@ extension EpisodesVC {
                     cell.layoutIfNeeded()
                 }
             }, completion: nil)
-        case .watching2Full:
-            UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = EpisodesLayout.watching2Full
-                for cell in self.collectionView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
-            }, completion: { _ in
-                episodesViewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
-            })
         case .full:
-            UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = EpisodesLayout.full
-                for cell in self.collectionView.visibleCells {
-                    cell.layoutIfNeeded()
+            animator.addAnimations {
+                self.collectionView.collectionViewLayout = EpisodesLayout.watching2Full
+            }
+            animator.startAnimation()
+            
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
+                animator.addAnimations {
+                    self.collectionView.collectionViewLayout = EpisodesLayout.full
                 }
-            }, completion: nil)
+            }
+            
+            
         case .full2Watching:
-            let animator = UIViewPropertyAnimator(duration: 10, curve: .easeInOut, animations: nil)
+            let animator = UIViewPropertyAnimator(duration: 1, curve: .easeInOut, animations: nil)
             
             let newLayout = EpisodesLayout.full2Watching
 //            let transformForVideo = CGAffineTransform(scaleX: newLayout.itemSize.width / self.layout.itemSize.width, y: newLayout.itemSize.height / self.layout.itemSize.height)
@@ -61,9 +59,11 @@ extension EpisodesVC {
             }
             animator.addAnimations({
                 self.collectionView.collectionViewLayout = EpisodesLayout.watching
-            }, delayFactor: 1)
+            }, delayFactor: 0.7)
             
             animator.startAnimation()
+        default:
+            fatalError()
         }
     }
 }

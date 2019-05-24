@@ -22,3 +22,5 @@ let ytCols: Int = 5
 var screenWidth: CGFloat = 0
 
 var screenHeight: CGFloat = 0
+
+let initialCenter1 = IndexPath(row: 2, section: 2)

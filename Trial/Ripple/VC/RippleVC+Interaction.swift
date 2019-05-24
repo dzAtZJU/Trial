@@ -34,12 +34,6 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
 //        preFetchVideoForTwoNeighborItems()
     }
     
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        let v = scrollView.panGestureRecognizer.velocity(in: scrollView)
-        let t = scrollView.panGestureRecognizer.translation(in: scrollView)
-        print("t: \(t) v: \(v)")
-    }
-    
     @objc func handlePinch(_ press: UIPinchGestureRecognizer) {
         guard rippleViewStore.state.scene == .watching else {
             return
@@ -70,7 +64,6 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         layout.viewPortCenterChanged()
-        print("offset: \(scrollView.contentOffset)")
     }
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {

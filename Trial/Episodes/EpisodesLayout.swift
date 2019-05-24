@@ -16,17 +16,15 @@ protocol InFocusItemManager {
 class EpisodesLayout: UICollectionViewFlowLayout {
     
     var sceneState: EpisodesSceneState
-
-//    static let sliding = EpisodesLayout(sceneState: .sliding)
-//    static let watching = EpisodesLayout(sceneState: .watching)
-//    static let full = EpisodesLayout(sceneState: .full)
-//    static let watching2Full = EpisodesLayout(sceneState: .watching2Full)
-//    static let full2Watching = EpisodesLayout(sceneState: .full2Watching)
     
     static let sliding = EpisodesLayout(sceneState: .sliding, size: CGSize(width: 120, height: 225))
-    static let watching = EpisodesLayout(sceneState: .watching, size:  CGSize(width: 432, height: 243))
-    static let full = EpisodesLayout(sceneState: .full, size: CGSize(width: 667, height: 375))
+    
+    static let watching = EpisodesLayout(sceneState: .watching, size:  CGSize(width: 250, height: 225))
+    
     static let watching2Full = EpisodesLayout(sceneState: .watching2Full, size:  CGSize(width: 432, height: 243))
+    
+    static let full = EpisodesLayout(sceneState: .full, size: CGSize(width: 667, height: 375))
+    
     static let full2Watching = EpisodesLayout(sceneState: .full2Watching, size: CGSize(width: 518, height: 292))
     
     private init(sceneState: EpisodesSceneState) {
@@ -96,7 +94,7 @@ class EpisodesLayout: UICollectionViewFlowLayout {
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
         if let item = (collectionView?.delegate as? InFocusItemManager)?.inFocusItem, let attributes = layoutAttributesForItem(at: item) {
             print("before: \(item) \(attributes.frame)")
-            return attributes.frame.center - collectionView!.frame.center
+            return attributes.frame.center - CGRect(origin: .zero, size: collectionView!.frame.size).center
         }
 
         return proposedContentOffset

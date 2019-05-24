@@ -84,22 +84,6 @@ class LayoutCalcuTemplate: NSObject {
         }
     }
     
-    // Another path covring different states
-    func nextOnStagedFull() -> LayoutCalcuTemplate {
-        switch self {
-        case .watchLand:
-            return .watching2Full
-        case .watching2Full:
-            return .full
-        case .full:
-            return .watching2Full
-        case .watching2Full:
-            return .watchLand
-        default:
-            fatalError()
-        }
-    }
-    
     
     static let watch = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watch)
     
@@ -220,6 +204,12 @@ class RippleLayout: UICollectionViewLayout {
         return CGPoint(x: template.dXOf(dCol: dCol, dRow: dRow) + centerPosition.x, y: template.dYOf(dRow) + centerPosition.y)
     }
     
+    func frameOf(_ indexPath: IndexPath) -> CGRect {
+        let center = centerOf(indexPath)
+        let size = template.sizeOfItem(dRow: indexPath.row, dCol: indexPath.section)
+        return CGRect(center: center, size:size)
+    }
+    
     func timingOf(_ indexPath: IndexPath) -> CGFloat {
         if indexPath == center {
             return 1
@@ -231,8 +221,7 @@ class RippleLayout: UICollectionViewLayout {
     override func layoutAttributesForItem(at indexPath: IndexPath) -> LayoutAttributes? {
         let (dCol, dRow) = dColRowOf(indexPath)
         let attributes = LayoutAttributes(forCellWith: indexPath)
-        attributes.bounds = CGRect(origin: .zero, size: template.sizeOfItem(dRow: dRow, dCol: dCol))
-        attributes.center = centerOf(indexPath)
+        attributes.frame = frameOf(indexPath)
         attributes.timing = timingOf(indexPath)
         return attributes
     }

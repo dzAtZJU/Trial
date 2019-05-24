@@ -126,4 +126,12 @@ class UIMetricTemplate {
     var titlesSpace: CGFloat = 0
     var titleFontSize:CGFloat = 0
     var subtitleFontSize: CGFloat = 0
+    
+    var contentSize: CGSize {
+        return CGSize(width: itemWidth * CGFloat(ytCols), height: itemHeight * CGFloat(ytRows))
+    }
+    
+    func estimatedCenterFor(item: IndexPath) -> CGPoint {
+        return CGPoint(x: (CGFloat(item.section) + 0.5) * itemWidth, y: (CGFloat(item.row) + 0.5) * itemHeight)
+    }
 }
