@@ -93,7 +93,6 @@ class EpisodesLayout: UICollectionViewFlowLayout {
 //
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
         if let item = (collectionView?.delegate as? InFocusItemManager)?.inFocusItem, let attributes = layoutAttributesForItem(at: item) {
-            print("before: \(item) \(attributes.frame)")
             return attributes.frame.center - CGRect(origin: .zero, size: collectionView!.frame.size).center
         }
 

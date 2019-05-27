@@ -152,6 +152,9 @@ class RippleTransitionLayout: UICollectionViewLayout {
             if let newBarycentric = isViewCenterIn(indexTriangle: indexTriangle) {
                 nextCenterTriangle = indexTriangle
                 baryCentrics = newBarycentric
+                if nextCenterTriangle! != centerTriangle {
+                    print("\(nextCenterTriangle)")
+                }
                 return nextCenterTriangle
             }
         }
@@ -183,7 +186,6 @@ class RippleTransitionLayout: UICollectionViewLayout {
         
         let center3 = IndexPath(row: Int(P3.y), section: Int(P3.x))
         layoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: layoutP1.template)
-        
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
@@ -191,16 +193,11 @@ class RippleTransitionLayout: UICollectionViewLayout {
             return proposedContentOffset
         }
         
-//        if let translate = collectionView?.panGestureRecognizer.translation(in: collectionView), abs(translate.x) < 5 && abs(translate.y) < 5 {
-//            return centerOf(item: CGPoint(centerItem)) - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
-//        }
-        
         let proposedCenter = proposedContentOffset + CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
         var minDistance = CGFloat(Int.max)
         var minCenter = CGPoint.zero
         var minIndex = lastCenterP
         let candidates = nearestFiveTo(lastCenterP, maxRow: ytRows, maxCol: ytCols) + fourDiagonalNeighborsOf(lastCenterP, maxRow: ytRows, maxCol: ytCols)
-        print(candidates)
         for indexPath in candidates {
             let center = centerForItem(at: indexPath)
             let distance = distanceBetween(left: center, right: proposedCenter)
@@ -213,7 +210,6 @@ class RippleTransitionLayout: UICollectionViewLayout {
         
         let r = minCenter - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
         lastCenterP = minIndex
-        print(minIndex)
         return r
     }
     

@@ -95,19 +95,15 @@ extension RippleVC {
             let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
             animationQueue.append {
                 self.collectionView.collectionViewLayout = newLayout
-                self.inFocusCell!.videoWithPlayer?.transform = self.inFocusCell!.videoWithPlayer!.transform.concatenating(transformForVideo)
+                self.inFocusCell!.videoWithPlayer!.transform = self.inFocusCell!.videoWithPlayer!.transform.concatenating(transformForVideo)
                 shadowAnimation()
             }
             completionQueue.append {
                 shadowCompletion()
-                inFocusVideo = self.inFocusCell?.videoWithPlayer
-                if inFocusVideo != nil {
-                    inFocusVideo.transform = .identity
-                    inFocusVideo.frame = self.view.window!.bounds
-                    self.view.window!.addSubview(inFocusVideo)
-                } else {
-                    
-                }
+                inFocusVideo = self.inFocusCell!.videoWithPlayer
+                inFocusVideo.transform = .identity
+                inFocusVideo.frame = self.view.window!.bounds
+                self.view.window!.addSubview(inFocusVideo)
             }
             if UIDevice.current.orientation.isPortrait {
                 executeAnimationByNewState = false

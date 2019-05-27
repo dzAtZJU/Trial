@@ -222,7 +222,6 @@ class RippleLayout: UICollectionViewLayout {
     override func layoutAttributesForItem(at indexPath: IndexPath) -> LayoutAttributes? {
         let attributes = LayoutAttributes(forCellWith: indexPath)
         attributes.frame = frameOf(indexPath)
-        print(attributes.frame.size)
         attributes.timing = timingOf(indexPath)
         return attributes
     }

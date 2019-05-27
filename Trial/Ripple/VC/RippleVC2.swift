@@ -60,7 +60,7 @@ class RippleVC: UIViewController,  StoreSubscriber {
         collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
        
         fetchVideoForItem(layout.centerItem) { video, _ in
-            self.inFocusCell?.mountVideo(video)
+            self.inFocusCell!.mountVideo(video)
         }
 //        preFetchVideoForTwoNeighborItems()
         

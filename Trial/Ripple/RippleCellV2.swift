@@ -132,4 +132,8 @@ class RippleCellV2: VideoCell {
     }
 //    /// For debug
 //    @IBOutlet weak var label: UILabel!
+    
+    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+        return layoutAttributes
+    }
 }

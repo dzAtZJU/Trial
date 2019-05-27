@@ -177,7 +177,6 @@ func nearestFiveTo(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPa
                  indexPath + IndexPath(row: 0, section: -1),
                  indexPath + IndexPath(row: 1, section: 0),
                  indexPath + IndexPath(row: -1, section: 0)]
-    print("five: \(array)")
     return array.filter({
         $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
     })
@@ -189,7 +188,6 @@ func fourDiagonalNeighborsOf(_ indexPath: IndexPath, maxRow: Int, maxCol: Int) -
                               indexPath + IndexPath(row: -1, section: 1),
                               indexPath + IndexPath(row: -1, section: -1),
                               indexPath + IndexPath(row: 1, section: -1)]
-    print("diag: \(array)")
     return array.filter({
         $0.row >= 0 && $0.row < maxRow && $0.section >= 0 && $0.section < maxCol
     })

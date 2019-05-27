@@ -72,12 +72,9 @@ class VideoWithPlayerView: UIView {
     
     /// Leave cell then pack up
     func fallOff(completion: ((VideoWithPlayerView) -> ())? = nil) {
-//        let t1 = Date().timeIntervalSince1970
         if isReady {
             screenshot = videoView.snapshotView(afterScreenUpdates: false)
         }
-//        let t2 = Date().timeIntervalSince1970
-//        print("t2-t1: \(t2-t1)")
         pause()
         window?.insertSubview(self, at: 0) // remove from super view will somehow clear up the video, so instead just move to elsewhere
         
@@ -90,21 +87,10 @@ class VideoWithPlayerView: UIView {
         self.requestToPlay = false
         self.videoView.isHidden = false
         activityIndicator.stopAnimating()
-//        DispatchQueue.main.async { [weak self] in
-//            guard let theSelf = self else {
-//                return
-//            }
-            videoView.pauseVideo()
-//        }
+        videoView.pauseVideo()
     }
     
     private func beforeAppear() {
-        if rippleViewStore.state.scene == .full {
-            inFocusVideo = self
-            self.transform = .identity
-            self.frame = self.window!.bounds
-            window!.addSubview(self)
-        }
         isReady = true
         activityIndicator.stopAnimating()
         self.videoView.isHidden = false
@@ -120,7 +106,6 @@ class VideoWithPlayerView: UIView {
     
     func getVideoState(_ block: @escaping (WKYTPlayerState) -> ()) {
         videoView.getPlayerState { (state, _) in
-            print(state.rawValue)
             block(state)
         }
     }

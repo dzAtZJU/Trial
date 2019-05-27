@@ -23,13 +23,21 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        print("================")
+        
         guard rippleViewStore.state.scene == .watching else {
             return
         }
         
+        print(layout.frameForItem(at: IndexPath(row: 4, section: 2)).midY)
+        if inFocusItem.row == 0 {
+            print("----------------")
+        } else if inFocusItem.row == 4 {
+            print("++++++++++++++++")
+        }
         /// TODO: where to maintain centerItem
         fetchVideoForItem(layout.centerItem) { video, _ in
-            self.inFocusCell?.mountVideo(video)
+            self.inFocusCell!.mountVideo(video)
         }
 //        preFetchVideoForTwoNeighborItems()
     }
@@ -71,7 +79,7 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
             return .landscape
         }
         if preSceneState == .full {
-            return .all
+            return .allButUpsideDown
         }
         return .allButUpsideDown
     }

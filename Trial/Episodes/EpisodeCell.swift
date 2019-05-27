@@ -48,7 +48,4 @@ class EpisodeCell: UICollectionViewCell {
         }
     }
     
-//    override func sizeThatFits(_ size: CGSize) -> CGSize {
-//        return size
-//    }
 }
