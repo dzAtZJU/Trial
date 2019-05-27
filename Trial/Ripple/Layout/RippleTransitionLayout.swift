@@ -94,10 +94,21 @@ class RippleTransitionLayout: UICollectionViewLayout {
     }
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        var visited = Set<IndexPath>()
-        var attributes = [UICollectionViewLayoutAttributes]()
-        dfs(node: centerItem, maxRow: maxRow, maxCol: maxCol, visited: &visited, rect: rect, attributes: &attributes)
-        return attributes
+        var r = [UICollectionViewLayoutAttributes]()
+        for row in 0..<ytRows {
+            for col in 0..<ytCols {
+                let l = layoutAttributesForItem(at: IndexPath(row: row, section: col))
+                if l != nil {
+                    r.append(l!)
+                }
+            }
+        }
+        return r
+        
+//        var visited = Set<IndexPath>()
+//        var attributes = [UICollectionViewLayoutAttributes]()
+//        dfs(node: centerItem, maxRow: maxRow, maxCol: maxCol, visited: &visited, rect: rect, attributes: &attributes)
+//        return attributes
     }
     
     func dfs(node: IndexPath, maxRow: Int, maxCol: Int, visited: inout Set<IndexPath>, rect: CGRect, attributes: inout [UICollectionViewLayoutAttributes]) {

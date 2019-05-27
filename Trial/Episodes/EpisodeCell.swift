@@ -47,4 +47,8 @@ class EpisodeCell: UICollectionViewCell {
             contentView.layer.cornerRadius = attributes.radius
         }
     }
+    
+//    override func sizeThatFits(_ size: CGSize) -> CGSize {
+//        return size
+//    }
 }

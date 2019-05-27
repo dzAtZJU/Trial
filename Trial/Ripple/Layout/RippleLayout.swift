@@ -206,8 +206,9 @@ class RippleLayout: UICollectionViewLayout {
     
     func frameOf(_ indexPath: IndexPath) -> CGRect {
         let center = centerOf(indexPath)
-        let size = template.sizeOfItem(dRow: indexPath.row, dCol: indexPath.section)
-        return CGRect(center: center, size:size)
+        let (dCol, dRow) = dColRowOf(indexPath)
+        let size = template.sizeOfItem(dRow: dRow, dCol: dCol)
+        return CGRect(center: center, size: size)
     }
     
     func timingOf(_ indexPath: IndexPath) -> CGFloat {
@@ -219,9 +220,9 @@ class RippleLayout: UICollectionViewLayout {
     }
     
     override func layoutAttributesForItem(at indexPath: IndexPath) -> LayoutAttributes? {
-        let (dCol, dRow) = dColRowOf(indexPath)
         let attributes = LayoutAttributes(forCellWith: indexPath)
         attributes.frame = frameOf(indexPath)
+        print(attributes.frame.size)
         attributes.timing = timingOf(indexPath)
         return attributes
     }

@@ -24,7 +24,6 @@ class RippleCollectionView: UICollectionView {
     }
     
     func setup() {
-        estimated   
         decelerationRate = UIScrollView.DecelerationRate.normal
         contentInsetAdjustmentBehavior = .never
         insetsLayoutMarginsFromSafeArea = false
