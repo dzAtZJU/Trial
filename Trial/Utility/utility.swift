@@ -127,35 +127,35 @@ func doIn2DRange(maxRow: Int, maxCol: Int, block: (Int, Int, inout Bool) -> Void
 //}
 
 // 点的四个垂直三角
-func indexTrianglesAround(_ point: CGPoint, maxRow: Int, maxCol: Int) -> [(CGPoint, CGPoint, CGPoint)] {
+func indexTrianglesAround(_ point: CGPoint, maxRow: Int, maxCol: Int) -> [[CGPoint]] {
     let dPoints = [CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: -1, y: 0), CGPoint(x: 0, y: -1)]
-    var candidates = [(point, point + dPoints[0], point + dPoints[1]),
-                      (point, point + dPoints[1], point + dPoints[2]),
-                      (point, point + dPoints[2], point + dPoints[3]),
-                      (point, point + dPoints[3], point + dPoints[0])]
+    var candidates = [[point, point + dPoints[0], point + dPoints[1]],
+                      [point, point + dPoints[1], point + dPoints[2]],
+                      [point, point + dPoints[2], point + dPoints[3]],
+                      [point, point + dPoints[3], point + dPoints[0]]]
     validateTriangles(candidates: &candidates, center: point, maxRow: maxRow, maxCol: maxCol)
     return candidates
 }
 
 // 点的四个斜对面三角
-func flipTrianglesAround(_ point: CGPoint, maxRow: Int, maxCol: Int) -> [(CGPoint, CGPoint, CGPoint)] {
+func flipTrianglesAround(_ point: CGPoint, maxRow: Int, maxCol: Int) -> [[CGPoint]] {
     let dPoints = [CGPoint(x: 1, y: 0), CGPoint(x: 0, y: 1), CGPoint(x: -1, y: 0), CGPoint(x: 0, y: -1)]
     let dDiagonalPoints = [CGPoint(x: 1, y: 1), CGPoint(x: -1, y: 1), CGPoint(x: -1, y: -1), CGPoint(x: 1, y: -1)]
     
-    var candidates = [(point + dPoints[0], point + dPoints[1], point + dDiagonalPoints[0]),
-                      (point + dPoints[1], point + dPoints[2], point + dDiagonalPoints[1]),
-                      (point + dPoints[2], point + dPoints[3], point + dDiagonalPoints[2]),
-                      (point + dPoints[3], point + dPoints[0], point + dDiagonalPoints[3])]
+    var candidates = [[point + dPoints[0], point + dPoints[1], point + dDiagonalPoints[0]],
+                      [point + dPoints[1], point + dPoints[2], point + dDiagonalPoints[1]],
+                      [point + dPoints[2], point + dPoints[3], point + dDiagonalPoints[2]],
+                      [point + dPoints[3], point + dPoints[0], point + dDiagonalPoints[3]]]
     validateTriangles(candidates: &candidates, center: point, maxRow: maxRow, maxCol: maxCol)
     return candidates
 }
 
-func validateTriangles(candidates: inout [(CGPoint, CGPoint, CGPoint)], center: CGPoint,  maxRow: Int, maxCol: Int) {
-    if isOnEdge(item: IndexPath(center), maxRow: maxRow, maxCol: maxCol) {
-        candidates.removeAll {
-            !isItemsAllValid(candidates: [IndexPath($0.0), IndexPath($0.1), IndexPath($0.2)], maxRow: maxRow, maxCol: maxCol)
-        }
-    }
+func validateTriangles(candidates: inout [[CGPoint]], center: CGPoint,  maxRow: Int, maxCol: Int) {
+//    if isOnEdge(item: IndexPath(center), maxRow: maxRow, maxCol: maxCol) {
+//        candidates.removeAll {
+//            !isItemsAllValid(candidates: $0.map { IndexPath($0)}, maxRow: maxRow, maxCol: maxCol)
+//        }
+//    }
 }
 
 // 点的默认垂直三角
@@ -212,21 +212,21 @@ func isOnEdge(item: IndexPath, maxRow: Int, maxCol: Int) -> Bool {
     return item.row == 0 || item.section == 0 || item.row == maxRow - 1 || item.section == maxCol - 1
 }
 
-func diagonalVertexOf(_ triangle: (CGPoint, CGPoint, CGPoint)) -> CGPoint {
+func diagonalVertexOf(_ triangle: [CGPoint]) -> CGPoint {
     let decider: (CGPoint, CGPoint) -> Bool = {
         let diff = $0 - $1
         return abs(diff.x) > 0 && abs(diff.y) > 0
     }
     
-    if decider(triangle.0, triangle.1) {
-        return triangle.2
+    if decider(triangle[0], triangle[1]) {
+        return triangle[2]
     }
     
-    if decider(triangle.0, triangle.2) {
-        return triangle.1
+    if decider(triangle[0], triangle[2]) {
+        return triangle[1]
     }
     
-    return triangle.0
+    return triangle[0]
 }
 
 let ds: [IndexPath] = [IndexPath(row: 1, section: 0), IndexPath(row: 0, section: 1), IndexPath(row: -1, section: 0), IndexPath(row: 0, section: -1)]
@@ -245,7 +245,13 @@ func eightNeighborsOf(item: IndexPath, maxRow: Int, maxCol: Int) -> [IndexPath] 
     return neighbors
 }
 
-func eightTrianglesAround(_ triangle: (CGPoint, CGPoint, CGPoint)) -> [(CGPoint, CGPoint, CGPoint)] {
-    let diagonalVertex = diagonalVertexOf(triangle)
+func eightTrianglesAround(_ triangle: [IndexPath]) -> [[CGPoint]] {
+    let diagonalVertex = diagonalVertexOf(triangle.map{CGPoint($0)})
     return indexTrianglesAround(diagonalVertex, maxRow: ytRows, maxCol: ytCols) + flipTrianglesAround(diagonalVertex, maxRow: ytRows, maxCol: ytCols)
+}
+
+func isSameTriple(triangle1: (CGPoint, CGPoint, CGPoint), triangle2: (CGPoint, CGPoint, CGPoint)) -> Bool {
+    let set1: Set = [IndexPath(triangle1.0), IndexPath(triangle1.1), IndexPath(triangle1.2)]
+    let set2: Set = [IndexPath(triangle2.0), IndexPath(triangle2.1), IndexPath(triangle2.2)]
+    return set1 == set2
 }

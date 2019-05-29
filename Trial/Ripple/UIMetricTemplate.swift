@@ -102,8 +102,8 @@ class UIMetricTemplate {
         template.itemWidth = 667
         template.itemHeight = 375
         template.scale = 1
-        template.rowGaps = [5000]
-        template.colGaps = [[5000]]
+        template.rowGaps = [10000] // Large value to make animation less clutter
+        template.colGaps = [[10000]]
         return template
     }()
     
@@ -128,7 +128,7 @@ class UIMetricTemplate {
     var subtitleFontSize: CGFloat = 0
     
     var contentSize: CGSize {
-        return CGSize(width: itemWidth * CGFloat(ytCols), height: itemHeight * CGFloat(ytRows))
+        return CGSize(width: itemWidth * CGFloat(ytCols + 1), height: itemHeight * CGFloat(ytRows + 1))
     }
     
     func estimatedCenterFor(item: IndexPath) -> CGPoint {

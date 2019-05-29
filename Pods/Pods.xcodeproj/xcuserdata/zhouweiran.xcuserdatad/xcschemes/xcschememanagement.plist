@@ -34,11 +34,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>YouTubePlayer.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>YoutubePlayer-in-WKWebView.xcscheme</key>
 		<dict>
 			<key>isShown</key>

@@ -14,10 +14,10 @@ typealias VideoId = String
 typealias URLString = String
 
 class YoutubeVideoData {
-    var videoId: VideoId?
-    var thumbnailUrl: URLString?
-    var thumbnail: UIImage?
-    var playerView: WKYTPlayerView?
+    var videoId: VideoId!
+    
+    // Maybe nil
+    var thumbnail: UIImage!
 }
 
 class YoutubeManagers {
@@ -25,67 +25,117 @@ class YoutubeManagers {
     /// Gloabal data warehouse for videos
     static let shared = YoutubeManagers()
     
+    var indexPath2videoId = [IndexPath: VideoId]()
+    var videoId2Thumbnail = [VideoId: URLString]()
+    
+    // Cache. Can request by known information
+    var videoId2Data = NSCache<NSString, YoutubeVideoData>()
+    let videoId2View = NSCache<NSString, VideoWithPlayerView>()
+    
+    private let serialAccessQueue: OperationQueue = {
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        return queue
+    }()
+    
+    private let youtubeOperationQueue = OperationQueue()
+    
+    private var videoDataCompletion = [VideoId: [(YoutubeVideoData) -> ()]]()
+    
     func doInitialRequest() {
-        YoutubeOperationQueue.maxConcurrentOperationCount = OperationQueue.defaultMaxConcurrentOperationCount
-        
         loadVideoIds()
         
         let thumbnailsUrlsOperation = ThumbnailsUrlsOperation(videoIds: Array(indexPath2videoId.values))
         thumbnailsUrlsOperation.completionBlock = {
             self.videoId2Thumbnail.merge(thumbnailsUrlsOperation.videoId2ThumbnailUrl, uniquingKeysWith: { (first, _ ) in first })
-            for (videoId, thumbnailUrl) in self.videoId2Thumbnail {
-                let operation = ImageFetchOperation(imageUrl: thumbnailUrl)
-                operation.completionBlock = {
-                    self.thumbnail2UIImage[thumbnailUrl] = operation.image
-                    let data = YoutubeVideoData()
-                    data.videoId = videoId
-                    data.thumbnail = operation.image
-                    self.videoId2Data[videoId] = data
-                    DispatchQueue.main.sync {
-                        self.invokeCompletionHandlers(for: videoId, with: data)
-                    }
-                }
-                YoutubeOperationQueue.addOperation(operation)
-            }
+            
         }
-        
-        YoutubeOperationQueue.addOperation(thumbnailsUrlsOperation)
+        serialAccessQueue.addOperation(thumbnailsUrlsOperation)
     }
     
-    var indexPath2videoId = [IndexPath: VideoId]()
-    
-    var videoId2Thumbnail = [VideoId: URLString]()
-    
-    var thumbnail2UIImage = [URLString: UIImage]()
+    func loadVideoIds() {
+        indexPath2videoId = TestDatas.indexPathToVideoId
+    }
+}
 
-    var videoId2Data = [VideoId: YoutubeVideoData]()
-    
-    private var videoId2CompletionHandlers = [VideoId: [(YoutubeVideoData) -> Void]]()
-    
-    func getData(indexPath: IndexPath, completionHandler: @escaping (YoutubeVideoData) -> Void) {
+// Youtube Video View
+extension YoutubeManagers {
+    // Collectionview Level
+    func fetchVideoForItem(_ indexPath: IndexPath, completion: ((VideoWithPlayerView, Bool) -> ())? = nil) {
         let videoId = indexPath2videoId[indexPath]!
-        let handlers = videoId2CompletionHandlers[videoId, default: []]
-        videoId2CompletionHandlers[videoId] = handlers + [completionHandler]
-        fetchData(videoId: videoId)
+        var videoView = videoId2View.object(forKey: videoId as NSString)
+        let cached = videoView != nil
+        if !cached {
+            videoView = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
+        }
+        videoId2View.setObject(videoView!, forKey: videoId as NSString)
+        if let completion = completion {
+            completion(videoView!, cached)
+        }
     }
-    
-    private func fetchData(videoId: VideoId) {
-        if let data = videoId2Data[videoId] {
-            invokeCompletionHandlers(for: videoId, with: data)
+}
+
+// Youtube Video Data
+extension YoutubeManagers {
+    // Collectionview Level
+    func getDataOf(item: IndexPath, completionHandler: @escaping (YoutubeVideoData) -> ()) {
+        let videoId = indexPath2videoId[item]!
+        if let data = videoId2Data.object(forKey: videoId as NSString) {
+            completionHandler(data)
             return
         }
+        
+        requestFor(item: item, completion: completionHandler)
     }
     
-    private func invokeCompletionHandlers(for videoId: VideoId, with fetchedData: YoutubeVideoData) {
-        let completionHandlers = videoId2CompletionHandlers[videoId, default: []]
-        videoId2CompletionHandlers[videoId] = nil
+    // Netowrk Level. Fetch all the youtube video data. (except for video)
+    func requestFor(item: IndexPath, completion: ((YoutubeVideoData) -> ())? = nil) {
+        let videoId = indexPath2videoId[item]!
+        let operation = WaitingOperation() {
+            if let completion = completion {
+                let handlers = self.videoDataCompletion[videoId, default: []]
+                self.videoDataCompletion[videoId] = handlers + [completion]
+            }
+            
+            guard self.operation(for: videoId) == nil else {
+                return
+            }
+            
+            if let videoData = self.videoId2Data.object(forKey: videoId as NSString ) {
+                self.invokeVideoDataCompletion(for: videoId, with: videoData)
+                return
+            }
+            
+            let operation = ImageFetchOperation(urlString: self.videoId2Thumbnail[videoId], videoId: videoId)
+            operation.completionBlock = {
+                let data = YoutubeVideoData()
+                data.videoId = videoId
+                data.thumbnail = operation.image
+                self.videoId2Data.setObject(data, forKey: videoId as NSString)
+                self.serialAccessQueue.addOperation {
+                    self.invokeVideoDataCompletion(for: videoId, with: data)
+                }
+            }
+            self.youtubeOperationQueue.addOperation(operation)
+        }
+        serialAccessQueue.addOperation(operation)
+    }
+    
+    private func invokeVideoDataCompletion(for videoId: VideoId, with fetchedData: YoutubeVideoData) {
+        let completionHandlers = videoDataCompletion[videoId, default: []]
+        videoDataCompletion[videoId] = nil
         
         for completionHandler in completionHandlers {
             completionHandler(fetchedData)
         }
     }
     
-    func loadVideoIds() {
-        indexPath2videoId = TestDatas.indexPathToVideoId
+    private func operation(for identifier: VideoId) -> ImageFetchOperation? {
+        for case let fetchOperation as ImageFetchOperation in youtubeOperationQueue.operations
+            where !fetchOperation.isCancelled && fetchOperation.videoId == identifier {
+                return fetchOperation
+        }
+        
+        return nil
     }
 }

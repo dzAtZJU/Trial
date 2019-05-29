@@ -9,7 +9,8 @@
 import Foundation
 import UIKit
 
-extension RippleVC: UICollectionViewDataSource {
+extension RippleVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefetching {
+    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return ytRows
     }
@@ -26,7 +27,7 @@ extension RippleVC: UICollectionViewDataSource {
             cell.positionId = indexPath
         }
         
-        YoutubeManagers.shared.getData(indexPath: indexPath) { youtubeVideoData in
+        YoutubeManagers.shared.getDataOf(item: indexPath) { youtubeVideoData in
             DispatchQueue.main.async {
                 guard cell.positionId == indexPath else {
                     return
@@ -36,52 +37,18 @@ extension RippleVC: UICollectionViewDataSource {
                 
                 cell.loadThumbnailImage(youtubeVideoData.thumbnail)
                 
-                if let video = self.videoId2PlayerView[youtubeVideoData.videoId!] {
-                    cell.loadScreenshot(video.screenshot)
-                }
+//                if let video = youtubeVideoData.videoView {
+//                    cell.loadScreenshot(video.screenshot)
+//                }
             }
         }
         
         return cell
     }
     
-    func preFetchVideoForTwoNeighborItems() {
-        twoNeighborsOfInFocusItem().forEach { item in
-            fetchVideoForItem(item) { video, cached in
-                guard !cached else {
-                    return
-                }
-
-                let cell = self.collectionView.cellForItem(at: item) as! RippleCellV2
-                cell.mountVideoForBuffering(video)
-            }
-        }
-    }
-    
-    func cancelPreFetchVideoForTwoNeighborItems() {
-        twoNeighborsOfInFocusItem().forEach { item in
-            fetchVideoForItem(item) { video, cached in
-                guard !cached else {
-                    return
-                }
-
-                let cell = self.collectionView.cellForItem(at: item) as! RippleCellV2
-                cell.unmountVideoForBuffering()
-            }
-        }
-    }
-    
-    func fetchVideoForItem(_ indexPath: IndexPath, completion: ((VideoWithPlayerView, Bool) -> ())? = nil) {
-        YoutubeManagers.shared.getData(indexPath: indexPath) { youtubeVideoData in
-            let videoId = youtubeVideoData.videoId!
-            let cached = self.videoId2PlayerView[videoId] != nil
-            if !cached {
-                let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-                self.videoId2PlayerView[videoId] = player
-            }
-            if let completion = completion {
-                completion(self.videoId2PlayerView[videoId]!, cached)
-            }
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        for item in indexPaths {
+            YoutubeManagers.shared.requestFor(item: item)
         }
     }
 }

@@ -12,7 +12,6 @@ import YoutubePlayer_in_WKWebView
 import ReSwift
 
 var activityIndicator: UIActivityIndicatorView!
-var inFocusVideo: VideoWithPlayerView!
 
 class RippleVC: UIViewController,  StoreSubscriber {
     
@@ -24,8 +23,6 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     var shadow = Shadow.dumb
     
-    var videoId2PlayerView = [VideoId: VideoWithPlayerView]()
-    
     @IBOutlet weak var collectionView: RippleCollectionView!
     
     var press: UILongPressGestureRecognizer?
@@ -34,12 +31,16 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     var selectedItem: IndexPath!
     
-    var inFocusCell: RippleCellV2? {
-        return collectionView.cellForItem(at: layout.centerItem) as? RippleCellV2
-    }
-    
     var inFocusItem: IndexPath {
         return layout.centerItem
+    }
+    
+    var inFocusCell: RippleCellV2 {
+        return collectionView.cellForItem(at: layout.centerItem) as! RippleCellV2
+    }
+    
+    var inFocusVideo: VideoWithPlayerView {
+        return inFocusCell.videoWithPlayer!
     }
     
     var layout: RippleTransitionLayout {
@@ -55,14 +56,10 @@ class RippleVC: UIViewController,  StoreSubscriber {
         
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.prefetchDataSource = self
         collectionView.collectionViewLayout = RippleTransitionLayout.genesisLayout
         updateContentInset()
         collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
-       
-        fetchVideoForItem(layout.centerItem) { video, _ in
-            self.inFocusCell!.mountVideo(video)
-        }
-//        preFetchVideoForTwoNeighborItems()
         
         setupViews()
         
@@ -92,6 +89,13 @@ class RippleVC: UIViewController,  StoreSubscriber {
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        rippleViewStore.dispatch(RippleViewState.ReadyAction.ready)
+        YoutubeManagers.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+            self.inFocusCell.mountVideo(video)
+        }
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         rippleViewStore.unsubscribe(self)
@@ -103,19 +107,6 @@ class RippleVC: UIViewController,  StoreSubscriber {
         collectionView.isDirectionalLockEnabled = state == .watching
         
         preSceneState = state
-    }
-    
-    func mountVideoForInFocusItem() {
-        YoutubeManagers.shared.getData(indexPath: self.layout.centerItem) { youtubeVideoData in
-            DispatchQueue.main.async {
-                let videoId = youtubeVideoData.videoId!
-                if self.videoId2PlayerView[videoId] == nil {
-                    let player = VideoWithPlayerView.loadVideoForWatch(videoId: videoId)
-                    self.videoId2PlayerView[videoId] = player
-                }
-                self.inFocusCell?.mountVideo(self.videoId2PlayerView[videoId]!)
-            }
-        }
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import CoreGraphics
 
 let ratioOfcornerRadiusAndWidth: CGFloat = 15
@@ -24,3 +25,5 @@ var screenWidth: CGFloat = 0
 var screenHeight: CGFloat = 0
 
 let initialCenter1 = IndexPath(row: 2, section: 2)
+
+let defaultThumbnail = UIImage(named: "default_thumbnail")

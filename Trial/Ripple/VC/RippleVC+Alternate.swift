@@ -22,14 +22,14 @@ extension RippleVC {
             let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
             animationQueue.append {
                 self.collectionView.collectionViewLayout = self.layout.nextOnRotate()
-                self.inFocusCell!.videoWithPlayer?.transform = self.inFocusCell!.videoWithPlayer!.transform.concatenating(transformForVideo)
+                self.inFocusCell.videoWithPlayer?.transform = self.inFocusCell.videoWithPlayer!.transform.concatenating(transformForVideo)
                 shadowAnimation()
             }
             completionQueue.append {
                 shadowCompletion()
             }
         }
-        
+
         if !executeAnimationByNewState {
             coordinator.animate(alongsideTransition: { _ in
                 self.runQueuedAnimation()
@@ -51,12 +51,14 @@ extension RippleVC {
             switch preSceneState {
             case .full:
                 let newLayout = UIDevice.current.orientation.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
-                self.inFocusCell?.addVideoToHierarchy(inFocusVideo)
+                FullscreenVideoManager.current.gotoCell {
+                    self.inFocusCell.addVideoToHierarchy($0)
+                }
                 let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
                 let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnExit(isPortrait: UIDevice.current.orientation.isPortrait))
                 animationQueue.append {
                     self.collectionView.collectionViewLayout = newLayout
-                    self.inFocusCell!.videoWithPlayer?.transform = self.inFocusCell!.videoWithPlayer!.transform.concatenating(transformForVideo)
+                    self.inFocusCell.videoWithPlayer?.transform = self.inFocusCell.videoWithPlayer!.transform.concatenating(transformForVideo)
                     shadowAnimation()
                 }
                 completionQueue.append {
@@ -74,13 +76,15 @@ extension RippleVC {
                 }
                 completionQueue.append {
                     shadowCompletion()
-                    self.mountVideoForInFocusItem()
+                    YoutubeManagers.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+                        self.inFocusCell.mountVideo(video)
+                    }
                 }
             default:
                 fatalError()
             }
         case .surfing:
-            inFocusCell!.unMountVideo()
+            inFocusCell.unMountVideo()
             let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnScene())
             animationQueue.append {
                 self.collectionView.collectionViewLayout = self.layout.nextOnScene()
@@ -95,22 +99,19 @@ extension RippleVC {
             let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
             animationQueue.append {
                 self.collectionView.collectionViewLayout = newLayout
-                self.inFocusCell!.videoWithPlayer!.transform = self.inFocusCell!.videoWithPlayer!.transform.concatenating(transformForVideo)
+                self.inFocusCell.videoWithPlayer!.transform = self.inFocusCell.videoWithPlayer!.transform.concatenating(transformForVideo)
                 shadowAnimation()
             }
             completionQueue.append {
                 shadowCompletion()
-                inFocusVideo = self.inFocusCell!.videoWithPlayer
-                inFocusVideo.transform = .identity
-                inFocusVideo.frame = self.view.window!.bounds
-                self.view.window!.addSubview(inFocusVideo)
+                YoutubeManagers.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+                    FullscreenVideoManager.current.gotoWindow(video: video, window: self.view.window!)
+                }
             }
             if UIDevice.current.orientation.isPortrait {
                 executeAnimationByNewState = false
                 UIDevice.current.triggerInterfaceRotateForFullscreen()
             }
-        default:
-            fatalError()
         }
         
         if executeAnimationByNewState {

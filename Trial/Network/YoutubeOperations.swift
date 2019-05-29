@@ -9,21 +9,38 @@ import Foundation
 import UIKit
 import GoogleAPIClientForREST
 
-class ImageFetchOperation: Operation {
-    let imageUrl: String
+class WaitingOperation: Operation {
+    let mainBlock: () -> ()
     
-    init(imageUrl: String) {
-        self.imageUrl = imageUrl
+    init(mainBlock: @escaping () -> ()) {
+        self.mainBlock = mainBlock
     }
     
-    private(set) var image: UIImage?
+    override func main() {
+        mainBlock()
+    }
+}
+
+class ImageFetchOperation: Operation {
+    let urlString: String?
+    
+    let videoId: VideoId
+    
+    init(urlString: String?, videoId: VideoId) {
+        self.urlString = urlString
+        self.videoId = videoId
+    }
+    
+    private(set) var image: UIImage!
     
     override func main() {
-        if let url = URL(string: imageUrl), let data = try? Data(contentsOf: url){
-            image = UIImage(data: data)!
-        } else {
-            print("image error")
+        if let urlString = urlString, let url = URL(string: urlString), let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+            self.image = image
+            return
         }
+        
+        image = defaultThumbnail
+        print("Image fetch fail. Url: \(urlString)")
     }
 }
 
@@ -50,8 +67,7 @@ class ThumbnailsUrlsOperation: Operation {
         let youtubeQuery = GTLRYouTubeQuery_VideosList.query(withPart: "snippet")
         youtubeQuery.identifier = videoIds.joined(separator: ",")
         youtubeService.executeQuery(youtubeQuery) { (ticket, response, error) in
-            let response = response as! GTLRYouTube_VideoListResponse
-            if let items = response.items {
+            if let response = response as? GTLRYouTube_VideoListResponse, let items = response.items {
                 for item in items {
                     if let identifier = item.identifier, let url = item.snippet?.thumbnails?.high?.url {
                         self.videoId2ThumbnailUrl[identifier] = url

@@ -11,7 +11,6 @@ import UIKit
 import WebKit
 import CoreGraphics
 import YoutubePlayer_in_WKWebView
-import YouTubePlayer
 
 class TestVC: UIViewController {
     var web: WKWebView!

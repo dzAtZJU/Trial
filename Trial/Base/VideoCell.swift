@@ -77,7 +77,7 @@ class VideoCell: UICollectionViewCell {
         videoWithPlayer.endBuffer()
     }
     
-    /// One place to configure timing contents
+    // mount, unmount 概念是基于交互来说的，在这里针对交互的要求来处理 video
     func unMountVideo() {
         guard let videoWithPlayer = videoWithPlayer else {
             return
@@ -89,9 +89,7 @@ class VideoCell: UICollectionViewCell {
             return
         }
         
-        videoWithPlayer.fallOff {
-            inFocusVideo = $0
-        }
+        videoWithPlayer.fallOff()
         addScreenshotImage(videoWithPlayer.screenshot)
         self.videoWithPlayer = nil
     }

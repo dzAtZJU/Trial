@@ -12,8 +12,10 @@ import ReSwift
 struct RippleViewState: StateType {
     var scene = RippleSceneState.watching
     
+    var ready = false
+    
     static func appReducer(action: Action, state: RippleViewState?) -> RippleViewState {
-        return RippleViewState(scene: sceneReducer(action: action, state: state?.scene))
+        return RippleViewState(scene: sceneReducer(action: action, state: state?.scene), ready: readyReducer(action: action, state: state?.ready))
     }
     
     static func sceneReducer(action: Action, state: RippleSceneState?) -> RippleSceneState {
@@ -47,9 +49,24 @@ struct RippleViewState: StateType {
         }
     }
     
+    static func readyReducer(action: Action, state: Bool?) -> Bool {
+        let state = state ?? false
+        
+        guard case is ReadyAction = action else {
+            return state
+        }
+        
+        return true
+    }
+        
     indirect enum SceneAction: Action {
         case fullScreen
         case surf
+        case ready
+    }
+    
+    indirect enum ReadyAction: Action {
+        case ready
     }
 }
 

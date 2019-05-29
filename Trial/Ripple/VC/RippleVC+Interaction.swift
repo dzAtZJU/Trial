@@ -18,28 +18,21 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        inFocusCell?.unMountVideo()
-//        cancelPreFetchVideoForTwoNeighborItems()
+        guard rippleViewStore.state.scene == .watching else {
+            return
+        }
+        inFocusCell.unMountVideo()
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        print("================")
-        
         guard rippleViewStore.state.scene == .watching else {
             return
         }
         
-        print(layout.frameForItem(at: IndexPath(row: 4, section: 2)).midY)
-        if inFocusItem.row == 0 {
-            print("----------------")
-        } else if inFocusItem.row == 4 {
-            print("++++++++++++++++")
-        }
         /// TODO: where to maintain centerItem
-        fetchVideoForItem(layout.centerItem) { video, _ in
-            self.inFocusCell!.mountVideo(video)
+        YoutubeManagers.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+            self.inFocusCell.mountVideo(video)
         }
-//        preFetchVideoForTwoNeighborItems()
     }
     
     @objc func handlePinch(_ press: UIPinchGestureRecognizer) {
@@ -71,6 +64,9 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard rippleViewStore.state.ready else {
+            return
+        }
         layout.viewPortCenterChanged()
     }
     

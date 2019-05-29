@@ -10,25 +10,18 @@ import Foundation
 import UIKit
 
 class RippleTransitionLayout: UICollectionViewLayout {
-    var layoutP1: RippleLayout
-    
-    var layoutP2: RippleLayout
-    
-    var layoutP3: RippleLayout
-    
-    var centerTriangle: (CGPoint, CGPoint, CGPoint)
-    
-    var baryCentrics: [CGFloat]
+    var vertex2Layout: [IndexPath: (CGFloat, RippleLayout)]
     
     var centerItem: IndexPath {
-        let position = indexOfMax(baryCentrics)
-        if position == 0 {
-            return IndexPath(centerTriangle.0)
-        } else if position == 1 {
-            return IndexPath(centerTriangle.1)
-        } else {
-            return IndexPath(centerTriangle.2)
-        }
+        let (key, _) = self.vertex2Layout.max { (l1, l2) -> Bool in
+            return l1.value.0 < l2.value.0
+        }!
+        
+        return key
+    }
+    
+    private var triangle: [IndexPath] {
+        return Array(vertex2Layout.keys)
     }
     
     var uiTemplates: UIMetricTemplate
@@ -53,13 +46,14 @@ class RippleTransitionLayout: UICollectionViewLayout {
     }
     
     init(layoutP1: RippleLayout, layoutP2: RippleLayout, layoutP3: RippleLayout, uiTemplates: UIMetricTemplate) {
-        self.layoutP1 = layoutP1
-        self.layoutP2 = layoutP2
-        self.layoutP3 = layoutP3
-        self.centerTriangle = (CGPoint(layoutP1.center), CGPoint(layoutP2.center), CGPoint(layoutP3.center))
-        self.baryCentrics = [1, 0, 0]
         self.lastCenterP = layoutP1.center
         self.uiTemplates = uiTemplates
+        
+        self.vertex2Layout = [IndexPath: (CGFloat, RippleLayout)]()
+        self.vertex2Layout[layoutP1.center] = (1, layoutP1)
+        self.vertex2Layout[layoutP2.center] = (0, layoutP2)
+        self.vertex2Layout[layoutP3.center] = (0, layoutP3)
+        
         super.init()
     }
     
@@ -71,25 +65,29 @@ class RippleTransitionLayout: UICollectionViewLayout {
     @objc var lastCenterP: IndexPath
     
     func viewPortCenterChanged() {
-        if let newCenterTriangle = reComputeCenterTriangle() {
-            if newCenterTriangle != centerTriangle {
-                updateCenterTriangle(newCenterTriangle)
+        if let (newCenterTriangle, newbary) = reComputeCenterTriangle() {
+            if Set(Array(self.vertex2Layout.keys)) != Set(Array(newCenterTriangle.map{IndexPath($0)})) {
+                updateCenterTriangle(newCenterTriangle, bary: newbary)
+            } else {
+                self.vertex2Layout[IndexPath(newCenterTriangle[0])]!.0 = newbary[0]
+                self.vertex2Layout[IndexPath(newCenterTriangle[1])]!.0 = newbary[1]
+                self.vertex2Layout[IndexPath(newCenterTriangle[2])]!.0 = newbary[2]
             }
         }
     }
     
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        let attributes123 = [layoutP1.layoutAttributesForItem(at: indexPath)!, layoutP2.layoutAttributesForItem(at: indexPath)!, layoutP3.layoutAttributesForItem(at: indexPath)!]
-        
         let result = LayoutAttributes(forCellWith: indexPath)
-        result.frame = attributes123[0].frame * baryCentrics[0] + attributes123[1].frame * baryCentrics[1] + attributes123[2].frame * baryCentrics[2]
-        result.timing = attributes123[0].timing * baryCentrics[0] + attributes123[1].timing * baryCentrics[1] + attributes123[2].timing * baryCentrics[2]
+        
+        result.frame = frameForItem(at: indexPath)
+        result.timing = timingForItem(at: indexPath)
         
         result.titleFontSize = uiTemplates.titleFontSize
         result.subtitleFontSize = uiTemplates.subtitleFontSize
         result.titlesBottom = uiTemplates.titlesBottom
         result.radius = uiTemplates.radius
         result.sceneState = rippleViewStore.state.scene
+        result.zIndex = centerItem == indexPath ? 1 : 0
         return result
     }
     
@@ -134,8 +132,8 @@ class RippleTransitionLayout: UICollectionViewLayout {
         return true
     }
     
-    func isViewCenterIn(indexTriangle: (CGPoint, CGPoint, CGPoint)) -> [CGFloat]? {
-        let triangle = (centerForItem(at: IndexPath(indexTriangle.0)), centerForItem(at: IndexPath(indexTriangle.1)), centerForItem(at: IndexPath(indexTriangle.2)))
+    func isViewCenterIn(indexTriangle: [CGPoint]) -> [CGFloat]? {
+        let triangle = (centerForItem(at: IndexPath(indexTriangle[0])), centerForItem(at: IndexPath(indexTriangle[1])), centerForItem(at: IndexPath(indexTriangle[2])))
         let newBarycentric = barycentricOf(collectionView!.viewPortCenter, P1: triangle.0, P2: triangle.1, P3: triangle.2)
         let threshold: CGFloat = rippleViewStore.state.scene == .watching ? -0.02 : 0 // To soften Numeric effect
         if newBarycentric.allSatisfy({ $0 >= threshold }) {
@@ -145,47 +143,34 @@ class RippleTransitionLayout: UICollectionViewLayout {
         return nil
     }
     
-    private func reComputeCenterTriangle() -> (CGPoint, CGPoint, CGPoint)? {
-        var nextCenterTriangle: (CGPoint, CGPoint, CGPoint)?
+    private func reComputeCenterTriangle() -> ([CGPoint], [CGFloat])? {
+        var nextCenterTriangle: [CGPoint]?
         
-        for indexTriangle in eightTrianglesAround(centerTriangle) {
+        for indexTriangle in eightTrianglesAround(triangle) {
             if let newBarycentric = isViewCenterIn(indexTriangle: indexTriangle) {
                 nextCenterTriangle = indexTriangle
-                baryCentrics = newBarycentric
-                if nextCenterTriangle! != centerTriangle {
-                    print("\(nextCenterTriangle)")
-                }
-                return nextCenterTriangle
+                return (nextCenterTriangle!, newBarycentric)
             }
         }
         
+        var nextbaryCentrics = [CGFloat]()
         doIn2DRange(maxRow: maxRow, maxCol: maxCol) {
             (row, col, stop) in
             for indexTriangle in indexTrianglesAround(CGPoint(x: row, y: col), maxRow: ytRows, maxCol: ytCols) {
                 if let newBarycentric = isViewCenterIn(indexTriangle: indexTriangle) {
                     nextCenterTriangle = indexTriangle
-                    baryCentrics = newBarycentric
+                    nextbaryCentrics = newBarycentric
                     stop = true
                     break
                 }
             }
         }
         
-        return nextCenterTriangle
-    }
-    
-    private func updateCenterTriangle(_ new: (CGPoint, CGPoint, CGPoint)) {
-        centerTriangle = new
-        let P1 = centerTriangle.0, P2 = centerTriangle.1, P3 = centerTriangle.2
+        if nextCenterTriangle != nil {
+            return (nextCenterTriangle!, nextbaryCentrics)
+        }
         
-        let center1 = IndexPath(row: Int(P1.y), section: Int(P1.x))
-        layoutP1 = RippleLayout(theCenter: center1, theCenterPosition: layoutP1.centerOf(center1), theTemplate: layoutP1.template)
-        
-        let center2 = IndexPath(row: Int(P2.y), section: Int(P2.x))
-        layoutP2 = RippleLayout(theCenter: center2, theCenterPosition: layoutP1.centerOf(center2), theTemplate: layoutP1.template)
-        
-        let center3 = IndexPath(row: Int(P3.y), section: Int(P3.x))
-        layoutP3 = RippleLayout(theCenter: center3, theCenterPosition: layoutP1.centerOf(center3), theTemplate: layoutP1.template)
+        return nil
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
@@ -214,13 +199,30 @@ class RippleTransitionLayout: UICollectionViewLayout {
     }
     
     func centerForItem(at indexPath: IndexPath) -> CGPoint {
-        let centers = [layoutP1.centerOf(indexPath), layoutP2.centerOf(indexPath), layoutP3.centerOf(indexPath)]
-        return centers[0] * baryCentrics[0] + centers[1] * baryCentrics[1] + centers[2] * baryCentrics[2]
+        var center = CGPoint.zero
+        for (weight, layout) in self.vertex2Layout.values {
+            center = center + layout.centerOf(indexPath) * weight
+        }
+        
+        return center
     }
 
     func frameForItem(at indexPath: IndexPath) -> CGRect {
-        let frames = [layoutP1.frameOf(indexPath), layoutP2.frameOf(indexPath), layoutP3.frameOf(indexPath)]
-        return frames[0] * baryCentrics[0] + frames[1] * baryCentrics[1] + frames[2] * baryCentrics[2]
+        var frame = CGRect.zero
+        for (weight, layout) in self.vertex2Layout.values {
+            frame = frame + layout.frameOf(indexPath) * weight
+        }
+        
+        return frame
+    }
+    
+    func timingForItem(at indexPath: IndexPath) -> CGFloat {
+        var timing: CGFloat = 0
+        for (weight, layout) in self.vertex2Layout.values {
+            timing = timing + layout.timingOf(indexPath) * weight
+        }
+        
+        return timing
     }
     
     private var maxRow: Int {
