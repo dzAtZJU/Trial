@@ -99,8 +99,8 @@ class UIMetricTemplate {
     
     static let full: UIMetricTemplate = {
         var template = UIMetricTemplate()
-        template.itemWidth = 667
-        template.itemHeight = 375
+        template.itemWidth = screenHeight
+        template.itemHeight = screenWidth
         template.scale = 1
         template.rowGaps = [10000] // Large value to make animation less clutter
         template.colGaps = [[10000]]

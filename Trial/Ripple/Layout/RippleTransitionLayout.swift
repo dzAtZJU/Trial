@@ -12,6 +12,8 @@ import UIKit
 class RippleTransitionLayout: UICollectionViewLayout {
     var vertex2Layout: [IndexPath: (CGFloat, RippleLayout)]
     
+    var estimatedContentSize: CGSize
+    
     var centerItem: IndexPath {
         let (key, _) = self.vertex2Layout.max { (l1, l2) -> Bool in
             return l1.value.0 < l2.value.0
@@ -37,7 +39,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
         let calcu = isPortrait ? LayoutCalcuTemplate.surf : LayoutCalcuTemplate.surfLand
         let template = isPortrait ? UIMetricTemplate.surf : UIMetricTemplate.surfLand
         
-        let layoutP1 = RippleLayout(theCenter: triangle.0, theCenterPosition: template.estimatedCenterFor(item: triangle.0), theTemplate: calcu)
+        let layoutP1 = RippleLayout(theCenter: triangle.0, theCenterPosition: .zero, theTemplate: calcu)
         let layoutP2 = RippleLayout(theCenter: triangle.1, theCenterPosition: layoutP1.centerOf(triangle.1), theTemplate: calcu)
         let layoutP3 = RippleLayout(theCenter: triangle.2, theCenterPosition: layoutP1.centerOf(triangle.2), theTemplate: calcu)
         
@@ -53,7 +55,7 @@ class RippleTransitionLayout: UICollectionViewLayout {
         self.vertex2Layout[layoutP1.center] = (1, layoutP1)
         self.vertex2Layout[layoutP2.center] = (0, layoutP2)
         self.vertex2Layout[layoutP3.center] = (0, layoutP3)
-        
+        self.estimatedContentSize = layoutP1.template.contentSizeFor(rows: ytRows, cols: ytCols)
         super.init()
     }
     

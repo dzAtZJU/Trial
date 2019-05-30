@@ -28,6 +28,10 @@ Independent of cell, fullscreenVideo is relative to the scene
 1. viewport center changes
 2. recalcu triangle & baricentric
 3. If triangle triple changes, use new layout 
+### Comparing
+As Ripple effect, center positon of the tartget item keep unchanged 
+### ContentSize & Inset
+Scroll will incur repostion of items, possibly making some out of content, thus inset is needed  
 
 ## Error Handling
 

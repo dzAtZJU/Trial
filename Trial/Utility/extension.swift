@@ -95,6 +95,12 @@ extension UIDevice {
     }
 }
 
+extension UIScreen {
+    var isPortrait: Bool {
+        return bounds.width < bounds.height
+    }
+}
+
 extension UIWindow {
     func mountVideo(_ video: VideoWithPlayerView) {
         video.frame = bounds

@@ -13,6 +13,7 @@ import CoreGraphics
 extension RippleVC {
     // Animation Category 1: Orientation change
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        lockScrollUpdate = true
         super.viewWillTransition(to: size, with: coordinator)
         
         if animationQueue.isEmpty && (rippleViewStore.state.scene != .full) {
@@ -38,6 +39,7 @@ extension RippleVC {
                 self.runQueuedCompletion()
                 self.animationQueue.removeAll()
                 self.completionQueue.removeAll()
+                self.lockScrollUpdate = false
             })
         }
     }
@@ -95,7 +97,7 @@ extension RippleVC {
             }
         case .full:
             let (shadowAnimation, shadowCompletion) = installShadow(Shadow.dumb)
-            let newLayout = UIDevice.current.orientation.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
+            let newLayout = UIScreen.main.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
             let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
             animationQueue.append {
                 self.collectionView.collectionViewLayout = newLayout
@@ -108,7 +110,7 @@ extension RippleVC {
                     FullscreenVideoManager.current.gotoWindow(video: video, window: self.view.window!)
                 }
             }
-            if UIDevice.current.orientation.isPortrait {
+            if UIScreen.main.isPortrait {
                 executeAnimationByNewState = false
                 UIDevice.current.triggerInterfaceRotateForFullscreen()
             }

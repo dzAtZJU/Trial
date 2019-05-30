@@ -31,6 +31,8 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     var selectedItem: IndexPath!
     
+    var lockScrollUpdate = false
+    
     var inFocusItem: IndexPath {
         return layout.centerItem
     }

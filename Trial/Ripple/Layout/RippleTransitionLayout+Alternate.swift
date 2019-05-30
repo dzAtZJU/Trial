@@ -49,7 +49,7 @@ extension RippleTransitionLayout {
             (center1, center2, center3) = (layoutP1.center, layoutP2.center, layoutP3.center)
         }
         
-        let newPositionForCenter1 = layoutTemplate.uiTemplates.estimatedCenterFor(item: center1)
+        let newPositionForCenter1 = layoutTemplate.minimumCenterPositionWhenCenterIs(row: center1.row, col: center1.section)
         let toggledLayoutP1 = RippleLayout(theCenter: center1, theCenterPosition: newPositionForCenter1, theTemplate: layoutTemplate)
         let toggledLayoutP2 = RippleLayout(theCenter: center2, theCenterPosition: toggledLayoutP1.centerOf(center2), theTemplate: layoutTemplate)
         let toggledLayoutP3 = RippleLayout(theCenter: center3, theCenterPosition: toggledLayoutP1.centerOf(center3), theTemplate: layoutTemplate)
@@ -58,11 +58,13 @@ extension RippleTransitionLayout {
     }
     
     override var collectionViewContentSize: CGSize {
-        return uiTemplates.contentSize
+       return estimatedContentSize
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-        return centerForItem(at: centerItem) - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
+        let c = centerForItem(at: centerItem)
+        let r = c - CGPoint(x: collectionView!.frame.width / 2, y: collectionView!.frame.height / 2)
+        return r
     }
     
     // Wrapper for LayoutCalcuTemplate

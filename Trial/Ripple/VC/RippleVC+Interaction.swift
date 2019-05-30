@@ -64,7 +64,7 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard rippleViewStore.state.ready else {
+        guard rippleViewStore.state.ready, !lockScrollUpdate else {
             return
         }
         layout.viewPortCenterChanged()

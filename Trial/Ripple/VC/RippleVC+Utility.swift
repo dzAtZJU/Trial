@@ -24,8 +24,8 @@ extension RippleVC {
     }
     
     func updateContentInset() {
-        let topInset = UIScreen.main.bounds.height / 2
-        let leftInset = UIScreen.main.bounds.width / 2
+        let topInset = UIScreen.main.bounds.height / 3
+        let leftInset = UIScreen.main.bounds.width / 3
         collectionView.contentInset = UIEdgeInsets(top: topInset, left: leftInset, bottom: topInset, right: leftInset)
     }
 }

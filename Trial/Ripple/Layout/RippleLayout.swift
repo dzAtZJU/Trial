@@ -103,8 +103,28 @@ class LayoutCalcuTemplate: NSObject {
         self.uiTemplates = uiTemplates
     }
     
-    func center() -> CGPoint {
-        return CGPoint(x: uiTemplates.itemWidth * CGFloat(initialCenter1.section + 2), y: uiTemplates.itemHeight * CGFloat(initialCenter1.row + 2))
+    lazy var flowDistanceEstimation: CGPoint = {
+        return CGPoint(x: 0, y: uiTemplates.itemHeight / 1.2)
+    }()
+    
+    func contentSizeFor(rows: Int, cols: Int) -> CGSize {
+        let frame = frameOfFirstItemWhenCenterIs(row: rows - 1, col: cols - 1)
+        let minimumSize = CGSize(width: frame.center.x * -1 + frame.size.width, height: frame.center.y * -1 + frame.size.height)
+        return minimumSize + CGSize(width: flowDistanceEstimation.x, height: flowDistanceEstimation.y)
+    }
+    
+    func minimumCenterPositionWhenCenterIs(row: Int, col: Int) -> CGPoint {
+        return frameOfFirstItemWhenCenterIs(row: row, col: col).origin * -1 + flowDistanceEstimation * 0.5
+    }
+    
+    func frameOfFirstItemWhenCenterIs(row: Int, col: Int) -> CGRect {
+        let dRowOfFirstItem = -row
+        let dColOfFirstItem = -col
+        
+        let size = sizeOfItem(dRow: dRowOfFirstItem, dCol: dColOfFirstItem)
+        let center = CGPoint(x: dXOf(dCol: dColOfFirstItem, dRow: dRowOfFirstItem), y: dYOf(dRowOfFirstItem))
+        
+        return CGRect(center: center, size: size)
     }
     
     func toggledTemplate() -> LayoutCalcuTemplate {
