@@ -32,7 +32,6 @@
 		890CED31227588C900F58780 /* EpisodesTransitionLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890CED30227588C900F58780 /* EpisodesTransitionLayout.swift */; };
 		890CED332275898B00F58780 /* dumb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890CED322275898B00F58780 /* dumb.swift */; };
 		896EA9052242209700780557 /* YTPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9042242209700780557 /* YTPlayerView.swift */; };
-		896EA9072242232700780557 /* youtube_iframe.html in Resources */ = {isa = PBXBuildFile; fileRef = 896EA9062242232700780557 /* youtube_iframe.html */; };
 		896EA90F22438C3600780557 /* RippleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA90E22438C3600780557 /* RippleCell.swift */; };
 		896EA9162244945800780557 /* alog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9152244945800780557 /* alog.swift */; };
 		896EA9202244AFCF00780557 /* extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA91F2244AFCF00780557 /* extension.swift */; };
@@ -95,6 +94,7 @@
 		890CED2E2275887800F58780 /* EpisodesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodesView.swift; sourceTree = "<group>"; };
 		890CED30227588C900F58780 /* EpisodesTransitionLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodesTransitionLayout.swift; sourceTree = "<group>"; };
 		890CED322275898B00F58780 /* dumb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dumb.swift; sourceTree = "<group>"; };
+		8966379022A0DDA70019E782 /* YoutubeIframeAPI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = YoutubeIframeAPI.md; sourceTree = "<group>"; };
 		896EA9042242209700780557 /* YTPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTPlayerView.swift; sourceTree = "<group>"; };
 		896EA9062242232700780557 /* youtube_iframe.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = youtube_iframe.html; sourceTree = "<group>"; };
 		896EA90E22438C3600780557 /* RippleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleCell.swift; sourceTree = "<group>"; };
@@ -237,6 +237,7 @@
 				89AA5449225C879E00178341 /* Arch.md */,
 				89BD5D9A228D6D9B00C7C52C /* Optimization.md */,
 				89A56D52229E611300852881 /* Snippet.swift */,
+				8966379022A0DDA70019E782 /* YoutubeIframeAPI.md */,
 			);
 			path = Docs;
 			sourceTree = "<group>";
@@ -451,7 +452,6 @@
 				890A7B032240E47700CDB6B1 /* GoogleService-Info.plist in Resources */,
 				89F37A252237524A00A9303D /* Assets.xcassets in Resources */,
 				89006279225455AB00094F91 /* raw in Resources */,
-				896EA9072242232700780557 /* youtube_iframe.html in Resources */,
 				89F37A232237524800A9303D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

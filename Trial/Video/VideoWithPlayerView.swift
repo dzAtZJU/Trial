@@ -40,17 +40,10 @@ class VideoWithPlayerView: UIView {
     private init(videoId: VideoId) {
         videoView = WKYTPlayerView()
         super.init(frame: CGRect.zero)
-//        backgroundColor = UIColor.purple
         videoView.delegate = self
         setupSubview(videoView)
-//        DispatchQueue.main.async { [weak self] in
-//
-//            guard let self = self else {
-//                return
-//            }
-            self.videoId = videoId
-            self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "modestbranding": 1])
-//        }
+        self.videoId = videoId
+        self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "modestbranding": 1])
     }
     
     func play() {
@@ -138,28 +131,6 @@ class VideoWithPlayerView: UIView {
 var yTPlayerView: WKYTPlayerView?
 extension VideoWithPlayerView: WKYTPlayerViewDelegate {
     func playerView(_ playerView: WKYTPlayerView, didChangeTo state: WKYTPlayerState) {
-//        layer.borderWidth = 5
-//        switch state {
-//        case .unstarted:
-//            layer.borderColor = UIColor.gray.cgColor
-//            beforeAppear()
-//        case .queued:
-//            layer.borderColor = UIColor.yellow.cgColor
-//        case .buffering:
-//            layer.borderColor = UIColor.orange.cgColor
-//        case .playing:
-//            layer.borderColor = UIColor.green.cgColor
-//            beforeAppear()
-//        case .paused:
-//            layer.borderColor = UIColor.red.cgColor
-//        case .ended:
-//            layer.borderColor = UIColor.black.cgColor
-//        case .unknown:
-//            layer.borderColor = UIColor.blue.cgColor
-//        default:
-//            return
-//        }
-        
         switch state {
         case .unstarted, .playing:
             beforeAppear()
