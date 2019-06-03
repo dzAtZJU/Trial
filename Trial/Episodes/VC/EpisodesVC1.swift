@@ -11,7 +11,11 @@ import UIKit
 import ReSwift
 
 class EpisodesVC: UIViewController {
-    var collectionView: UICollectionView!
+    var maskWindow: UIView!
+    
+    var seasonsView: UICollectionView!
+    
+    var episodesView: UICollectionView!
     
     var inFocusItem: IndexPath!
     
@@ -26,8 +30,12 @@ class EpisodesVC: UIViewController {
     var shadowRight: UIImageView!
     
     var layout: EpisodesLayout {
-        return collectionView.collectionViewLayout as! EpisodesLayout
+        return episodesView.collectionViewLayout as! EpisodesLayout
     }
+    
+    var centerSeason = 1
+    
+    var preSceneState = EpisodesSceneState.sliding
     
     override func loadView() {
         super.loadView()
@@ -43,121 +51,50 @@ class EpisodesVC: UIViewController {
         shadowBlurredThumbnailBg.autoresizingMask = [.flexibleHeight, .flexibleWidth]
 //        view.addSubview(shadowBlurredThumbnailBg)
         
+        maskWindow = UIView(frame: .zero)
+        maskWindow.layer.cornerRadius = 14
+        maskWindow.backgroundColor = UIColor.black.withAlphaComponent(0.2)
+        view.addSubview(maskWindow)
+        
+        seasonsView = SeasonsView.genSeasonsView()
+        seasonsView.isScrollEnabled = false
+        seasonsView.dataSource = self
+        seasonsView.delegate = self
+        view.addSubview(seasonsView)
+        
         let layout = EpisodesLayout.sliding
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.register(EpisodeCell.self, forCellWithReuseIdentifier: "episode")
-        collectionView.backgroundColor = UIColor.clear
-        collectionView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        view.addSubview(collectionView)
+        episodesView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        episodesView.dataSource = self
+        episodesView.delegate = self
+        episodesView.register(EpisodeCell.self, forCellWithReuseIdentifier: "episode")
+        episodesView.backgroundColor = UIColor.clear
+        episodesView.decelerationRate = UIScrollView.DecelerationRate(rawValue: UIScrollView.DecelerationRate.normal.rawValue + (UIScrollView.DecelerationRate.fast.rawValue - UIScrollView.DecelerationRate.normal.rawValue) / 1.5)
+        view.addSubview(episodesView)
         
         let shadowLeftImg = UIImage(named: "shadow_left")
         shadowLeft = UIImageView(image: shadowLeftImg)
         shadowLeft.contentMode = .left
         shadowLeft.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        view.addSubview(shadowLeft)
+//        view.addSubview(shadowLeft)
         
         let shadowRightCGImg = shadowLeftImg?.cgImage?.copy()
         let shadowRightImg = UIImage(cgImage: shadowRightCGImg!, scale: 1, orientation: .down)
         shadowRight = UIImageView(image: shadowRightImg)
         shadowRight.contentMode = .right
         shadowRight.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        view.addSubview(shadowRight)
+//        view.addSubview(shadowRight)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        collectionView.frame = view.bounds.insetBy(dx: -100, dy: 0)
+        seasonsView.frame = CGRect(origin: .zero, size: CGSize(width: view.bounds.width, height: 96))
+        seasonsView.scrollToItem(at: IndexPath(row: centerSeason - 1, section: 0), at: .centeredHorizontally, animated: false)
+        maskWindow.frame = CGRect(center: seasonsView.center, size: CGSize(width: 102, height: 28))
+        layoutEpisodesViewInDidLoad()
         blurredThumbnailBg.frame = view.bounds
         shadowBlurredThumbnailBg.frame = view.bounds
         shadowLeft.frame = view.bounds
         shadowRight.frame = view.bounds
-    }
-}
-
-extension EpisodesVC: UICollectionViewDelegate {
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        episodesViewStore.dispatch(EpisodesViewState.SceneAction.scroll)
-    }
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        for cell in collectionView.visibleCells {
-            if cell.frame.contains(collectionView.bounds.center) {
-                inFocusItem = collectionView.indexPath(for: cell)
-            }
-        }
-        
-        episodesViewStore.dispatch(EpisodesViewState.SceneAction.scroll)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        inFocusItem = indexPath
-        episodesViewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
-    }
-}
-
-extension EpisodesVC: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "episode", for: indexPath) as! EpisodeCell
-        cell.episodeNum.text = indexPath.row.description
-        return cell
-    }
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 40
-    }
-}
-
-extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        guard indexPath == inFocusItem else {
-            return CGSize(width: 120, height: 225)
-        }
-
-        let layout = collectionViewLayout as! EpisodesLayout
-        switch layout.sceneState {
-        case .watching, .full2Watching:
-            return CGSize(width: 432, height: 243)
-        case .watching2Full:
-            return CGSize(width: 240, height: 225)
-        case .full:
-            return CGSize(width: 667, height: 375)
-        case .sliding:
-            return CGSize(width: 120, height: 225)
-        }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        let layout = collectionViewLayout as! EpisodesLayout
-        switch layout.sceneState {
-        case .sliding:
-            return CGFloat(10)
-        case .watching:
-            return CGFloat(20)
-        case .full, .full2Watching:
-            return CGFloat(100)
-        case .watching2Full:
-            return CGFloat(100)
-        }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        let layout = collectionViewLayout as! EpisodesLayout
-        switch layout.sceneState {
-        case .sliding:
-            return CGFloat(10)
-        case .watching:
-            return CGFloat(20)
-        case .full, .full2Watching:
-            return CGFloat(80)
-        case .watching2Full:
-            return CGFloat(80)
-        }
     }
 }
 

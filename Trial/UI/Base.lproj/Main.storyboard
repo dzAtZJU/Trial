@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="aUf-qx-6GW">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ufX-vW-WyZ">
     <device id="retina5_9" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -134,30 +134,16 @@
             </objects>
             <point key="canvasLocation" x="-690.39999999999998" y="11.244377811094454"/>
         </scene>
-        <!--Test3VC-->
+        <!--Test2VC-->
         <scene sceneID="jjf-9m-Qcg">
             <objects>
-                <viewController id="WVg-Bn-xKa" customClass="Test3VC" customModule="Trial" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="WVg-Bn-xKa" customClass="Test2VC" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="GHt-ih-UJR">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mcx-bM-0Sd">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="500"/>
-                            </scrollView>
-                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="zFh-j5-CKf" firstAttribute="bottom" secondItem="mcx-bM-0Sd" secondAttribute="bottom" constant="278" id="8Jp-6H-xNg"/>
-                            <constraint firstItem="zFh-j5-CKf" firstAttribute="trailing" secondItem="mcx-bM-0Sd" secondAttribute="trailing" id="Icx-1b-hPJ"/>
-                            <constraint firstItem="mcx-bM-0Sd" firstAttribute="leading" secondItem="zFh-j5-CKf" secondAttribute="leading" id="P93-qH-GVc"/>
-                            <constraint firstItem="mcx-bM-0Sd" firstAttribute="top" secondItem="GHt-ih-UJR" secondAttribute="top" id="Sy4-Q6-FwA"/>
-                        </constraints>
                         <viewLayoutGuide key="safeArea" id="zFh-j5-CKf"/>
                     </view>
-                    <connections>
-                        <outlet property="scrollView" destination="mcx-bM-0Sd" id="4q2-iy-x4e"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Xd-9y-rZf" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -171,18 +157,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.35285869939999998" green="1" blue="0.14678470369999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="1pi-9S-Rdg">
-                            <size key="itemSize" width="50" height="50"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="1pi-9S-Rdg">
+                            <size key="itemSize" width="300" height="500"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                         </collectionViewFlowLayout>
                         <cells>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="cell" id="Equ-Vm-mSO" customClass="Cell" customModule="Trial" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                <rect key="frame" x="37.666666666666664" y="0.0" width="300" height="500"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="300" height="500"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XB7-Ks-6xq">

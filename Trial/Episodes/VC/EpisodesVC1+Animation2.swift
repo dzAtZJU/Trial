@@ -11,57 +11,76 @@ import Foundation
 import UIKit
 import CoreGraphics
 
-let animator = UIViewPropertyAnimator(duration: 1, curve: UIView.AnimationCurve.easeInOut, animations: nil)
+let animator = UIViewPropertyAnimator(duration: 0.6, curve: .easeInOut, animations: nil)
+let animator1 = UIViewPropertyAnimator(duration: 0.6, curve: .easeInOut, animations: nil)
+
 extension EpisodesVC {
     func newState(state: EpisodesSceneState) {
+        newStateForAnimation(state: state)
+        preSceneState = state
+    }
+    
+    func newStateForAnimation(state: EpisodesSceneState) {
         switch state {
         case .sliding:
             UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = EpisodesLayout.sliding
-                for cell in self.collectionView.visibleCells {
+                self.episodesView.collectionViewLayout = EpisodesLayout.sliding
+                for cell in self.episodesView.visibleCells {
                     cell.layoutIfNeeded()
                 }
             }, completion: nil)
         case .watching:
-            let newLayout = EpisodesLayout.watching
-//            let transformForVideo = CGAffineTransform(scaleX: newLayout.itemSize.width / self.layout.itemSize.width, y: newLayout.itemSize.height / self.layout.itemSize.height)
-            UIView.animate(withDuration: 0.3, animations: {
-                self.collectionView.collectionViewLayout = newLayout
-//                self.inFocusVideo.transform = self.inFocusVideo.transform.concatenating(transformForVideo)
-                for cell in self.collectionView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
-            }, completion: nil)
-        case .full:
-            animator.addAnimations {
-                self.collectionView.collectionViewLayout = EpisodesLayout.watching2Full
-            }
-            animator.startAnimation()
-            
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
-                animator.addAnimations {
-                    self.collectionView.collectionViewLayout = EpisodesLayout.full
-                }
+            if preSceneState == .sliding {
+                let newLayout = EpisodesLayout.watching
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.episodesView.collectionViewLayout = newLayout
+                    for cell in self.episodesView.visibleCells {
+                        cell.layoutIfNeeded()
+                    }
+                }, completion: nil)
+                return
             }
             
-            
-        case .full2Watching:
-            let animator = UIViewPropertyAnimator(duration: 1, curve: .easeInOut, animations: nil)
+            let animator = UIViewPropertyAnimator(duration: 0.6, curve: .easeInOut, animations: nil)
             
             let newLayout = EpisodesLayout.full2Watching
-//            let transformForVideo = CGAffineTransform(scaleX: newLayout.itemSize.width / self.layout.itemSize.width, y: newLayout.itemSize.height / self.layout.itemSize.height)
+            
             animator.addAnimations {
-                self.collectionView.collectionViewLayout = newLayout
-//                self.inFocusVideo.transform = self.inFocusVideo.transform.concatenating(transformForVideo)
-                for cell in self.collectionView.visibleCells {
+                self.episodesView.collectionViewLayout = newLayout
+                self.episodesView.center = self.episodesView.center + CGPoint(x: 0, y: 16)
+                self.seasonsView.center = self.seasonsView.center + CGPoint(x: 0, y: 62)
+                self.maskWindow.center = self.maskWindow.center + CGPoint(x: 0, y: 62)
+                for cell in self.episodesView.visibleCells {
                     cell.layoutIfNeeded()
                 }
             }
-            animator.addAnimations({
-                self.collectionView.collectionViewLayout = EpisodesLayout.watching
-            }, delayFactor: 0.7)
+            
+            
+            animator1.addAnimations {
+                self.episodesView.collectionViewLayout = EpisodesLayout.watching
+            }
             
             animator.startAnimation()
+            animator1.startAnimation(afterDelay: 0.3)
+        case .full:
+            let newLayout = EpisodesLayout.watching2Full
+            
+            animator.addAnimations {
+                self.episodesView.collectionViewLayout = newLayout
+            }
+            
+            animator1.addAnimations {
+                self.episodesView.collectionViewLayout = EpisodesLayout.full
+                self.episodesView.center = self.episodesView.center - CGPoint(x: 0, y: 16)
+                self.seasonsView.center = self.seasonsView.center - CGPoint(x: 0, y: 62)
+                self.maskWindow.center = self.maskWindow.center - CGPoint(x: 0, y: 62)
+                for cell in self.episodesView.visibleCells {
+                    cell.layoutIfNeeded()
+                }
+            }
+            
+            animator.startAnimation()
+            animator1.startAnimation(afterDelay: 0.3)
         default:
             fatalError()
         }

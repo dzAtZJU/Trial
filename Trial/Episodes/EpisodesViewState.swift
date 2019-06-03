@@ -31,8 +31,6 @@ struct EpisodesViewState: StateType {
             case .watching:
                 return .full
             case .full:
-                return .full2Watching
-            case .full2Watching:
                 return .watching
             default:
                 fatalError()

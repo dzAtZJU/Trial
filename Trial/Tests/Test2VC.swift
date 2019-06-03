@@ -16,34 +16,20 @@ class Cell: UICollectionViewCell {
 
 class CollectionViewController: UICollectionViewController {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        return 10
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1000
+        return 10
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! Cell
-        cell.label.text = String(indexPath.row)
+        cell.label.text = String(indexPath.section * 10 + indexPath.row)
         return cell
     }
     
-    @objc func doZoom() {
-        collectionView.setZoomScale(1.5, animated: true)
-    }
-    
     override func viewDidLoad() {
-        collectionView.contentInset = UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50)
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { _ in
-            DispatchQueue.main.async {
-//                self.collectionView.setZoomScale(0.5, animated: true)
-                self.collectionView.zoom(to: CGRect(origin: .zero, size: CGSize(width: 10, height: 10)), animated: true)
-            }
-        }
-    }
-    
-    override func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return collectionView.cellForItem(at: IndexPath(row: 22, section: 0))
+        collectionView.contentInset = UIEdgeInsets(top: 500, left: 100, bottom: 0, right: 100)
     }
 }
