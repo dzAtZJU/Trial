@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import YoutubePlayer_in_WKWebView
 
+// Thumbnail + Gradient
 class VideoCell: UICollectionViewCell {
     
     /// One of global contents
@@ -55,52 +56,6 @@ class VideoCell: UICollectionViewCell {
             return
         }
         addScreenshotImage(image)
-    }
-    
-    // One place to configure timing contents
-    func mountVideo(_ video: VideoWithPlayerView) {
-        setupVideoView(video)
-        video.play()
-        activityIndicator.startAnimating()
-    }
-    
-    func mountVideoForBuffering(_ video: VideoWithPlayerView) {
-        setupVideoView(video)
-        video.buffer()
-    }
-    
-    func unmountVideoForBuffering() {
-        guard let videoWithPlayer = videoWithPlayer else {
-            return
-        }
-        
-        videoWithPlayer.endBuffer()
-    }
-    
-    // mount, unmount 概念是基于交互来说的，在这里针对交互的要求来处理 video
-    func unMountVideo() {
-        guard let videoWithPlayer = videoWithPlayer else {
-            return
-        }
-        
-        guard videoWithPlayer.isReady else {
-            videoWithPlayer.removeFromSuperview()
-            self.videoWithPlayer = nil
-            return
-        }
-        
-        videoWithPlayer.fallOff()
-        addScreenshotImage(videoWithPlayer.screenshot)
-        self.videoWithPlayer = nil
-    }
-    
-    func addVideoToHierarchy(_ video: VideoWithPlayerView) {
-        self.videoWithPlayer = video
-        if gradientView == nil {
-            addSubview(video)
-            return
-        }
-        self.insertSubview(video, belowSubview: gradientView)
     }
     
     private func setupView() {
@@ -155,5 +110,54 @@ class VideoCell: UICollectionViewCell {
                         NSLayoutConstraint(item: self, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: 1, constant: 0),
                         NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: 1, constant: 0),
                         NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0)])
+    }
+}
+
+// Video Operation
+extension VideoCell {
+    // One place to configure timing contents
+    func mountVideo(_ video: VideoWithPlayerView) {
+        setupVideoView(video)
+        video.play()
+        activityIndicator.startAnimating()
+    }
+    
+    func mountVideoForBuffering(_ video: VideoWithPlayerView) {
+        setupVideoView(video)
+        video.buffer()
+    }
+    
+    func unmountVideoForBuffering() {
+        guard let videoWithPlayer = videoWithPlayer else {
+            return
+        }
+        
+        videoWithPlayer.endBuffer()
+    }
+    
+    // mount, unmount 概念是基于交互来说的，在这里针对交互的要求来处理 video
+    func unMountVideo() {
+        guard let videoWithPlayer = videoWithPlayer else {
+            return
+        }
+        
+        guard videoWithPlayer.isReady else {
+            videoWithPlayer.removeFromSuperview()
+            self.videoWithPlayer = nil
+            return
+        }
+        
+        videoWithPlayer.fallOff()
+        addScreenshotImage(videoWithPlayer.screenshot)
+        self.videoWithPlayer = nil
+    }
+    
+    func addVideoToHierarchy(_ video: VideoWithPlayerView) {
+        self.videoWithPlayer = video
+        if gradientView == nil {
+            addSubview(video)
+            return
+        }
+        self.insertSubview(video, belowSubview: gradientView)
     }
 }

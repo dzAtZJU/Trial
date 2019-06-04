@@ -20,17 +20,18 @@ class YoutubeVideoData {
     var thumbnail: UIImage!
 }
 
-class YoutubeManagers {
+class YoutubeManager {
     
     /// Gloabal data warehouse for videos
-    static let shared = YoutubeManagers()
+    static let shared = YoutubeManager()
     
-    var indexPath2videoId = [IndexPath: VideoId]()
-    var videoId2Thumbnail = [VideoId: URLString]()
+    private var indexPath2VideoId = [IndexPath: VideoId]()
+    
+    private var videoId2Thumbnail = [VideoId: URLString]()
     
     // Cache. Can request by known information
-    var videoId2Data = NSCache<NSString, YoutubeVideoData>()
-    let videoId2View = NSCache<NSString, VideoWithPlayerView>()
+    private let videoId2Data = NSCache<NSString, YoutubeVideoData>()
+    private let videoId2View = NSCache<NSString, VideoWithPlayerView>()
     
     private let serialAccessQueue: OperationQueue = {
         let queue = OperationQueue()
@@ -45,7 +46,7 @@ class YoutubeManagers {
     func doInitialRequest() {
         loadVideoIds()
         
-        let thumbnailsUrlsOperation = ThumbnailsUrlsOperation(videoIds: Array(indexPath2videoId.values))
+        let thumbnailsUrlsOperation = ThumbnailsUrlsOperation(videoIds: Array(indexPath2VideoId.values))
         thumbnailsUrlsOperation.completionBlock = {
             self.videoId2Thumbnail.merge(thumbnailsUrlsOperation.videoId2ThumbnailUrl, uniquingKeysWith: { (first, _ ) in first })
             
@@ -53,16 +54,16 @@ class YoutubeManagers {
         serialAccessQueue.addOperation(thumbnailsUrlsOperation)
     }
     
-    func loadVideoIds() {
-        indexPath2videoId = TestDatas.indexPathToVideoId
+    private func loadVideoIds() {
+        indexPath2VideoId = TestDatas.indexPathToVideoId
     }
 }
 
 // Youtube Video View
-extension YoutubeManagers {
+extension YoutubeManager {
     // Collectionview Level
     func fetchVideoForItem(_ indexPath: IndexPath, completion: ((VideoWithPlayerView, Bool) -> ())? = nil) {
-        let videoId = indexPath2videoId[indexPath]!
+        let videoId = indexPath2VideoId[indexPath]!
         var videoView = videoId2View.object(forKey: videoId as NSString)
         let cached = videoView != nil
         if !cached {
@@ -76,10 +77,10 @@ extension YoutubeManagers {
 }
 
 // Youtube Video Data
-extension YoutubeManagers {
+extension YoutubeManager {
     // Collectionview Level
     func getDataOf(item: IndexPath, completionHandler: @escaping (YoutubeVideoData) -> ()) {
-        let videoId = indexPath2videoId[item]!
+        let videoId = indexPath2VideoId[item]!
         if let data = videoId2Data.object(forKey: videoId as NSString) {
             completionHandler(data)
             return
@@ -90,7 +91,7 @@ extension YoutubeManagers {
     
     // Netowrk Level. Fetch all the youtube video data. (except for video)
     func requestFor(item: IndexPath, completion: ((YoutubeVideoData) -> ())? = nil) {
-        let videoId = indexPath2videoId[item]!
+        let videoId = indexPath2VideoId[item]!
         let operation = WaitingOperation() {
             if let completion = completion {
                 let handlers = self.videoDataCompletion[videoId, default: []]

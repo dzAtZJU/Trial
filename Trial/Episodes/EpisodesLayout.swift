@@ -9,10 +9,6 @@
 import Foundation
 import UIKit
 
-protocol InFocusItemManager {
-    var inFocusItem: IndexPath! { get }
-}
-
 class EpisodesLayout: UICollectionViewFlowLayout {
     
     var sceneState: EpisodesSceneState
@@ -49,11 +45,11 @@ class EpisodesLayout: UICollectionViewFlowLayout {
             return nil
         }
         
-        let inFocusItem = (collectionView?.delegate as? InFocusItemManager)?.inFocusItem
+        let latestWatchItem = (collectionView?.delegate as? EpisodesVC)?.latestWatchItem
         
         for attributes in result {
             (attributes as! EpisodeLayoutAttributes).radius = 8
-            if attributes.indexPath == inFocusItem {
+            if attributes.indexPath == latestWatchItem {
                 switch sceneState {
                 case .watching:
                     (attributes as! EpisodeLayoutAttributes).radius = 14
@@ -69,30 +65,9 @@ class EpisodesLayout: UICollectionViewFlowLayout {
     override class var layoutAttributesClass: AnyClass {
         return EpisodeLayoutAttributes.classForCoder()
     }
-//    override func prepare(forAnimatedBoundsChange oldBounds: CGRect) {
-//
-//    }
-//
-//    override func prepare(forCollectionViewUpdates updateItems: [UICollectionViewUpdateItem]) {
-//
-//    }
-//
-//
-//    override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-//        let ori = super.initialLayoutAttributesForAppearingItem(at: itemIndexPath)
-//        let real = layoutAttributesForItem(at: itemIndexPath)
-//        if sceneState == .watching {
-//            print("initial -- \(itemIndexPath): \(ori?.frame)")
-//            print("initial \(itemIndexPath): \(real?.frame)")
-//            print("------")
-//        }
-//
-//
-//        return ori
-//    }
-//
+    
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-        if let item = (collectionView?.delegate as? InFocusItemManager)?.inFocusItem, let attributes = layoutAttributesForItem(at: item) {
+        if episodesViewStore.state.scene != .sliding, let vc = collectionView?.delegate as? EpisodesVC, let item = vc.latestWatchItem , let attributes = layoutAttributesForItem(at: item) {
             return attributes.frame.center - CGRect(origin: .zero, size: collectionView!.frame.size).center
         }
 

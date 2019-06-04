@@ -11,15 +11,14 @@ import UIKit
 import ReSwift
 
 class EpisodesVC: UIViewController {
+    
+    // Views
+    
     var maskWindow: UIView!
     
     var seasonsView: UICollectionView!
     
     var episodesView: UICollectionView!
-    
-    var inFocusItem: IndexPath!
-    
-    var inFocusVideo: VideoWithPlayerView!
     
     var blurredThumbnailBg: UIImageView!
     
@@ -29,13 +28,28 @@ class EpisodesVC: UIViewController {
     
     var shadowRight: UIImageView!
     
+    var lastWatchButton: UIButton!
+    
     var layout: EpisodesLayout {
         return episodesView.collectionViewLayout as! EpisodesLayout
     }
     
-    var centerSeason = 1
+    // Layout Alternate
     
     var preSceneState = EpisodesSceneState.sliding
+    
+    // States
+    var centerItem: IndexPath! = IndexPath(row: 0, section: 0)
+    
+    var latestWatchItem: IndexPath! = IndexPath(row: 0, section: 0)
+    
+    var preWatchItem: IndexPath? {
+        didSet {
+            lastWatchButton.isHidden = preWatchItem == nil
+        }
+    }
+    
+    var selectedItem: IndexPath?
     
     override func loadView() {
         super.loadView()
@@ -56,20 +70,21 @@ class EpisodesVC: UIViewController {
         maskWindow.backgroundColor = UIColor.black.withAlphaComponent(0.2)
         view.addSubview(maskWindow)
         
+        let layout = EpisodesLayout.sliding
+        episodesView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        episodesView.dataSource = self
+        episodesView.delegate = self
+        episodesView.prefetchDataSource = self
+        episodesView.register(EpisodeCell.self, forCellWithReuseIdentifier: "episode")
+        episodesView.backgroundColor = UIColor.clear
+        episodesView.decelerationRate = UIScrollView.DecelerationRate(rawValue: UIScrollView.DecelerationRate.normal.rawValue + (UIScrollView.DecelerationRate.fast.rawValue - UIScrollView.DecelerationRate.normal.rawValue) / 1.5)
+        view.addSubview(episodesView)
+        
         seasonsView = SeasonsView.genSeasonsView()
         seasonsView.isScrollEnabled = false
         seasonsView.dataSource = self
         seasonsView.delegate = self
         view.addSubview(seasonsView)
-        
-        let layout = EpisodesLayout.sliding
-        episodesView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        episodesView.dataSource = self
-        episodesView.delegate = self
-        episodesView.register(EpisodeCell.self, forCellWithReuseIdentifier: "episode")
-        episodesView.backgroundColor = UIColor.clear
-        episodesView.decelerationRate = UIScrollView.DecelerationRate(rawValue: UIScrollView.DecelerationRate.normal.rawValue + (UIScrollView.DecelerationRate.fast.rawValue - UIScrollView.DecelerationRate.normal.rawValue) / 1.5)
-        view.addSubview(episodesView)
         
         let shadowLeftImg = UIImage(named: "shadow_left")
         shadowLeft = UIImageView(image: shadowLeftImg)
@@ -83,22 +98,52 @@ class EpisodesVC: UIViewController {
         shadowRight.contentMode = .right
         shadowRight.autoresizingMask = [.flexibleHeight, .flexibleWidth]
 //        view.addSubview(shadowRight)
+        
+        lastWatchButton = UIButton(type: .custom)
+        lastWatchButton.setImage(UIImage(named: "last_watch_button"), for: .normal)
+        lastWatchButton.addTarget(self, action: #selector(handleLastWatchButton), for: .touchUpInside)
+        lastWatchButton.isHidden = true
+        view.addSubview(lastWatchButton)
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        seasonsView.frame = CGRect(origin: .zero, size: CGSize(width: view.bounds.width, height: 96))
-        seasonsView.scrollToItem(at: IndexPath(row: centerSeason - 1, section: 0), at: .centeredHorizontally, animated: false)
-        maskWindow.frame = CGRect(center: seasonsView.center, size: CGSize(width: 102, height: 28))
-        layoutEpisodesViewInDidLoad()
+    override func viewWillLayoutSubviews() {
+        layoutShadows()
+        layoutSeasonsView()
+        layoutEpisodesView()
+        lastWatchButton.frame = CGRect(origin: CGPoint(x: view.bounds.width - 60, y: 10), size: CGSize(width: 50, height: 50))
+    }
+    
+    private func layoutShadows() {
         blurredThumbnailBg.frame = view.bounds
         shadowBlurredThumbnailBg.frame = view.bounds
         shadowLeft.frame = view.bounds
         shadowRight.frame = view.bounds
     }
+    
+    private func layoutSeasonsView() {
+        seasonsView.frame = CGRect(origin: .zero, size: CGSize(width: view.bounds.width, height: 96))
+        maskWindow.frame = CGRect(center: seasonsView.center, size: CGSize(width: 102, height: 28))
+    }
+    
+    private func layoutEpisodesView() {
+        episodesView.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: -100, bottom: -32, right: -100))
+//        episodesView.contentInset = UIEdgeInsets(top: 0, left: screenHeight / 2, bottom: 0, right: screenHeight / 2)
+    }
+    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .landscape
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        seasonsView.scrollToItem(at: IndexPath(row: latestWatchItem.section, section: 0), at: .centeredHorizontally, animated: false)
+    }
 }
 
 extension EpisodesVC: StoreSubscriber {
+    func newState(state: EpisodesSceneState) {
+        newStateForAnimation(state: state)
+        preSceneState = state
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -107,10 +152,6 @@ extension EpisodesVC: StoreSubscriber {
                 viewState.scene
             }
         }
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-//        collectionView.cellForItem(at: inFocusItem)?.addSubview(inFocusVideo)
     }
     
     override func viewWillDisappear(_ animated: Bool) {

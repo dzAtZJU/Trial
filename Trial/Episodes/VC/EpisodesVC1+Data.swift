@@ -11,16 +11,16 @@ import UIKit
 
 let seasonsNum = 3
 
-extension EpisodesVC: UICollectionViewDataSource {
+extension EpisodesVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefetching {
     func prepareForPresent(inFocusItem: IndexPath, transferredVideo: VideoWithPlayerView) {
-        self.inFocusItem = inFocusItem
-        self.inFocusVideo = transferredVideo
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == episodesView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "episode", for: indexPath) as! EpisodeCell
             cell.episodeNum.text = (indexPath.row + 1).description
+//            cell.screenshotView.image
             return cell
         }
         
@@ -43,5 +43,11 @@ extension EpisodesVC: UICollectionViewDataSource {
         }
         
         return 10
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        for item in indexPaths {
+            YoutubeManager.shared.requestFor(item: item)
+        }
     }
 }

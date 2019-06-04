@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        YoutubeManagers.shared.doInitialRequest()
+        YoutubeManager.shared.doInitialRequest()
         screenWidth = UIScreen.main.nativeBounds.width / UIScreen.main.nativeScale
         screenHeight = UIScreen.main.nativeBounds.height / UIScreen.main.nativeScale
         

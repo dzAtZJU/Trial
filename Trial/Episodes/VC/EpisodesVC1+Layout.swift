@@ -14,13 +14,13 @@ let seasonSpacing: CGFloat = 75
 let episodesTop: CGFloat = 82
 let watchingHeight: CGFloat = 243
 
-extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
+extension EpisodesVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if collectionView == seasonsView {
             return seasonSize
         }
         
-        guard indexPath == inFocusItem else {
+        guard indexPath == latestWatchItem else {
             return CGSize(width: 120, height: 225)
         }
         
@@ -76,11 +76,5 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout, InFocusItemManager {
         let spacing = self.collectionView(collectionView, layout: collectionViewLayout, minimumLineSpacingForSectionAt: section)
         
         return UIEdgeInsets(top: 0, left: spacing, bottom: 0, right: 0)
-    }
-    
-    func layoutEpisodesViewInDidLoad() {
-        episodesView.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: -100, bottom: -32, right: -100))
-        
-//        episodesView.contentInset = UIEdgeInsets(top: 0, left: screenHeight / 2, bottom: bottomInset, right: screenHeight / 2)
     }
 }

@@ -78,7 +78,7 @@ extension RippleVC {
                 }
                 completionQueue.append {
                     shadowCompletion()
-                    YoutubeManagers.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+                    YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
                         self.inFocusCell.mountVideo(video)
                     }
                 }
@@ -106,7 +106,7 @@ extension RippleVC {
             }
             completionQueue.append {
                 shadowCompletion()
-                YoutubeManagers.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+                YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
                     FullscreenVideoManager.current.gotoWindow(video: video, window: self.view.window!)
                 }
             }

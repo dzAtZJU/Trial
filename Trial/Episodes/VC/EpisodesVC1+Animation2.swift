@@ -11,19 +11,16 @@ import Foundation
 import UIKit
 import CoreGraphics
 
-let animator = UIViewPropertyAnimator(duration: 0.6, curve: .easeInOut, animations: nil)
-let animator1 = UIViewPropertyAnimator(duration: 0.6, curve: .easeInOut, animations: nil)
+let duration = 0.6
+let delay = 0.3
+let animator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
+let animator1 = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
 
 extension EpisodesVC {
-    func newState(state: EpisodesSceneState) {
-        newStateForAnimation(state: state)
-        preSceneState = state
-    }
-    
     func newStateForAnimation(state: EpisodesSceneState) {
         switch state {
         case .sliding:
-            UIView.animate(withDuration: 0.3, animations: {
+            UIView.animate(withDuration: duration, animations: {
                 self.episodesView.collectionViewLayout = EpisodesLayout.sliding
                 for cell in self.episodesView.visibleCells {
                     cell.layoutIfNeeded()
@@ -32,7 +29,7 @@ extension EpisodesVC {
         case .watching:
             if preSceneState == .sliding {
                 let newLayout = EpisodesLayout.watching
-                UIView.animate(withDuration: 0.3, animations: {
+                UIView.animate(withDuration: duration, animations: {
                     self.episodesView.collectionViewLayout = newLayout
                     for cell in self.episodesView.visibleCells {
                         cell.layoutIfNeeded()
@@ -41,7 +38,7 @@ extension EpisodesVC {
                 return
             }
             
-            let animator = UIViewPropertyAnimator(duration: 0.6, curve: .easeInOut, animations: nil)
+            let animator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
             
             let newLayout = EpisodesLayout.full2Watching
             
@@ -61,7 +58,7 @@ extension EpisodesVC {
             }
             
             animator.startAnimation()
-            animator1.startAnimation(afterDelay: 0.3)
+            animator1.startAnimation(afterDelay: delay)
         case .full:
             let newLayout = EpisodesLayout.watching2Full
             
@@ -80,7 +77,7 @@ extension EpisodesVC {
             }
             
             animator.startAnimation()
-            animator1.startAnimation(afterDelay: 0.3)
+            animator1.startAnimation(afterDelay: delay)
         default:
             fatalError()
         }

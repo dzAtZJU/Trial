@@ -27,7 +27,7 @@ extension RippleVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefet
             cell.positionId = indexPath
         }
         
-        YoutubeManagers.shared.getDataOf(item: indexPath) { youtubeVideoData in
+        YoutubeManager.shared.getDataOf(item: indexPath) { youtubeVideoData in
             DispatchQueue.main.async {
                 guard cell.positionId == indexPath else {
                     return
@@ -48,7 +48,7 @@ extension RippleVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefet
     
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         for item in indexPaths {
-            YoutubeManagers.shared.requestFor(item: item)
+            YoutubeManager.shared.requestFor(item: item)
         }
     }
 }

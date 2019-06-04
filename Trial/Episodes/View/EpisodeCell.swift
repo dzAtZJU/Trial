@@ -9,14 +9,16 @@
 import Foundation
 import UIKit
 
-class EpisodeCell: UICollectionViewCell {
+class EpisodeCell: ScreenshotCell {
     
-    var episodeNum: UILabel!
+    let episodeNum: UILabel
+    
+    private let episodeNumMask: UIImageView
     
     override init(frame: CGRect) {
+        episodeNum = UILabel()
+        episodeNumMask = UIImageView()
         super.init(frame: frame)
-        contentView.backgroundColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 0.4) // 20 / 255
-        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         setupView()
     }
     
@@ -24,18 +26,24 @@ class EpisodeCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupView() {
-        let wedgeLight = UIImageView(image: UIImage(named: "wedge_light"))
-        wedgeLight.contentMode = .scaleToFill
-        wedgeLight.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(wedgeLight)
-        NSLayoutConstraint.activate([NSLayoutConstraint(item: contentView, attribute: .width, relatedBy: .equal, toItem: wedgeLight, attribute: .width, multiplier: 1, constant: 0),
-                                     NSLayoutConstraint(item: contentView, attribute: .height, relatedBy: .equal, toItem: wedgeLight, attribute: .height, multiplier: 1, constant: 0)])
+    private func setupView() {
+        gradientView.image = UIImage(named: "episode_mask")
         
-        episodeNum = UILabel(frame: .zero)
+        contentView.backgroundColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 0.4) // 20 / 255
+        contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        setupEpisodeNum()
+    }
+    
+    private func setupEpisodeNum() {
+        episodeNumMask.image = UIImage(named: "wedge_light")
+        setupImageView(episodeNumMask, at: 0)
+            
         episodeNum.textColor = UIColor.white.withAlphaComponent(0.24)
         episodeNum.font = UIFont(name: "PingFangSC-Semibold", size: 54)
-        contentView.addSubview(episodeNum)
+        
+        contentView.insertSubview(episodeNum, at: 0)
+        
         episodeNum.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([NSLayoutConstraint(item: contentView, attribute: .centerX, relatedBy: .equal, toItem: episodeNum, attribute: .centerX, multiplier: 1, constant: 0),
                                      NSLayoutConstraint(item: contentView, attribute: .centerY, relatedBy: .equal, toItem: episodeNum, attribute: .centerY, multiplier: 1, constant: 0)])
@@ -47,5 +55,4 @@ class EpisodeCell: UICollectionViewCell {
             contentView.layer.cornerRadius = attributes.radius
         }
     }
-    
 }

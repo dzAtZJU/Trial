@@ -30,7 +30,7 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
         }
         
         /// TODO: where to maintain centerItem
-        YoutubeManagers.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+        YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
             self.inFocusCell.mountVideo(video)
         }
     }

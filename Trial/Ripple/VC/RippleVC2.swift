@@ -93,7 +93,7 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     override func viewDidAppear(_ animated: Bool) {
         rippleViewStore.dispatch(RippleViewState.ReadyAction.ready)
-        YoutubeManagers.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+        YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
             self.inFocusCell.mountVideo(video)
         }
     }
