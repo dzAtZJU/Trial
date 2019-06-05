@@ -30,6 +30,8 @@ class EpisodesVC: UIViewController {
     
     var lastWatchButton: UIButton!
     
+    let pageDataManager = PageDataManager()
+    
     var layout: EpisodesLayout {
         return episodesView.collectionViewLayout as! EpisodesLayout
     }
@@ -47,6 +49,10 @@ class EpisodesVC: UIViewController {
         didSet {
             lastWatchButton.isHidden = preWatchItem == nil
         }
+    }
+    
+    var latestWatchCell: EpisodeCell? {
+        return episodesView.cellForItem(at: latestWatchItem) as? EpisodeCell
     }
     
     var selectedItem: IndexPath?
@@ -127,15 +133,20 @@ class EpisodesVC: UIViewController {
     
     private func layoutEpisodesView() {
         episodesView.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: -100, bottom: -32, right: -100))
-//        episodesView.contentInset = UIEdgeInsets(top: 0, left: screenHeight / 2, bottom: 0, right: screenHeight / 2)
+        episodesView.contentInset = UIEdgeInsets(top: 0, left: screenHeight / 2, bottom: 0, right: screenHeight / 2)
     }
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .landscape
     }
     
+    override func viewDidLoad() {
+        prepareForPresent()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         seasonsView.scrollToItem(at: IndexPath(row: latestWatchItem.section, section: 0), at: .centeredHorizontally, animated: false)
+        view.window?.addSubview(activityIndicator)
     }
 }
 

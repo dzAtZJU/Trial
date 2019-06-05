@@ -11,8 +11,6 @@ import Foundation
 import YoutubePlayer_in_WKWebView
 import ReSwift
 
-var activityIndicator: UIActivityIndicatorView!
-
 class RippleVC: UIViewController,  StoreSubscriber {
     
     var animationQueue = [() -> ()]()
@@ -63,25 +61,11 @@ class RippleVC: UIViewController,  StoreSubscriber {
         updateContentInset()
         collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
         
-        setupViews()
-        
         collectionView.addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:))))
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .goToEpisodesView, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
     }
-    
-    func setupViews() {
-        activityIndicator = UIActivityIndicatorView()
-        activityIndicator.center = view.center
-        activityIndicator.bounds = CGRect(origin: .zero, size: CGSize(width: 20, height: 20))
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(activityIndicator)
-        NSLayoutConstraint.activate([NSLayoutConstraint(item: self.view, attribute: .centerX, relatedBy: .equal, toItem: activityIndicator, attribute: .centerX, multiplier: 1, constant: 0),
-                                     NSLayoutConstraint(item: self.view, attribute: .centerY, relatedBy: .equal, toItem: activityIndicator, attribute: .centerY, multiplier: 1, constant: 0)])
-    }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         rippleViewStore.subscribe(self) { subcription in

@@ -12,13 +12,17 @@ import UIKit
 class EpisodeLayoutAttributes: UICollectionViewLayoutAttributes {
     var radius: CGFloat = 0
     
+    var isLatestWatchItem = false
+    
     override func copy(with zone: NSZone? = nil) -> Any {
         let instance = super.copy(with: zone) as! EpisodeLayoutAttributes
         instance.radius = radius
+        instance.isLatestWatchItem = isLatestWatchItem
         return instance
     }
     
     override func isEqual(_ object: Any?) -> Bool {
-        return super.isEqual(object) && self.radius == (object as! EpisodeLayoutAttributes).radius
+        let object = object as! EpisodeLayoutAttributes
+        return super.isEqual(object) && self.radius == object.radius && self.isLatestWatchItem == object.isLatestWatchItem
     }
 }

@@ -13,6 +13,7 @@ let seasonSize = CGSize(width: 57, height: 24)
 let seasonSpacing: CGFloat = 75
 let episodesTop: CGFloat = 82
 let watchingHeight: CGFloat = 243
+let watchingWidth: CGFloat = 432
 
 extension EpisodesVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -27,7 +28,7 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout {
         let layout = collectionViewLayout as! EpisodesLayout
         switch layout.sceneState {
         case .watching, .watching2Full, .full2Watching:
-            return CGSize(width: 432, height: watchingHeight)
+            return CGSize(width: watchingWidth, height: watchingHeight)
         case .full:
             return CGSize(width: 667, height: 375)
         case .sliding:

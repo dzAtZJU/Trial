@@ -9,13 +9,13 @@
 import Foundation
 import UIKit
 
-class ScreenshotCell: UICollectionViewCell {
-    let screenshotView: UIImageView
+class ThumbnailCell: UICollectionViewCell {
+    let thumbnailView: UIImageView
     
     let gradientView: UIImageView
     
     override init(frame: CGRect) {
-        screenshotView = UIImageView()
+        thumbnailView = UIImageView()
         gradientView = UIImageView()
         super.init(frame: frame)
         setupView()
@@ -26,12 +26,13 @@ class ScreenshotCell: UICollectionViewCell {
     }
 
     private func setupView() {
-        setupImageView(screenshotView, at: 0)
+        contentView.clipsToBounds = true
+        setupImageView(thumbnailView, at: 0)
         setupImageView(gradientView, at: 1)
     }
     
     func setupImageView(_ imageView: UIImageView, at index: Int) {
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .center
         imageView.clipsToBounds = true
         contentView.insertSubview(imageView, at: index)
         setupFillConstraintsFor(view: imageView)

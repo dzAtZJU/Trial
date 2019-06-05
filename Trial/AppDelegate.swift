@@ -8,19 +8,24 @@
 
 import UIKit
 
+let activityIndicator: UIActivityIndicatorView = {
+    let spinner = UIActivityIndicatorView()
+    spinner.hidesWhenStopped = true
+    spinner.bounds = CGRect(origin: .zero, size: CGSize(width: 20, height: 20))
+    spinner.translatesAutoresizingMaskIntoConstraints = false
+    return spinner
+}()
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         YoutubeManager.shared.doInitialRequest()
         screenWidth = UIScreen.main.nativeBounds.width / UIScreen.main.nativeScale
         screenHeight = UIScreen.main.nativeBounds.height / UIScreen.main.nativeScale
-        
-        
 //        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
 //        NSString *documentsDirectory = [paths objectAtIndex:0];
 //        NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];
@@ -30,6 +35,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        freopen(<#T##UnsafePointer<Int8>!#>, <#T##UnsafePointer<Int8>!#>, <#T##UnsafeMutablePointer<FILE>!#>)
 //        freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding],"a+",stderr);
         
+        window?.addSubview(activityIndicator)
+        NSLayoutConstraint.activate([NSLayoutConstraint(item: window, attribute: .centerX, relatedBy: .equal, toItem: activityIndicator, attribute: .centerX, multiplier: 1, constant: 0),
+                                     NSLayoutConstraint(item: window, attribute: .centerY, relatedBy: .equal, toItem: activityIndicator, attribute: .centerY, multiplier: 1, constant: 0)])
         return true
     }
 

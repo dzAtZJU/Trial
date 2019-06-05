@@ -12,15 +12,21 @@ import UIKit
 let seasonsNum = 3
 
 extension EpisodesVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefetching {
-    func prepareForPresent(inFocusItem: IndexPath, transferredVideo: VideoWithPlayerView) {
-        
+    func prepareForPresent() {
+        pageDataManager.genesisLoad()
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == episodesView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "episode", for: indexPath) as! EpisodeCell
             cell.episodeNum.text = (indexPath.row + 1).description
-//            cell.screenshotView.image
+            pageDataManager.batchRequest([indexPath])
+            pageDataManager.get(indexPath) { data in
+                DispatchQueue.main.async {
+                    cell.thumbnailView.image = data.thumbnail
+                }
+            }
+            
             return cell
         }
         
@@ -34,20 +40,21 @@ extension EpisodesVC: UICollectionViewDataSource, UICollectionViewDataSourcePref
             return 1
         }
         
-        return seasonsNum
+        return pageDataManager.seasonsNum
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == seasonsView {
-            return seasonsNum
+            return pageDataManager.seasonsNum
         }
         
-        return 10
+        return pageDataManager.episodesNums[section]
     }
     
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        pageDataManager.batchRequest(indexPaths)
         for item in indexPaths {
-            YoutubeManager.shared.requestFor(item: item)
+            pageDataManager.request(item)
         }
     }
 }

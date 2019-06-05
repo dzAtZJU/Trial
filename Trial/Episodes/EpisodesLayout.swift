@@ -52,7 +52,9 @@ class EpisodesLayout: UICollectionViewFlowLayout {
             if attributes.indexPath == latestWatchItem {
                 switch sceneState {
                 case .watching:
-                    (attributes as! EpisodeLayoutAttributes).radius = 14
+                    let attributes = attributes as! EpisodeLayoutAttributes
+                    attributes.radius = 14
+                    attributes.isLatestWatchItem = true
                 default:
                     continue
                 }
@@ -67,7 +69,7 @@ class EpisodesLayout: UICollectionViewFlowLayout {
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-        if episodesViewStore.state.scene != .sliding, let vc = collectionView?.delegate as? EpisodesVC, let item = vc.latestWatchItem , let attributes = layoutAttributesForItem(at: item) {
+        if let vc = collectionView?.delegate as? EpisodesVC, let item = vc.latestWatchItem , let attributes = layoutAttributesForItem(at: item) {
             return attributes.frame.center - CGRect(origin: .zero, size: collectionView!.frame.size).center
         }
 

@@ -55,7 +55,6 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
             rippleViewStore.dispatch(RippleViewState.SceneAction.fullScreen)
         case .goToEpisodesView:
             let episodesVC = EpisodesVC()
-            episodesVC.prepareForPresent(inFocusItem: IndexPath(row: 20, section: 0), transferredVideo: inFocusVideo)
             self.present(episodesVC, animated: false, completion: nil)
             return
         default:

@@ -84,8 +84,8 @@ class VideoWithPlayerView: UIView {
     }
     
     private func beforeAppear() {
-        isReady = true
         activityIndicator.stopAnimating()
+        isReady = true
         self.videoView.isHidden = false
         if requestToBuffer && !requestToPlay {
             endBuffer()

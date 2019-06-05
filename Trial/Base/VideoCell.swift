@@ -122,19 +122,6 @@ extension VideoCell {
         activityIndicator.startAnimating()
     }
     
-    func mountVideoForBuffering(_ video: VideoWithPlayerView) {
-        setupVideoView(video)
-        video.buffer()
-    }
-    
-    func unmountVideoForBuffering() {
-        guard let videoWithPlayer = videoWithPlayer else {
-            return
-        }
-        
-        videoWithPlayer.endBuffer()
-    }
-    
     // mount, unmount 概念是基于交互来说的，在这里针对交互的要求来处理 video
     func unMountVideo() {
         guard let videoWithPlayer = videoWithPlayer else {
@@ -160,4 +147,18 @@ extension VideoCell {
         }
         self.insertSubview(video, belowSubview: gradientView)
     }
+    
+    func mountVideoForBuffering(_ video: VideoWithPlayerView) {
+        setupVideoView(video)
+        video.buffer()
+    }
+    
+    func unmountVideoForBuffering() {
+        guard let videoWithPlayer = videoWithPlayer else {
+            return
+        }
+        
+        videoWithPlayer.endBuffer()
+    }
+    
 }

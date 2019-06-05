@@ -48,7 +48,10 @@ extension EpisodesVC: UICollectionViewDelegate {
     
     private func didEndScroll() {
         latestWatchItem = centerItem
-        episodesViewStore.dispatch(EpisodesViewState.SceneAction.scroll)
+        pageDataManager.fetchVideo(latestWatchItem) { (video, _) in
+            self.latestWatchCell?.mountVideo(video)
+            episodesViewStore.dispatch(EpisodesViewState.SceneAction.scroll)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

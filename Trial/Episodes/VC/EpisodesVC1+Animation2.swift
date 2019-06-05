@@ -11,8 +11,8 @@ import Foundation
 import UIKit
 import CoreGraphics
 
-let duration = 0.6
-let delay = 0.3
+let duration = 0.4
+let delay = 0.2
 let animator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
 let animator1 = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
 
@@ -21,16 +21,23 @@ extension EpisodesVC {
         switch state {
         case .sliding:
             UIView.animate(withDuration: duration, animations: {
+                self.latestWatchCell?.hideContent = true
                 self.episodesView.collectionViewLayout = EpisodesLayout.sliding
                 for cell in self.episodesView.visibleCells {
                     cell.layoutIfNeeded()
                 }
-            }, completion: nil)
+            }, completion: { _ in
+                self.pageDataManager.fetchVideo(self.latestWatchItem) { (video, _) in
+                    let cell = self.episodesView.cellForItem(at: self.latestWatchItem)! as! EpisodeCell
+                    cell.unMountVideo()
+                }
+            })
         case .watching:
             if preSceneState == .sliding {
                 let newLayout = EpisodesLayout.watching
                 UIView.animate(withDuration: duration, animations: {
                     self.episodesView.collectionViewLayout = newLayout
+                    self.latestWatchCell?.hideContent = false
                     for cell in self.episodesView.visibleCells {
                         cell.layoutIfNeeded()
                     }
@@ -43,6 +50,8 @@ extension EpisodesVC {
             let newLayout = EpisodesLayout.full2Watching
             
             animator.addAnimations {
+                self.latestWatchCell?.videoFullScreen = false
+                self.latestWatchCell?.toggleImageContentMode()
                 self.episodesView.collectionViewLayout = newLayout
                 self.episodesView.center = self.episodesView.center + CGPoint(x: 0, y: 16)
                 self.seasonsView.center = self.seasonsView.center + CGPoint(x: 0, y: 62)
@@ -67,6 +76,8 @@ extension EpisodesVC {
             }
             
             animator1.addAnimations {
+                self.latestWatchCell?.toggleImageContentMode()
+                self.latestWatchCell?.videoFullScreen = true
                 self.episodesView.collectionViewLayout = EpisodesLayout.full
                 self.episodesView.center = self.episodesView.center - CGPoint(x: 0, y: 16)
                 self.seasonsView.center = self.seasonsView.center - CGPoint(x: 0, y: 62)
