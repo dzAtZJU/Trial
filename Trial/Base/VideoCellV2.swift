@@ -22,6 +22,7 @@ class VideoCellV2: ThumbnailCell {
         }
         
         addVideoToHierarchy(video)
+        
         layoutIfNeeded()
         
         video.videoView.isHidden = true

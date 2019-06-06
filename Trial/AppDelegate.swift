@@ -26,6 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         YoutubeManager.shared.doInitialRequest()
         screenWidth = UIScreen.main.nativeBounds.width / UIScreen.main.nativeScale
         screenHeight = UIScreen.main.nativeBounds.height / UIScreen.main.nativeScale
+        scaleFactor = UIScreen.main.nativeScale
+        fullScreenScale = screenWidth / watchingHeight
 //        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
 //        NSString *documentsDirectory = [paths objectAtIndex:0];
 //        NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];

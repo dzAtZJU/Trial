@@ -36,10 +36,11 @@ class ImageFetchOperation: Operation {
     override func main() {
         if let urlString = urlString, let url = URL(string: urlString), let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
             self.image = image
-            return
+        } else {
+            image = defaultThumbnail
         }
         
-        image = defaultThumbnail
+        self.image = resizedImage(image: self.image, for: CGSize(width: watchingWidth, height: watchingWidth))
         print("Image fetch fail. Url: \(urlString)")
     }
 }

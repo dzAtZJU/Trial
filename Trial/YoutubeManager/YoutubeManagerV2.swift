@@ -49,11 +49,14 @@ class YoutubeManagerV2 {
     }
     
     func batchRequest(_ videoIds: [VideoId]) {
-        let thumbnailsUrlsOperation = ThumbnailsUrlsOperation(videoIds: videoIds)
+        if self.videoId2ThumbnailURL == nil {
+            self.videoId2ThumbnailURL = [VideoId: URLString]()
+        }
+        
+        let thumbnailsUrlsOperation = ThumbnailsUrlsOperation(videoIds: videoIds.filter({
+            self.videoId2ThumbnailURL[$0] == nil
+        }))
         thumbnailsUrlsOperation.completionBlock = {
-            if self.videoId2ThumbnailURL == nil {
-                self.videoId2ThumbnailURL = [VideoId: URLString]()
-            }
             self.videoId2ThumbnailURL.merge(thumbnailsUrlsOperation.videoId2ThumbnailUrl, uniquingKeysWith: { (first, _ ) in first })
         }
         serialAccessQueue.addOperation(thumbnailsUrlsOperation)

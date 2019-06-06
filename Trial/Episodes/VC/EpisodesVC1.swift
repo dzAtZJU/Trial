@@ -10,19 +10,22 @@ import Foundation
 import UIKit
 import ReSwift
 
+let episodesViewHorizontalExtent: CGFloat = 100
+
 class EpisodesVC: UIViewController {
     
     // Views
+    var thumbnailBg: UIImageView!
     
-    var maskWindow: UIView!
+    var thumbnailBlur: UIVisualEffectView!
+    
+    var thumbnailShadow: UIImageView!
+    
+    var seasonMaskWindow: UIView!
     
     var seasonsView: UICollectionView!
     
     var episodesView: UICollectionView!
-    
-    var blurredThumbnailBg: UIImageView!
-    
-    var shadowBlurredThumbnailBg: UIImageView!
     
     var shadowLeft: UIImageView!
     
@@ -32,13 +35,15 @@ class EpisodesVC: UIViewController {
     
     let pageDataManager = PageDataManager()
     
+    var autoScrollFlag = false
+    
     var layout: EpisodesLayout {
         return episodesView.collectionViewLayout as! EpisodesLayout
     }
     
     // Layout Alternate
     
-    var preSceneState = EpisodesSceneState.sliding
+    var preSceneState: EpisodesSceneState? = nil
     
     // States
     var centerItem: IndexPath! = IndexPath(row: 0, section: 0)
@@ -57,24 +62,28 @@ class EpisodesVC: UIViewController {
     
     var selectedItem: IndexPath?
     
+    var lockScrollUpdate = false
+    
     override func loadView() {
         super.loadView()
         view.backgroundColor = UIColor.black
         
-        blurredThumbnailBg = UIImageView()
-        blurredThumbnailBg.backgroundColor = UIColor.yellow
-        blurredThumbnailBg.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        view.addSubview(blurredThumbnailBg)
+        thumbnailBg = UIImageView()
+        thumbnailBg.backgroundColor = .black
+        thumbnailBg.contentMode = .scaleAspectFill
+        view.addSubview(thumbnailBg)
         
-        shadowBlurredThumbnailBg = UIImageView(image: UIImage(named: "shadow_thumb_bg"))
-        shadowBlurredThumbnailBg.contentMode = .scaleToFill
-        shadowBlurredThumbnailBg.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-//        view.addSubview(shadowBlurredThumbnailBg)
+        thumbnailBlur = UIVisualEffectView(effect: UIBlurEffect(style: .light))
+        view.addSubview(thumbnailBlur)
         
-        maskWindow = UIView(frame: .zero)
-        maskWindow.layer.cornerRadius = 14
-        maskWindow.backgroundColor = UIColor.black.withAlphaComponent(0.2)
-        view.addSubview(maskWindow)
+        thumbnailShadow = UIImageView(image: UIImage(named: "shadow_thumb_bg"))
+        thumbnailShadow.contentMode = .scaleToFill
+        view.addSubview(thumbnailShadow)
+        
+        seasonMaskWindow = UIView(frame: .zero)
+        seasonMaskWindow.layer.cornerRadius = 14
+        seasonMaskWindow.backgroundColor = UIColor.black.withAlphaComponent(0.2)
+        view.addSubview(seasonMaskWindow)
         
         let layout = EpisodesLayout.sliding
         episodesView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -120,19 +129,21 @@ class EpisodesVC: UIViewController {
     }
     
     private func layoutShadows() {
-        blurredThumbnailBg.frame = view.bounds
-        shadowBlurredThumbnailBg.frame = view.bounds
+        thumbnailBg.frame = view.bounds
+        thumbnailBlur.frame = view.bounds
+        thumbnailShadow.frame = view.bounds
         shadowLeft.frame = view.bounds
         shadowRight.frame = view.bounds
     }
     
     private func layoutSeasonsView() {
         seasonsView.frame = CGRect(origin: .zero, size: CGSize(width: view.bounds.width, height: 96))
-        maskWindow.frame = CGRect(center: seasonsView.center, size: CGSize(width: 102, height: 28))
+        seasonMaskWindow.frame = CGRect(center: seasonsView.center, size: CGSize(width: 102, height: 28))
     }
     
     private func layoutEpisodesView() {
-        episodesView.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: -100, bottom: -32, right: -100))
+        episodesView.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: -episodesViewHorizontalExtent, bottom: -32, right: -episodesViewHorizontalExtent))
+            
         episodesView.contentInset = UIEdgeInsets(top: 0, left: screenHeight / 2, bottom: 0, right: screenHeight / 2)
     }
     
@@ -141,17 +152,18 @@ class EpisodesVC: UIViewController {
     }
     
     override func viewDidLoad() {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
         prepareForPresent()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        seasonsView.scrollToItem(at: IndexPath(row: latestWatchItem.section, section: 0), at: .centeredHorizontally, animated: false)
-        view.window?.addSubview(activityIndicator)
     }
 }
 
 extension EpisodesVC: StoreSubscriber {
     func newState(state: EpisodesSceneState) {
+        guard preSceneState != nil else {
+            preSceneState = .sliding
+            return
+        }
+        
         newStateForAnimation(state: state)
         preSceneState = state
     }

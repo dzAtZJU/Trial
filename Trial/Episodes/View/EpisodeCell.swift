@@ -52,12 +52,16 @@ class EpisodeCell: VideoCellV2 {
                                      NSLayoutConstraint(item: contentView, attribute: .centerY, relatedBy: .equal, toItem: episodeNum, attribute: .centerY, multiplier: 1, constant: 0)])
     }
     
+    override func mountVideo(_ video: VideoWithPlayerView) {
+        super.mountVideo(video)
+        videoFullScreen = false
+    }
     
     override func addVideoToHierarchy(_ video: VideoWithPlayerView) {
         video.translatesAutoresizingMaskIntoConstraints = false
         contentView.insertSubview(video, belowSubview: gradientView)
-        NSLayoutConstraint.activate([NSLayoutConstraint(item: video, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: watchingHeight),
-                                     NSLayoutConstraint(item: video, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: watchingWidth),
+        NSLayoutConstraint.activate([NSLayoutConstraint(item: video, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: screenWidth),
+                                     NSLayoutConstraint(item: video, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: watchingWidth * fullScreenScale),
                                      NSLayoutConstraint(item: contentView, attribute: .centerX, relatedBy: .equal, toItem: video, attribute: .centerX, multiplier: 1, constant: 0),
                                      NSLayoutConstraint(item: contentView, attribute: .centerY, relatedBy: .equal, toItem: video, attribute: .centerY, multiplier: 1, constant: 0)])
     }
@@ -87,9 +91,7 @@ class EpisodeCell: VideoCellV2 {
             return true
         }
         set(newValue) {
-            let scaleX = screenHeight / bounds.width
-            let scaleY = screenWidth / bounds.height
-            video?.transform = newValue ? CGAffineTransform(scaleX: scaleX, y: scaleY) : CGAffineTransform.identity
+            video?.transform = newValue ? CGAffineTransform.identity : CGAffineTransform(scaleX: 1 / fullScreenScale, y: 1 / fullScreenScale)
         }
     }
     
@@ -97,6 +99,5 @@ class EpisodeCell: VideoCellV2 {
         let newMode = thumbnailView.contentMode == .center ? ContentMode.scaleAspectFill : ContentMode.center
         thumbnailView.contentMode = newMode
         screenshot?.contentMode = newMode
-        gradientView.contentMode = newMode
     }
 }

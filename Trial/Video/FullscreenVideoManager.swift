@@ -17,8 +17,9 @@ class FullscreenVideoManager {
     static let current = FullscreenVideoManager()
     
     func gotoWindow(video: VideoWithPlayerView, window: UIWindow) {
-        self.video = video
+        video.center = window.center
         window.addSubview(video)
+        self.video = video
     }
     
     func gotoCell(block: (VideoWithPlayerView) -> ()) {
