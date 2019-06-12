@@ -24,6 +24,8 @@ var screenWidth: CGFloat = 0
 
 var screenHeight: CGFloat = 0
 
+var screenSize = CGSize.zero
+
 var scaleFactor: CGFloat = 1
 
 var fullScreenScale: CGFloat = 1

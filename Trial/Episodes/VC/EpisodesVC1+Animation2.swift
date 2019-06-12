@@ -50,9 +50,10 @@ extension EpisodesVC {
                     }
                 }
             } else {
-                FullscreenVideoManager.current.gotoCell { video in
-                    self.latestWatchCell?.addVideoToHierarchy(video)
-                }
+//                FullscreenVideoManager.current.gotoCell { video in
+//                    self.latestWatchCell?.addVideoToHierarchy(video)
+//                }
+                
                 animator.addAnimations {
                     self.latestWatchCell?.videoFullScreen = false
                     self.episodesView.collectionViewLayout = EpisodesLayout.full2Watching
@@ -70,6 +71,9 @@ extension EpisodesVC {
                 
                 animator1.addCompletion { _ in
                     self.latestWatchCell?.toggleImageContentMode()
+                    self.pageDataManager.fetchVideo(self.latestWatchItem) { video, _ in
+                        video.isUserInteractionEnabled = false
+                    }
                 }
             }
         case .full:
@@ -90,9 +94,14 @@ extension EpisodesVC {
             
             animator1.addCompletion { _ in
                 self.pageDataManager.fetchVideo(self.latestWatchItem) { video, _ in
-                    FullscreenVideoManager.current.gotoWindow(video: video, window: self.view.window!)
+                    video.isUserInteractionEnabled = true
                 }
             }
+//            animator1.addCompletion { _ in
+//                self.pageDataManager.fetchVideo(self.latestWatchItem) { video, _ in
+//                    FullscreenVideoManager.current.gotoWindow(video: video, window: self.view.window!)
+//                }
+//            }
         default:
             fatalError()
         }

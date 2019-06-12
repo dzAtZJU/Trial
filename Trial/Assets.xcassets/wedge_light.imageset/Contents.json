@@ -2,11 +2,11 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "wedge_light.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
+      "filename" : "wedge_light.png",
       "scale" : "2x"
     },
     {

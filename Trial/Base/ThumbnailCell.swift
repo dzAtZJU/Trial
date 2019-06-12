@@ -27,12 +27,12 @@ class ThumbnailCell: UICollectionViewCell {
 
     private func setupView() {
         contentView.clipsToBounds = true
-        setupImageView(thumbnailView, at: 0)
-        setupImageView(gradientView, at: 1)
+        setupImageView(thumbnailView, at: 0, contentMode: .center)
+        setupImageView(gradientView, at: 1, contentMode: .scaleAspectFill)
     }
     
-    func setupImageView(_ imageView: UIImageView, at index: Int) {
-        imageView.contentMode = .center
+    func setupImageView(_ imageView: UIImageView, at index: Int, contentMode: UIView.ContentMode) {
+        imageView.contentMode = contentMode
         imageView.clipsToBounds = true
         contentView.insertSubview(imageView, at: index)
         setupFillConstraintsFor(view: imageView)

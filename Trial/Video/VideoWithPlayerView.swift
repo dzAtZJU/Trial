@@ -18,10 +18,8 @@ import YoutubePlayer_in_WKWebView
 // Buffer -> 转圈圈/隐藏
 // 控件
 
-class VideoWithPlayerView: UIView {
+class VideoWithPlayerView: BasePlayerView {
     let videoView: WKYTPlayerView
-    
-    private var playerControl: PlayerControlView?
     
     var screenshot: UIView?
     
@@ -31,15 +29,18 @@ class VideoWithPlayerView: UIView {
     
     var isReady = false
     
+    var duration: Float!
+    
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
         let result = VideoWithPlayerView(videoId: videoId)
-        result.setPlayerControl(PlayerControlView())
         return result
     }
     
     private init(videoId: VideoId) {
         videoView = WKYTPlayerView()
+        videoView.isUserInteractionEnabled = false
         super.init(frame: CGRect.zero)
+        isUserInteractionEnabled = false
         videoView.delegate = self
         setupSubview(videoView)
         self.videoId = videoId
@@ -92,16 +93,30 @@ class VideoWithPlayerView: UIView {
         }
     }
     
-    private func setPlayerControl(_ playerControl: PlayerControlView) {
-        self.playerControl = playerControl
-        setupSubview(playerControl)
-    }
-    
     func getVideoState(_ block: @escaping (WKYTPlayerState) -> ()) {
         videoView.getPlayerState { (state, _) in
             block(state)
         }
     }
+    
+    override func togglePlay() {
+        getVideoState { state in
+            state == WKYTPlayerState.paused ? self.play() : self.pause()
+        }
+    }
+    
+    override func presentControl() {
+        videoView.getCurrentTime { (current, _) in
+            self.videoView.getPlayerState { (state, _) in
+                if let playerControl = self.playerControl {
+                    playerControl.preparePresent(isPlaying: state != WKYTPlayerState.paused, duration: self.duration, current: current)
+                    playerControl.delegate = self
+                    self.setupSubview(playerControl)
+                }
+            }
+        }
+    }
+    
     
     private var loaded = false
     
@@ -140,6 +155,12 @@ extension VideoWithPlayerView: WKYTPlayerViewDelegate {
     }
     
     func playerViewDidBecomeReady(_ playerView: WKYTPlayerView) {
+        defer {
+            videoView.getDuration { (duration, _) in
+                self.duration = Float(duration)
+            }
+        }
+        
         if self.requestToPlay {
             play()
             return
@@ -148,6 +169,12 @@ extension VideoWithPlayerView: WKYTPlayerViewDelegate {
         if self.requestToBuffer {
             buffer()
             return
+        }
+    }
+    
+    func playerView(_ playerView: WKYTPlayerView, didPlayTime playTime: Float) {
+        if let playerControl = playerControl, !playerControl.isSliding {
+            playerControl.current = playTime
         }
     }
 }

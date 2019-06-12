@@ -9,16 +9,18 @@
 import Foundation
 import UIKit
 
-let numberFormatter: NumberFormatter = {
-   let r = NumberFormatter()
-    r.locale = Locale(identifier: "zh_Hans_CN")
-    r.numberStyle = .spellOut
-    return r
-}()
+
 
 class SeasonCell: UICollectionViewCell {
     
     var seasonNumLabel: UILabel!
+    
+    static let numberFormatter: NumberFormatter = {
+        let r = NumberFormatter()
+        r.locale = Locale(identifier: "zh_Hans_CN")
+        r.numberStyle = .spellOut
+        return r
+    }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -41,7 +43,7 @@ class SeasonCell: UICollectionViewCell {
     }
     
     func setSeasonNum(_ num: Int) {
-        let numString = numberFormatter.string(from: NSNumber(value:num))!
+        let numString = SeasonCell.numberFormatter.string(from: NSNumber(value:num))!
         seasonNumLabel.text = "第\(numString)季"
     }
 }

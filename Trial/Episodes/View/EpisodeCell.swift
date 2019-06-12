@@ -40,7 +40,7 @@ class EpisodeCell: VideoCellV2 {
     
     private func setupEpisodeNum() {
         episodeNumMask.image = UIImage(named: "wedge_light")
-        setupImageView(episodeNumMask, at: 0)
+        setupImageView(episodeNumMask, at: 0, contentMode: .scaleToFill)
             
         episodeNum.textColor = UIColor.white.withAlphaComponent(0.24)
         episodeNum.font = UIFont(name: "PingFangSC-Semibold", size: 54)
@@ -60,8 +60,8 @@ class EpisodeCell: VideoCellV2 {
     override func addVideoToHierarchy(_ video: VideoWithPlayerView) {
         video.translatesAutoresizingMaskIntoConstraints = false
         contentView.insertSubview(video, belowSubview: gradientView)
-        NSLayoutConstraint.activate([NSLayoutConstraint(item: video, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: screenWidth),
-                                     NSLayoutConstraint(item: video, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: watchingWidth * fullScreenScale),
+        NSLayoutConstraint.activate([NSLayoutConstraint(item: video, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: aspectFull.height),
+                                     NSLayoutConstraint(item: video, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: aspectFull.width),
                                      NSLayoutConstraint(item: contentView, attribute: .centerX, relatedBy: .equal, toItem: video, attribute: .centerX, multiplier: 1, constant: 0),
                                      NSLayoutConstraint(item: contentView, attribute: .centerY, relatedBy: .equal, toItem: video, attribute: .centerY, multiplier: 1, constant: 0)])
     }
@@ -91,7 +91,7 @@ class EpisodeCell: VideoCellV2 {
             return true
         }
         set(newValue) {
-            video?.transform = newValue ? CGAffineTransform.identity : CGAffineTransform(scaleX: 1 / fullScreenScale, y: 1 / fullScreenScale)
+            video?.transform = newValue ? .identity: CGAffineTransform(scaleX: 1 / aspectScale, y: 1 / aspectScale)
         }
     }
     

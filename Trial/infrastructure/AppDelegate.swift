@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 let activityIndicator: UIActivityIndicatorView = {
     let spinner = UIActivityIndicatorView()
@@ -26,8 +27,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         YoutubeManager.shared.doInitialRequest()
         screenWidth = UIScreen.main.nativeBounds.width / UIScreen.main.nativeScale
         screenHeight = UIScreen.main.nativeBounds.height / UIScreen.main.nativeScale
+        screenSize = CGSize(width: screenHeight, height: screenWidth)
         scaleFactor = UIScreen.main.nativeScale
         fullScreenScale = screenWidth / watchingHeight
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback, options: .mixWithOthers)
+        } catch {
+            print(error)
+        }
+        try! AVAudioSession.sharedInstance().setActive(true)
 //        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
 //        NSString *documentsDirectory = [paths objectAtIndex:0];
 //        NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];

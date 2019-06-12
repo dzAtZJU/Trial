@@ -27,7 +27,7 @@ class UIMetricTemplate {
         var template = UIMetricTemplate()
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[15, 20], [25, 20], [25, 15]]
-        template.itemWidth = 265
+        template.itemWidth = 265 // 1.755
         template.itemHeight = 151
         template.scale = 1.188
         
@@ -43,7 +43,7 @@ class UIMetricTemplate {
         var template = UIMetricTemplate()
         template.rowGaps = [30, 25, 20]
         template.colGaps = [[20, 20], [25, 20], [20, 15], [15, 15]]
-        template.itemWidth = 157
+        template.itemWidth = 157 // 1.764
         template.itemHeight = 89
         template.scale = 1.178
         
@@ -59,7 +59,7 @@ class UIMetricTemplate {
         var template = UIMetricTemplate()
         template.rowGaps = [35]
         template.colGaps = [[35]]
-        template.itemWidth = 400
+        template.itemWidth = 400  // 1.569
         template.itemHeight = 225
         template.scale = 1.08
         template.radius = 14
@@ -76,7 +76,7 @@ class UIMetricTemplate {
         var template = UIMetricTemplate()
         template.rowGaps = [30]
         template.colGaps = [[25, 20]]
-        template.itemWidth = 157
+        template.itemWidth = 157 // 1.764
         template.itemHeight = 89
         template.scale = 1.08
         template.radius = 6

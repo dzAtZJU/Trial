@@ -12,8 +12,10 @@ import UIKit
 let seasonSize = CGSize(width: 57, height: 24)
 let seasonSpacing: CGFloat = 75
 let episodesTop: CGFloat = 82
-let watchingHeight: CGFloat = 243
+let watchingHeight: CGFloat = 243 // 1.778
 let watchingWidth: CGFloat = 432
+let watchingSize = CGSize(width: watchingWidth, height: watchingHeight)
+let (aspectFull, aspectScale) = watch2Full(watching: watchingSize, fullscreen: screenSize)
 
 extension EpisodesVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -30,7 +32,7 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout {
         case .watching, .watching2Full, .full2Watching:
             return CGSize(width: watchingWidth, height: watchingHeight)
         case .full:
-            return CGSize(width: 667, height: 375)
+            return aspectFull
         case .sliding:
             return CGSize(width: 120, height: 225)
         }

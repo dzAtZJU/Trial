@@ -17,13 +17,26 @@ class FullscreenVideoManager {
     static let current = FullscreenVideoManager()
     
     func gotoWindow(video: VideoWithPlayerView, window: UIWindow) {
-        video.center = window.center
-        window.addSubview(video)
         self.video = video
+        deactivateLayout()
+        
+        video.frame = window.bounds
+        window.addSubview(video)
     }
     
     func gotoCell(block: (VideoWithPlayerView) -> ()) {
+        reactivateLayout()
         block(video!)
         video = nil
+    }
+    
+    private func deactivateLayout() {
+        self.video?.constraints.forEach { $0.isActive = false }
+        self.video?.translatesAutoresizingMaskIntoConstraints = true
+    }
+    
+    private func reactivateLayout() {
+        self.video?.constraints.forEach { $0.isActive = true }
+        self.video?.translatesAutoresizingMaskIntoConstraints = false
     }
 }

@@ -9,6 +9,7 @@
 import Foundation
 import CoreGraphics
 import UIKit
+import func AVFoundation.AVMakeRect
 
 let tan22_5: CGFloat = 0.414
 let tan67_5: CGFloat = 2.41
@@ -254,4 +255,10 @@ func isSameTriple(triangle1: (CGPoint, CGPoint, CGPoint), triangle2: (CGPoint, C
     let set1: Set = [IndexPath(triangle1.0), IndexPath(triangle1.1), IndexPath(triangle1.2)]
     let set2: Set = [IndexPath(triangle2.0), IndexPath(triangle2.1), IndexPath(triangle2.2)]
     return set1 == set2
+}
+
+func watch2Full(watching: CGSize, fullscreen: CGSize) -> (CGSize, CGFloat) {
+    var aspectFullscreen = AVMakeRect(aspectRatio: watching, insideRect: CGRect(origin: .zero, size: fullscreen)).size
+    aspectFullscreen = CGSize(width: round(aspectFullscreen.width), height: round(aspectFullscreen.height))
+    return (aspectFullscreen, aspectFullscreen.width / watching.width)
 }
