@@ -10,15 +10,19 @@ import Foundation
 import UIKit
 import CoreGraphics
 
+
+
 class EpisodeCell: VideoCellV2 {
     
-    let episodeNum: UILabel
+    static let (aspectFull, aspectScale) = watch2Full(watching: watchingSize, fullscreen: screenSize)
     
     private let episodeNumMask: UIImageView
     
+    let episodeNum: UILabel
+    
     override init(frame: CGRect) {
-        episodeNum = UILabel()
         episodeNumMask = UIImageView()
+        episodeNum = UILabel()
         super.init(frame: frame)
         setupView()
     }
@@ -29,17 +33,13 @@ class EpisodeCell: VideoCellV2 {
     
     private func setupView() {
         gradientView.image = UIImage(named: "episode_mask")
-        
-        contentView.backgroundColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 0.4) // 20 / 255
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         setupEpisodeNum()
-        
-        hideContent = true
     }
     
     private func setupEpisodeNum() {
-        episodeNumMask.image = UIImage(named: "wedge_light")
+        episodeNumMask.image = UIImage(named: "wedge_bg")
         setupImageView(episodeNumMask, at: 0, contentMode: .scaleToFill)
             
         episodeNum.textColor = UIColor.white.withAlphaComponent(0.24)
@@ -54,14 +54,15 @@ class EpisodeCell: VideoCellV2 {
     
     override func mountVideo(_ video: VideoWithPlayerView) {
         super.mountVideo(video)
-        videoFullScreen = false
+        
+        videoFullScreenOrNot = bounds.width >= (EpisodeCell.aspectFull.width - 10) // 10 for numeric error
     }
     
     override func addVideoToHierarchy(_ video: VideoWithPlayerView) {
         video.translatesAutoresizingMaskIntoConstraints = false
         contentView.insertSubview(video, belowSubview: gradientView)
-        NSLayoutConstraint.activate([NSLayoutConstraint(item: video, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: aspectFull.height),
-                                     NSLayoutConstraint(item: video, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: aspectFull.width),
+        NSLayoutConstraint.activate([NSLayoutConstraint(item: video, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: EpisodeCell.aspectFull.height),
+                                     NSLayoutConstraint(item: video, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: EpisodeCell.aspectFull.width),
                                      NSLayoutConstraint(item: contentView, attribute: .centerX, relatedBy: .equal, toItem: video, attribute: .centerX, multiplier: 1, constant: 0),
                                      NSLayoutConstraint(item: contentView, attribute: .centerY, relatedBy: .equal, toItem: video, attribute: .centerY, multiplier: 1, constant: 0)])
     }
@@ -70,34 +71,41 @@ class EpisodeCell: VideoCellV2 {
         super.apply(layoutAttributes)
         if let attributes = layoutAttributes as? EpisodeLayoutAttributes {
             contentView.layer.cornerRadius = attributes.radius
+            contentFadeOutOrIn = attributes.hideContent
         }
     }
     
-    var hideContent: Bool {
+    var videoFullScreenOrNot: Bool {
+        get {
+            return true
+        }
+        set(newValue) {
+            video?.transform = newValue ? .identity: CGAffineTransform(scaleX: 1 / EpisodeCell.aspectScale, y: 1 / EpisodeCell.aspectScale)
+            video?.isUserInteractionEnabled = newValue
+        }
+    }
+    
+    var contentFadeOutOrIn: Bool {
         get {
             return true
         }
         set(newValue) {
             let newAlpha: CGFloat = newValue ? 0 : 1
+            video?.alpha = newAlpha
             thumbnailView.alpha = newAlpha
             screenshot?.alpha = newAlpha
-            video?.alpha = newAlpha
             gradientView.alpha = newAlpha
         }
     }
     
-    var videoFullScreen: Bool {
+    var imageCenterOrFill: Bool {
         get {
             return true
         }
         set(newValue) {
-            video?.transform = newValue ? .identity: CGAffineTransform(scaleX: 1 / aspectScale, y: 1 / aspectScale)
+            let contentMode: ContentMode = newValue ? .center : .scaleAspectFill
+            thumbnailView.contentMode = contentMode
+            screenshot?.contentMode = contentMode
         }
-    }
-    
-    func toggleImageContentMode() {
-        let newMode = thumbnailView.contentMode == .center ? ContentMode.scaleAspectFill : ContentMode.center
-        thumbnailView.contentMode = newMode
-        screenshot?.contentMode = newMode
     }
 }

@@ -12,12 +12,15 @@ import YoutubePlayer_in_WKWebView
 
 typealias VideoId = String
 typealias URLString = String
+typealias EpisodeId = IndexPath
 
 class YoutubeVideoData {
     var videoId: VideoId!
     
     // Maybe nil
     var thumbnail: UIImage!
+    
+    var episodeId: EpisodeId!
 }
 
 class YoutubeManager {
@@ -112,6 +115,7 @@ extension YoutubeManager {
                 let data = YoutubeVideoData()
                 data.videoId = videoId
                 data.thumbnail = operation.image
+                data.episodeId = TestEpisodeId
                 self.videoId2Data.setObject(data, forKey: videoId as NSString)
                 self.serialAccessQueue.addOperation {
                     self.invokeVideoDataCompletion(for: videoId, with: data)

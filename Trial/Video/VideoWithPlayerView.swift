@@ -99,6 +99,12 @@ class VideoWithPlayerView: BasePlayerView {
         }
     }
     
+    func seekBy(_ seconds: Float) {
+        videoView.getCurrentTime { (current, _) in
+            self.videoView.seek(toSeconds: current + seconds, allowSeekAhead: true)
+        }
+    }
+    
     override func togglePlay() {
         getVideoState { state in
             state == WKYTPlayerState.paused ? self.play() : self.pause()
@@ -116,7 +122,6 @@ class VideoWithPlayerView: BasePlayerView {
             }
         }
     }
-    
     
     private var loaded = false
     
@@ -173,7 +178,7 @@ extension VideoWithPlayerView: WKYTPlayerViewDelegate {
     }
     
     func playerView(_ playerView: WKYTPlayerView, didPlayTime playTime: Float) {
-        if let playerControl = playerControl, !playerControl.isSliding {
+        if let playerControl = playerControl, playerControl.superview != nil, !playerControl.isSliding {
             playerControl.current = playTime
         }
     }

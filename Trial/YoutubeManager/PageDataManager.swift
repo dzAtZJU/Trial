@@ -14,23 +14,25 @@ import UIKit
 // 滑动停止前：图片/视频 -> 只有这样，在滑动停止后，才会有徐徐展开的效果
 
 
-class PageDataManager {
+struct PageDataManager {
     
-    private(set) var seasonsNum: Int! = nil
+    private(set) var seasonsNum: Int
     
-    private(set) var episodesNums: [Int]! = nil
+    private(set) var episodesNums: [Int]
     
-    private(set) var item2VideoId: [IndexPath:VideoId]! = nil
+    private(set) var item2VideoId: [IndexPath:VideoId]
     
-    func genesisLoad() {
-        seasonsNum = 5
-        episodesNums = [6, 5, 5, 4, 4]
-        item2VideoId = [IndexPath:VideoId]()
+    static func load(programId: String, completion: (PageDataManager) -> ()) throws {
+        let seasonsNum = 5
+        let episodesNums = [6, 5, 5, 4, 4]
+        var item2VideoId = [IndexPath:VideoId]()
         for season in 0..<seasonsNum {
             for episode in 0..<episodesNums[season] {
                 item2VideoId[IndexPath(row: episode, section: season)] = TestDatas.episodesIds[season][episode]
             }
         }
+        let data = PageDataManager(seasonsNum: seasonsNum, episodesNums: episodesNums, item2VideoId: item2VideoId)
+        completion(data)
     }
     
     func fetchVideo(_ item: IndexPath, completion: ((VideoWithPlayerView, Bool) -> ())? = nil) {

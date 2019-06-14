@@ -54,8 +54,11 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
         case .exitFullscreen:
             rippleViewStore.dispatch(RippleViewState.SceneAction.fullScreen)
         case .goToEpisodesView:
-            let episodesVC = EpisodesVC()
-            self.present(episodesVC, animated: false, completion: nil)
+            YoutubeManager.shared.getDataOf(item: self.inFocusItem) { data in
+                EpisodesVC.shared.prepareForPresent(programId: "paogram id", episode: data.episodeId, scene: .full) {
+                    self.present(EpisodesVC.shared, animated: false, completion: nil)
+                }
+            }
             return
         default:
             return

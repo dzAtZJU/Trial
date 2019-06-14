@@ -12,7 +12,17 @@ import ReSwift
 
 let episodesViewHorizontalExtent: CGFloat = 100
 
+struct EpisodesVCModel {
+    let pageDataManager: PageDataManager
+    
+    let viewStore: Store<EpisodesViewState>
+    
+    var latestWatchItem: IndexPath
+}
+
 class EpisodesVC: UIViewController {
+    
+    static let shared = EpisodesVC()
     
     // Views
     var thumbnailBg: UIImageView!
@@ -33,7 +43,7 @@ class EpisodesVC: UIViewController {
     
     var lastWatchButton: UIButton!
     
-    let pageDataManager = PageDataManager()
+    var model: EpisodesVCModel!
     
     var autoScrollFlag = false
     
@@ -48,8 +58,6 @@ class EpisodesVC: UIViewController {
     // States
     var centerItem: IndexPath! = IndexPath(row: 0, section: 0)
     
-    var latestWatchItem: IndexPath! = IndexPath(row: 0, section: 0)
-    
     var preWatchItem: IndexPath? {
         didSet {
             lastWatchButton.isHidden = preWatchItem == nil
@@ -57,12 +65,16 @@ class EpisodesVC: UIViewController {
     }
     
     var latestWatchCell: EpisodeCell? {
-        return episodesView.cellForItem(at: latestWatchItem) as? EpisodeCell
+        return episodesView.cellForItem(at: model.latestWatchItem) as? EpisodeCell
     }
     
     var selectedItem: IndexPath?
     
     var lockScrollUpdate = false
+    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .landscape
+    }
     
     override func loadView() {
         super.loadView()
@@ -85,7 +97,7 @@ class EpisodesVC: UIViewController {
         seasonMaskWindow.backgroundColor = UIColor.black.withAlphaComponent(0.2)
         view.addSubview(seasonMaskWindow)
         
-        let layout = EpisodesLayout.sliding
+        let layout = EpisodesLayout.full
         episodesView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         episodesView.dataSource = self
         episodesView.delegate = self
@@ -119,66 +131,50 @@ class EpisodesVC: UIViewController {
         lastWatchButton.addTarget(self, action: #selector(handleLastWatchButton), for: .touchUpInside)
         lastWatchButton.isHidden = true
         view.addSubview(lastWatchButton)
-    }
-    
-    override func viewWillLayoutSubviews() {
-        layoutShadows()
-        layoutSeasonsView()
-        layoutEpisodesView()
-        lastWatchButton.frame = CGRect(origin: CGPoint(x: view.bounds.width - 60, y: 10), size: CGSize(width: 50, height: 50))
-    }
-    
-    private func layoutShadows() {
+        
         thumbnailBg.frame = view.bounds
         thumbnailBlur.frame = view.bounds
         thumbnailShadow.frame = view.bounds
         shadowLeft.frame = view.bounds
         shadowRight.frame = view.bounds
-    }
-    
-    private func layoutSeasonsView() {
-        seasonsView.frame = CGRect(origin: .zero, size: CGSize(width: view.bounds.width, height: 96))
-        seasonMaskWindow.frame = CGRect(center: seasonsView.center, size: CGSize(width: 102, height: 28))
-    }
-    
-    private func layoutEpisodesView() {
-        episodesView.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: -episodesViewHorizontalExtent, bottom: -32, right: -episodesViewHorizontalExtent))
-            
+        
         episodesView.contentInset = UIEdgeInsets(top: 0, left: screenHeight / 2, bottom: 0, right: screenHeight / 2)
-    }
-    
-    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return .landscape
+        lastWatchButton.frame = CGRect(origin: CGPoint(x: view.bounds.width - 60, y: 10), size: CGSize(width: 50, height: 50))
+        
+        layoutFullScreenOrNot = true
     }
     
     override func viewDidLoad() {
-        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
-        prepareForPresent()
+        episodesView.scrollToItem(at: model.latestWatchItem, at: .centeredHorizontally, animated: false)
+        seasonsView.scrollToItem(at: IndexPath(row: model.latestWatchItem.section, section: 0), at: .centeredHorizontally, animated: false)
     }
-}
-
-extension EpisodesVC: StoreSubscriber {
-    func newState(state: EpisodesSceneState) {
-        guard preSceneState != nil else {
-            preSceneState = .sliding
-            return
-        }
-        
-        newStateForAnimation(state: state)
-        preSceneState = state
-    }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        episodesViewStore.subscribe(self) { subcription in
+        
+        model.viewStore.subscribe(self) { subcription in
             subcription.select { viewState in
                 viewState.scene
             }
+        }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .goToEpisodesView, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
+                self.latestWatchCell!.mountVideo(video)
+                self.willToScene()
+                self.extraSceneAnimation()
+                self.didToScene()
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        episodesViewStore.unsubscribe(self)
+        
+        model.viewStore.unsubscribe(self)
+        NotificationCenter.default.removeObserver(self)
     }
 }

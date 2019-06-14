@@ -16,6 +16,7 @@ class GradientView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        isUserInteractionEnabled = false
         let gradientLayer = layer as! CAGradientLayer
         gradientLayer.colors = [UIColor(white: 0, alpha: 0).cgColor, UIColor(white: 0, alpha: 0.8).cgColor]
     }

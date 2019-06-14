@@ -42,7 +42,8 @@ struct RippleViewState: StateType {
             case .surfing:
                 return .watching
             default:
-                fatalError()
+                return state!
+//                fatalError()
             }
         default:
             fatalError()

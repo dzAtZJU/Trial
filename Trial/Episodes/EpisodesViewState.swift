@@ -10,22 +10,25 @@ import Foundation
 import ReSwift
 
 struct EpisodesViewState: StateType {
-    var scene = EpisodesSceneState.sliding
+    
+    init(scene: EpisodesSceneState) {
+        self.scene = scene
+    }
+    
+    var scene: EpisodesSceneState
     
     static func appReducer(action: Action, state: EpisodesViewState?) -> EpisodesViewState {
         return EpisodesViewState(scene: sceneReducer(action: action, state: state?.scene))
     }
     
     static func sceneReducer(action: Action, state: EpisodesSceneState?) -> EpisodesSceneState {
-        let scene = state ?? EpisodesSceneState.sliding
-        
         guard case is SceneAction  = action else {
-            return scene
+            return state!
         }
         
         switch action as! SceneAction {
         case .touchCell:
-            switch scene {
+            switch state! {
             case .sliding:
                 return .watching
             case .watching:
@@ -36,7 +39,7 @@ struct EpisodesViewState: StateType {
                 fatalError()
             }
         case .scroll:
-            switch scene {
+            switch state! {
             case .sliding:
                 return .watching
             case .watching:
@@ -60,5 +63,3 @@ enum EpisodesSceneState {
     case watching2Full
     case full2Watching
 }
-
-let episodesViewStore = Store(reducer: EpisodesViewState.appReducer, state: EpisodesViewState())

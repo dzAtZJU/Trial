@@ -8,20 +8,25 @@
 
 import Foundation
 import UIKit
+import ReSwift
 
 let seasonsNum = 3
 
 extension EpisodesVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefetching {
-    func prepareForPresent() {
-        pageDataManager.genesisLoad()
+    func prepareForPresent(programId: String, episode: IndexPath, scene: EpisodesSceneState, completion: () -> ()) {
+        try! PageDataManager.load(programId: programId) { pageDataManager in
+            let store = Store(reducer: EpisodesViewState.appReducer, state: EpisodesViewState(scene: scene))
+            model = EpisodesVCModel(pageDataManager: pageDataManager, viewStore: store, latestWatchItem: episode)
+            completion()
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == episodesView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "episode", for: indexPath) as! EpisodeCell
             cell.episodeNum.text = (indexPath.row + 1).description
-            pageDataManager.batchRequest([indexPath])
-            pageDataManager.get(indexPath) { data in
+            model.pageDataManager.batchRequest([indexPath])
+            model.pageDataManager.get(indexPath) { data in
                 DispatchQueue.main.async {
                     cell.thumbnailView.image = data.thumbnail
                 }
@@ -40,21 +45,21 @@ extension EpisodesVC: UICollectionViewDataSource, UICollectionViewDataSourcePref
             return 1
         }
         
-        return pageDataManager.seasonsNum
+        return model.pageDataManager.seasonsNum
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == seasonsView {
-            return pageDataManager.seasonsNum
+            return model.pageDataManager.seasonsNum
         }
         
-        return pageDataManager.episodesNums[section]
+        return model.pageDataManager.episodesNums[section]
     }
     
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-        pageDataManager.batchRequest(indexPaths)
+        model.pageDataManager.batchRequest(indexPaths)
         for item in indexPaths {
-            pageDataManager.request(item)
+            model.pageDataManager.request(item)
         }
     }
 }

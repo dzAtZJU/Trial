@@ -9,8 +9,20 @@
 import Foundation
 import UIKit
 import CoreGraphics
+import ReSwift
 
-extension EpisodesVC: UICollectionViewDelegate {
+extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
+    
+    func newState(state: EpisodesSceneState) {
+        guard preSceneState != nil else {
+            preSceneState = state
+            return
+        }
+        
+        newStateForAnimation(state: state)
+        preSceneState = state
+    }
+    
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         prepareSliding()
     }
@@ -30,7 +42,7 @@ extension EpisodesVC: UICollectionViewDelegate {
         if let latestWatchCell = latestWatchCell {
             let centerInViewport = view.convert(latestWatchCell.center, from: episodesView)
             let isOutOfViewport =  centerInViewport.x < 0 || centerInViewport.x > view.bounds.width
-            preWatchItem = isOutOfViewport ? latestWatchItem : nil
+            preWatchItem = isOutOfViewport ? model.latestWatchItem : nil
         }
     }
     
@@ -51,7 +63,7 @@ extension EpisodesVC: UICollectionViewDelegate {
             return
         }
         
-        episodesViewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
+        model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
     }
     
     @objc func handleLastWatchButton() {
@@ -61,17 +73,14 @@ extension EpisodesVC: UICollectionViewDelegate {
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        guard autoScrollFlag, let latestWatchCell = latestWatchCell else {
+        guard autoScrollFlag == autoScrollFlag, let latestWatchCell = latestWatchCell else {
             return
         }
         
         autoScrollFlag = false
         preWatchItem = nil
-        pageDataManager.fetchVideo(latestWatchItem) { (video, _) in
+        model.pageDataManager.fetchVideo(model.latestWatchItem) { (video, _) in
             latestWatchCell.mountVideo(video)
-            UIView.animate(withDuration: duration) {
-                latestWatchCell.hideContent = false
-            }
         }
     }
     
@@ -80,17 +89,13 @@ extension EpisodesVC: UICollectionViewDelegate {
             (cell as! EpisodeCell).unMountVideo()
         }
     }
-        
-    override func viewDidAppear(_ animated: Bool) {
-        seasonsView.scrollToItem(at: IndexPath(row: latestWatchItem.section, section: 0), at: .centeredHorizontally, animated: false)
-        prepareWatching()
-        view.window?.addSubview(activityIndicator)
-    }
     
     @objc func handleNotification(_ notification: Notification) {
         switch notification.name {
         case .exitFullscreen:
-            episodesViewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
+            dismiss(animated: false, completion: nil)
+        case .goToEpisodesView:
+            model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
         default:
             return
         }
@@ -98,24 +103,23 @@ extension EpisodesVC: UICollectionViewDelegate {
     
     private func prepareSliding() {
         if !seasonsView.isDecelerating {
-            episodesViewStore.dispatch(EpisodesViewState.SceneAction.scroll)
+            model.viewStore.dispatch(EpisodesViewState.SceneAction.scroll)
             preWatchItem = nil
         }
     }
     
     private func prepareWatching() {
-        latestWatchItem = centerItem
-        pageDataManager.fetchVideo(latestWatchItem) { (video, _) in
+        model.latestWatchItem = centerItem
+        model.pageDataManager.fetchVideo(model.latestWatchItem) { (video, _) in
             self.latestWatchCell?.mountVideo(video)
-            episodesViewStore.dispatch(EpisodesViewState.SceneAction.scroll)
+            self.model.viewStore.dispatch(EpisodesViewState.SceneAction.scroll)
         }
     }
     
     private func prepareAutoSliding(to: IndexPath) {
         self.latestWatchCell?.unMountVideo()
-        self.latestWatchCell?.hideContent = true
         
-        latestWatchItem = to
+        model.latestWatchItem = to
         self.layout.invalidateLayout()
         self.episodesView.scrollToItem(at: to, at: .centeredHorizontally, animated: true)
         autoScrollFlag = true

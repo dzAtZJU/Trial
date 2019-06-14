@@ -62,11 +62,11 @@ class RippleVC: UIViewController,  StoreSubscriber {
         collectionView.scrollToItem(at: initialCenter1, at: [.centeredHorizontally, .centeredVertically], animated: false)
         
         collectionView.addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:))))
-        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .goToEpisodesView, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
     }
 
     override func viewWillAppear(_ animated: Bool) {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .goToEpisodesView, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
         super.viewWillAppear(animated)
         rippleViewStore.subscribe(self) { subcription in
             subcription.select { appState in
@@ -85,6 +85,7 @@ class RippleVC: UIViewController,  StoreSubscriber {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         rippleViewStore.unsubscribe(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     func newState(state: RippleSceneState) {

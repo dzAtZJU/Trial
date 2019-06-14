@@ -45,19 +45,22 @@ class EpisodesLayout: UICollectionViewFlowLayout {
             return nil
         }
         
-        let latestWatchItem = (collectionView?.delegate as? EpisodesVC)?.latestWatchItem
+        let latestWatchItem = (collectionView?.delegate as? EpisodesVC)?.model.latestWatchItem
         
         for attributes in result {
-            (attributes as! EpisodeLayoutAttributes).radius = 8
-            if attributes.indexPath == latestWatchItem {
-                switch sceneState {
-                case .watching:
-                    let attributes = attributes as! EpisodeLayoutAttributes
-                    attributes.radius = 14
-                    attributes.isLatestWatchItem = true
-                default:
+            let attributes = attributes as! EpisodeLayoutAttributes
+            attributes.radius = 8
+            switch sceneState {
+            case .sliding:
+                attributes.hideContent = true
+            case .watching, .full:
+                guard attributes.indexPath == latestWatchItem else {
                     continue
                 }
+                attributes.radius = 14
+                attributes.hideContent = false
+            default:
+                continue
             }
         }
         
@@ -69,7 +72,7 @@ class EpisodesLayout: UICollectionViewFlowLayout {
     }
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
-        if let vc = collectionView?.delegate as? EpisodesVC, let item = vc.latestWatchItem , let attributes = layoutAttributesForItem(at: item) {
+        if let vc = collectionView?.delegate as? EpisodesVC, let attributes = layoutAttributesForItem(at: vc.model.latestWatchItem ) {
             return attributes.frame.center - CGRect(origin: .zero, size: collectionView!.frame.size).center
         }
 

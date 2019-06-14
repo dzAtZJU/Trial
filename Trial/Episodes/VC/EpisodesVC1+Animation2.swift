@@ -18,62 +18,27 @@ let animator1 = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, an
 
 extension EpisodesVC {
     func newStateForAnimation(state: EpisodesSceneState) {
-        lockScrollUpdate = true
-        animator.addCompletion { _ in
-            self.lockScrollUpdate = false
-         }
-        
         switch state {
         case .sliding:
             animator.addAnimations {
-                self.latestWatchCell?.hideContent = true
                 self.episodesView.collectionViewLayout = EpisodesLayout.sliding
-                for cell in self.episodesView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
             }
             animator.addCompletion { _ in
-                (self.episodesView.cellForItem(at: self.latestWatchItem) as? EpisodeCell)?.unMountVideo()
+                (self.episodesView.cellForItem(at: self.model.latestWatchItem) as? EpisodeCell)?.unMountVideo()
             }
         case .watching:
             if preSceneState == .sliding {
                 animator.addAnimations {
-                    self.pageDataManager.get(self.latestWatchItem, completion: { data in
-                        DispatchQueue.main.async {
-                            self.thumbnailBg.image = data.thumbnail
-                        }
-                    })
                     self.episodesView.collectionViewLayout = EpisodesLayout.watching
-                    self.latestWatchCell?.hideContent = false
-                    for cell in self.episodesView.visibleCells {
-                        cell.layoutIfNeeded()
-                    }
                 }
             } else {
-//                FullscreenVideoManager.current.gotoCell { video in
-//                    self.latestWatchCell?.addVideoToHierarchy(video)
-//                }
-                
                 animator.addAnimations {
-                    self.latestWatchCell?.videoFullScreen = false
                     self.episodesView.collectionViewLayout = EpisodesLayout.full2Watching
-                    self.episodesView.center = self.episodesView.center + CGPoint(x: 0, y: 16)
-                    self.seasonsView.center = self.seasonsView.center + CGPoint(x: 0, y: 62)
-                    self.seasonMaskWindow.center = self.seasonMaskWindow.center + CGPoint(x: 0, y: 62)
-                    for cell in self.episodesView.visibleCells {
-                        cell.layoutIfNeeded()
-                    }
+                    self.latestWatchCell?.layoutIfNeeded()
                 }
                 
                 animator1.addAnimations {
                     self.episodesView.collectionViewLayout = EpisodesLayout.watching
-                }
-                
-                animator1.addCompletion { _ in
-                    self.latestWatchCell?.toggleImageContentMode()
-                    self.pageDataManager.fetchVideo(self.latestWatchItem) { video, _ in
-                        video.isUserInteractionEnabled = false
-                    }
                 }
             }
         case .full:
@@ -81,34 +46,60 @@ extension EpisodesVC {
                 self.episodesView.collectionViewLayout = EpisodesLayout.watching2Full
             }
             animator1.addAnimations {
-                self.latestWatchCell?.toggleImageContentMode()
-                self.latestWatchCell?.videoFullScreen = true
                 self.episodesView.collectionViewLayout = EpisodesLayout.full
-                self.episodesView.center = self.episodesView.center - CGPoint(x: 0, y: 16)
-                self.seasonsView.center = self.seasonsView.center - CGPoint(x: 0, y: 62)
-                self.seasonMaskWindow.center = self.seasonMaskWindow.center - CGPoint(x: 0, y: 62)
-                for cell in self.episodesView.visibleCells {
-                    cell.layoutIfNeeded()
-                }
             }
-            
-            animator1.addCompletion { _ in
-                self.pageDataManager.fetchVideo(self.latestWatchItem) { video, _ in
-                    video.isUserInteractionEnabled = true
-                }
-            }
-//            animator1.addCompletion { _ in
-//                self.pageDataManager.fetchVideo(self.latestWatchItem) { video, _ in
-//                    FullscreenVideoManager.current.gotoWindow(video: video, window: self.view.window!)
-//                }
-//            }
         default:
             fatalError()
         }
         
-        animator.startAnimation()
+        willToScene()
+        
         animator1.addAnimations {}
+        let mainAnimator = state == .full ? animator1 : animator
+        mainAnimator.addAnimations {
+            self.extraSceneAnimation()
+        }
+        
+        animator.addCompletion { _ in
+            self.didToScene()
+        }
+        
+        animator.startAnimation()
         animator1.startAnimation(afterDelay: delay)
     }
-}
 
+    func willToScene() {
+        lockScrollUpdate = true
+        
+        switch model.viewStore.state.scene {
+        case .watching:
+            self.model.pageDataManager.get(self.model.latestWatchItem, completion: { data in
+                DispatchQueue.main.async {
+                    self.thumbnailBg.image = data.thumbnail
+                }
+            })
+        default:
+            return
+        }
+    }
+    
+    func extraSceneAnimation() {
+        let isFull = model.viewStore.state.scene == .full
+        let isSliding = model.viewStore.state.scene == .sliding
+        let isWatching = model.viewStore.state.scene == .watching
+        
+        if isFull || isWatching {
+            layoutFullScreenOrNot = isFull
+        }
+        
+        self.latestWatchCell?.videoFullScreenOrNot = isFull
+        
+        if isFull || isSliding {
+            self.latestWatchCell?.imageCenterOrFill = isSliding
+        }
+    }
+    
+    func didToScene() {
+        lockScrollUpdate = false
+    }
+}

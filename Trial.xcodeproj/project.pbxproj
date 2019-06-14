@@ -42,6 +42,7 @@
 		896637A922AF794E0019E782 /* format.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896637A822AF794E0019E782 /* format.swift */; };
 		896637AB22AF95A30019E782 /* BasePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896637AA22AF95A30019E782 /* BasePlayerView.swift */; };
 		896637AD22B0E67A0019E782 /* numeric.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896637AC22B0E67A0019E782 /* numeric.swift */; };
+		8967AC2C22B2408000763B80 /* test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8967AC2B22B2408000763B80 /* test.swift */; };
 		896EA9052242209700780557 /* YTPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9042242209700780557 /* YTPlayerView.swift */; };
 		896EA90F22438C3600780557 /* RippleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA90E22438C3600780557 /* RippleCell.swift */; };
 		896EA9162244945800780557 /* alog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896EA9152244945800780557 /* alog.swift */; };
@@ -117,6 +118,7 @@
 		896637A822AF794E0019E782 /* format.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = format.swift; sourceTree = "<group>"; };
 		896637AA22AF95A30019E782 /* BasePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasePlayerView.swift; sourceTree = "<group>"; };
 		896637AC22B0E67A0019E782 /* numeric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = numeric.swift; sourceTree = "<group>"; };
+		8967AC2B22B2408000763B80 /* test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = test.swift; sourceTree = "<group>"; };
 		896EA9042242209700780557 /* YTPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YTPlayerView.swift; sourceTree = "<group>"; };
 		896EA9062242232700780557 /* youtube_iframe.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = youtube_iframe.html; sourceTree = "<group>"; };
 		896EA90E22438C3600780557 /* RippleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RippleCell.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 		890D600E22421C6F008B0198 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				89006268224C970500094F91 /* PlayerControlView.swift */,
 				89F37A212237524800A9303D /* Main.storyboard */,
 				890A7AFA223F824000CDB6B1 /* CollectionViewCell.swift */,
 				89D487EC2260642D009F2013 /* GradientView.swift */,
@@ -217,6 +220,15 @@
 			path = infrastructure;
 			sourceTree = "<group>";
 		};
+		8967AC2A22B2406D00763B80 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				890A7AFE223F8C7500CDB6B1 /* constants.swift */,
+				8967AC2B22B2408000763B80 /* test.swift */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
 		896EA908224342AD00780557 /* Layout */ = {
 			isa = PBXGroup;
 			children = (
@@ -236,7 +248,6 @@
 		896EA9142244942100780557 /* Utility */ = {
 			isa = PBXGroup;
 			children = (
-				890A7AFE223F8C7500CDB6B1 /* constants.swift */,
 				89F37A3422392C4500A9303D /* utility.swift */,
 				896EA9152244945800780557 /* alog.swift */,
 				896EA91F2244AFCF00780557 /* extension.swift */,
@@ -325,7 +336,6 @@
 				896EA9042242209700780557 /* YTPlayerView.swift */,
 				896EA9062242232700780557 /* youtube_iframe.html */,
 				890CED29226DC5FD00F58780 /* VideoContainer.swift */,
-				89006268224C970500094F91 /* PlayerControlView.swift */,
 				8900626C224C9ADE00094F91 /* VideoWithPlayerView.swift */,
 				89DD148F227852880008512A /* communication.swift */,
 				89065A72229CD9460058411D /* FullscreenVideoManager.swift */,
@@ -389,6 +399,7 @@
 		89F37A1C2237524800A9303D /* Trial */ = {
 			isa = PBXGroup;
 			children = (
+				8967AC2A22B2406D00763B80 /* Constants */,
 				8967AC2922B1048300763B80 /* infrastructure */,
 				89AA5448225C878700178341 /* Docs */,
 				89DD925A2281511200765769 /* Base */,
@@ -619,6 +630,7 @@
 				8900626F224E214400094F91 /* RippleTransitionLayout.swift in Sources */,
 				89DD926E2282E1FE00765769 /* EpisodesVC1+Data.swift in Sources */,
 				896637AB22AF95A30019E782 /* BasePlayerView.swift in Sources */,
+				8967AC2C22B2408000763B80 /* test.swift in Sources */,
 				89006267224C87B200094F91 /* Datas.swift in Sources */,
 				89DD925C2281514100765769 /* VideoCell.swift in Sources */,
 				8966379F22A68F3F0019E782 /* YoutubeManagerV2.swift in Sources */,

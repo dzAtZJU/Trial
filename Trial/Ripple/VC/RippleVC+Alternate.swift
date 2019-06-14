@@ -53,9 +53,6 @@ extension RippleVC {
             switch preSceneState {
             case .full:
                 let newLayout = UIDevice.current.orientation.isPortrait ? self.layout.nextOnFullPortrait(): self.layout.nextOnFullLandscape()
-                FullscreenVideoManager.current.gotoCell {
-                    self.inFocusCell.addVideoToHierarchy($0)
-                }
                 let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
                 let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnExit(isPortrait: UIDevice.current.orientation.isPortrait))
                 animationQueue.append {
@@ -106,9 +103,6 @@ extension RippleVC {
             }
             completionQueue.append {
                 shadowCompletion()
-                YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
-                    FullscreenVideoManager.current.gotoWindow(video: video, window: self.view.window!)
-                }
             }
             if UIScreen.main.isPortrait {
                 executeAnimationByNewState = false
@@ -116,6 +110,7 @@ extension RippleVC {
             }
         }
         
+        willlAnimate()
         if executeAnimationByNewState {
             UIView.animate(withDuration: 0.3, animations: {
                 self.runQueuedAnimation()
@@ -125,6 +120,13 @@ extension RippleVC {
                 self.completionQueue.removeAll()
             }
         }
+    }
+    
+    func willlAnimate() {
+        YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+            video.isUserInteractionEnabled = rippleViewStore.state.scene == .full
+        }
+        self.collectionView.isScrollEnabled = rippleViewStore.state.scene != .full
     }
     
     func runQueuedAnimation() {
