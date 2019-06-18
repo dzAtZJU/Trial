@@ -42,7 +42,7 @@
                         <constraint firstAttribute="width" constant="118" id="XQM-Ka-Ndo"/>
                     </constraints>
                     <fontDescription key="fontDescription" name="PingFangSC-Medium" family="PingFang SC" pointSize="12"/>
-                    <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RZD-JM-oXz">
@@ -62,51 +62,47 @@
                         <constraint firstAttribute="height" constant="20" id="H0k-XB-XZk"/>
                         <constraint firstAttribute="width" constant="20" id="jnK-Rl-Jyb"/>
                     </constraints>
-                    <state key="normal" title="Button" image="episodes"/>
+                    <state key="normal" image="episodes"/>
                     <connections>
                         <action selector="gotoEpisodes" destination="iN0-l3-epB" eventType="touchUpInside" id="q8g-dF-pu5"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hlq-wO-t5M">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hlq-wO-t5M">
                     <rect key="frame" x="423.5" y="186" width="16" height="16"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="16" id="FdM-Lj-0IZ"/>
                         <constraint firstAttribute="height" constant="16" id="wFb-tb-8b5"/>
                     </constraints>
-                    <state key="normal" image="seek_left"/>
                     <connections>
                         <action selector="didForward" destination="iN0-l3-epB" eventType="touchUpInside" id="46w-y7-ae7"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9EF-yj-1zC">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9EF-yj-1zC">
                     <rect key="frame" x="435.5" y="186" width="16" height="16"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="16" id="PzA-7t-8Ry"/>
                         <constraint firstAttribute="width" constant="16" id="cBf-GJ-QQ3"/>
                     </constraints>
-                    <state key="normal" image="seek_left"/>
                     <connections>
                         <action selector="didForward" destination="iN0-l3-epB" eventType="touchUpInside" id="hmb-uJ-fEB"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J1D-0X-bv0">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J1D-0X-bv0">
                     <rect key="frame" x="227.5" y="186" width="16" height="16"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="16" id="GuE-Te-33q"/>
                         <constraint firstAttribute="width" constant="16" id="pRa-FH-Qz0"/>
                     </constraints>
-                    <state key="normal" image="seek"/>
                     <connections>
                         <action selector="didBack" destination="iN0-l3-epB" eventType="touchUpInside" id="24e-MX-OSP"/>
                     </connections>
                 </button>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HSb-br-IVC">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HSb-br-IVC">
                     <rect key="frame" x="215.5" y="186" width="16" height="16"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="16" id="9Nv-iS-j24"/>
                         <constraint firstAttribute="width" constant="16" id="Opv-0T-EXd"/>
                     </constraints>
-                    <state key="normal" image="seek"/>
                     <connections>
                         <action selector="didBack" destination="iN0-l3-epB" eventType="touchUpInside" id="VS0-gH-6sx"/>
                     </connections>
@@ -156,7 +152,5 @@
     <resources>
         <image name="episodes" width="34" height="32"/>
         <image name="exit" width="32" height="32"/>
-        <image name="seek" width="30" height="32"/>
-        <image name="seek_left" width="30" height="32"/>
     </resources>
 </document>

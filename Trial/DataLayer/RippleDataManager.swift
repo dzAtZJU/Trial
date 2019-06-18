@@ -1,37 +1,20 @@
 //
-//  PageDataManager.swift
+//  RippleDataManager.swift
 //  Trial
 //
-//  Created by 周巍然 on 2019/6/4.
+//  Created by 周巍然 on 2019/6/18.
 //  Copyright © 2019 周巍然. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
-// Data Flow
-// 首屏：几季几集
-// 滑动停止前：图片/视频 -> 只有这样，在滑动停止后，才会有徐徐展开的效果
-
-
-struct PageDataManager {
+struct RippleDataManager {
     
-    private(set) var seasonsNum: Int
+    var item2VideoId: [IndexPath:VideoId]
     
-    private(set) var episodesNums: [Int]
-    
-    private(set) var item2VideoId: [IndexPath:VideoId]
-    
-    static func load(programId: String, completion: (PageDataManager) -> ()) throws {
-        let seasonsNum = 5
-        let episodesNums = [6, 5, 5, 4, 4]
-        var item2VideoId = [IndexPath:VideoId]()
-        for season in 0..<seasonsNum {
-            for episode in 0..<episodesNums[season] {
-                item2VideoId[IndexPath(row: episode, section: season)] = TestDatas.episodesIds[season][episode]
-            }
-        }
-        let data = PageDataManager(seasonsNum: seasonsNum, episodesNums: episodesNums, item2VideoId: item2VideoId)
+    static func load(userId: String, completion: (RippleDataManager) -> ()) throws {
+        let data = RippleDataManager(item2VideoId: TestDatas.indexPathToVideoId)
         completion(data)
     }
     
@@ -39,7 +22,7 @@ struct PageDataManager {
         let videoId = self.item2VideoId[item]!
         YoutubeManagerV2.shared.fetchVideo(videoId, completion: completion)
     }
-        
+    
     func batchRequest(_ items: [IndexPath]) {
         let videoIds = items.map { self.item2VideoId[$0]! }
         YoutubeManagerV2.shared.batchRequest(videoIds)

@@ -10,12 +10,10 @@ import Foundation
 
 extension Float {
     func limitInOne() -> Float {
-        if self < 0 {
-            return 0
-        } else if self > 1 {
-            return 1
-        } else {
-            return self
-        }
+        return limitIn(max: 1)
+    }
+    
+    func limitIn(max: Float) -> Float {
+        return self > max ? max : self < 0 ? 0 : self
     }
 }

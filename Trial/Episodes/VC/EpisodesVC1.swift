@@ -13,7 +13,7 @@ import ReSwift
 let episodesViewHorizontalExtent: CGFloat = 100
 
 struct EpisodesVCModel {
-    let pageDataManager: PageDataManager
+    var pageDataManager: EpisodesDataManager
     
     let viewStore: Store<EpisodesViewState>
     

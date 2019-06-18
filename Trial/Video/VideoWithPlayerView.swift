@@ -31,6 +31,8 @@ class VideoWithPlayerView: BasePlayerView {
     
     var duration: Float!
     
+    var current: Float!
+    
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
         let result = VideoWithPlayerView(videoId: videoId)
         return result
@@ -42,6 +44,7 @@ class VideoWithPlayerView: BasePlayerView {
         super.init(frame: CGRect.zero)
         isUserInteractionEnabled = false
         videoView.delegate = self
+        delegate = self
         setupSubview(videoView)
         self.videoId = videoId
         self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "modestbranding": 1])
@@ -101,7 +104,20 @@ class VideoWithPlayerView: BasePlayerView {
     
     func seekBy(_ seconds: Float) {
         videoView.getCurrentTime { (current, _) in
-            self.videoView.seek(toSeconds: current + seconds, allowSeekAhead: true)
+            self.seekTo(current + seconds, allowSeekAhead: true)
+        }
+    }
+    
+    func seekBy(scale: Float, allowSeekAhead: Bool) {
+        videoView.getCurrentTime { (current, _) in
+            self.seekTo(current + self.duration * scale, allowSeekAhead: allowSeekAhead)
+        }
+    }
+    
+    func seekTo(_ seconds: Float, allowSeekAhead: Bool) {
+        videoView.seek(toSeconds: seconds, allowSeekAhead: allowSeekAhead)
+        if allowSeekAhead {
+            videoView.playVideo()
         }
     }
     
@@ -178,8 +194,7 @@ extension VideoWithPlayerView: WKYTPlayerViewDelegate {
     }
     
     func playerView(_ playerView: WKYTPlayerView, didPlayTime playTime: Float) {
-        if let playerControl = playerControl, playerControl.superview != nil, !playerControl.isSliding {
-            playerControl.current = playTime
-        }
+        current = playTime
+        playerControl?.didPlayedTo(playTime)
     }
 }

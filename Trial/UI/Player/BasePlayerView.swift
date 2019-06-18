@@ -11,16 +11,19 @@ import UIKit
 import MediaPlayer
 
 class BasePlayerView: UIView {
-    
-    var panAtLeft = true
+    var delegate: VideoWithPlayerView?
     
     var playerControl: PlayerControlView?
     
     var volumeObserver: NSKeyValueObservation?
     
+    var brightObserver: NSKeyValueObservation?
+    
     lazy var mpVolume = MPVolumeView()
     
     lazy var volumeSlider = (mpVolume.subviews.first { ($0 as? UISlider) != nil }) as! UISlider
+    
+    private var progressInSliding: Float!
     
     static let backLayer: CALayer = {
         let r = CALayer()
@@ -58,17 +61,28 @@ class BasePlayerView: UIView {
         return r
     }()
     
+    let panResponder = PlayerPanRecognizer()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:))))
+        
+        addGestureRecognizer(UIPanGestureRecognizer(target: panResponder, action: #selector(PlayerPanRecognizer.handlePan(_:))))
+        panResponder.addTargert(self, action: #selector(handleBright(sender:)), purpose: .leftVertical)
+        panResponder.addTargert(self, action: #selector(handleVolume(sender:)), purpose: .rightVertical)
+        panResponder.addTargert(self, action: #selector(handleProgress(sender:)), purpose: .horizontal)
+        
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+        
         mpVolume.frame = CGRect(origin: CGPoint(x: -1, y: -1), size: CGSize(width: 1, height: 1))
+        mpVolume.alpha = 0.01
         addSubview(mpVolume)
-        volumeObserver = AVAudioSession.sharedInstance().observe(\.outputVolume, options: [.new]) { (_, change) in
-            if BasePlayerView.frontLayer.superlayer == nil {
-                self.showControl()
-            }
-            self.runValueAnimation(CGFloat(change.newValue!))
+        
+        volumeObserver = AVAudioSession.sharedInstance().observe(\.outputVolume, options: .new) { (_, change) in
+            self.didSlide(CGFloat(change.newValue!), icon: BasePlayerView.volumeIcon)
+        }
+        
+        brightObserver = UIScreen.main.observe(\.brightness, options: .new) { (_ ,change) in
+            self.didSlide(CGFloat(change.newValue!), icon: BasePlayerView.brightIcon)
         }
     }
     
@@ -76,45 +90,58 @@ class BasePlayerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func handlePan(_ sender: UIPanGestureRecognizer) {
-        struct PanData {
-            static var lastTranslateY = CGFloat(0)
-        }
+    @objc func handleBright(sender: PlayerPanRecognizer) {
         switch sender.state {
         case .began:
-            PanData.lastTranslateY = sender.translation(in: self).y
-            panAtLeft = sender.location(in: self).x < bounds.midX
-            showControl()
+            playerControl?.baseControlChanged(showed: true)
         case .changed:
-            let translateY = sender.translation(in: self).y
-            let diff = -(translateY - PanData.lastTranslateY) / 800
-            PanData.lastTranslateY = translateY
-            adjustControl(diff: diff)
+            UIScreen.main.brightness += -sender.diff / 500
         case .ended:
             removeControl()
+            playerControl?.baseControlChanged(showed: false)
         default:
             return
         }
     }
     
-    @objc func handleTap(_ sender: UITapGestureRecognizer) {
-        if CGRect(origin: bounds.center, size: .zero).insetBy(dx: -20, dy: -20).contains(sender.location(in: self)) {
-            togglePlay()
+    @objc func handleVolume(sender: PlayerPanRecognizer) {
+        switch sender.state {
+        case .began:
+            playerControl?.baseControlChanged(showed: true)
+        case .changed:
+            volumeSlider.value += Float( -sender.diff / 500)
+        case .ended:
+            removeControl()
+            playerControl?.baseControlChanged(showed: false)
+        default:
             return
         }
-        
-        if playerControl == nil {
-            playerControl = (Bundle.main.loadNibNamed("PlayerControl", owner: nil, options: nil)!.first! as! PlayerControlView)
-        }
-        
-        presentControl()
     }
     
-    func togglePlay() {}
+    @objc func handleProgress(sender: PlayerPanRecognizer) {
+        switch sender.state {
+        case .began:
+            progressInSliding = delegate?.current
+        case .changed:
+            progressInSliding = (progressInSliding + Float(sender.diff)).limitIn(max: delegate!.duration)
+            playerControl?.slideTo(progressInSliding, ended: false)
+        case .ended:
+            playerControl?.slideTo(progressInSliding, ended: true)
+            progressInSliding = nil
+        default:
+            return
+        }
+    }
     
-    func presentControl() {}
+    private func didSlide(_ newScale: CGFloat, icon: CALayer) {
+        if icon.superlayer == nil {
+            addSlider(icon: icon)
+        }
+        
+        BasePlayerView.frontLayer.bounds.size.width = 160 * newScale
+    }
     
-    private func showControl() {
+    private func addSlider(icon: CALayer) {
         BasePlayerView.backLayer.bounds.size = CGSize(width: 160, height: 3)
         BasePlayerView.backLayer.frame.origin = CGPoint(x: bounds.center.x - 80, y: 220)
         layer.addSublayer(BasePlayerView.backLayer)
@@ -123,22 +150,12 @@ class BasePlayerView: UIView {
         BasePlayerView.frontLayer.frame.origin = BasePlayerView.backLayer.frame.origin
         layer.addSublayer(BasePlayerView.frontLayer)
         
-        let initialValue = panAtLeft ? Float(UIScreen.main.brightness) : AVAudioSession.sharedInstance().outputVolume
-        runValueAnimation(CGFloat(initialValue))
-        
-        let icon = panAtLeft ? BasePlayerView.brightIcon : initialValue == 0 ? BasePlayerView.mutedIcon : BasePlayerView.volumeIcon
         icon.frame.origin = CGPoint(x: bounds.center.x - 17, y: 160)
         layer.addSublayer(icon)
     }
     
-    private func adjustControl(diff: CGFloat) {
-        if panAtLeft {
-            let newVal = UIScreen.main.brightness + diff
-            UIScreen.main.brightness = newVal
-            runValueAnimation(newVal)
-        } else {
-            volumeSlider.value += Float(diff)
-        }
+    private func adjustControl(panPuropse: PanPurpose, value: CGFloat) {
+        
     }
     
     private func removeControl() {
@@ -149,14 +166,22 @@ class BasePlayerView: UIView {
         BasePlayerView.brightIcon.removeFromSuperlayer()
     }
     
-    private func runValueAnimation(_ value: CGFloat) {
-        BasePlayerView.frontLayer.bounds.size.width = BasePlayerView.backLayer.bounds.size.width * value
-        if !panAtLeft {
-            let (newIcon, oldIcon) = value == 0 ? (BasePlayerView.mutedIcon, BasePlayerView.volumeIcon): (BasePlayerView.mutedIcon, BasePlayerView.volumeIcon)
-            layer.addSublayer(newIcon)
-            oldIcon.removeFromSuperlayer()
+    @objc func handleTap(_ sender: UITapGestureRecognizer) {
+        if CGRect(origin: bounds.center, size: .zero).insetBy(dx: -20, dy: -20).contains(sender.location(in: self)) {
+            togglePlay()
+            return
         }
+        
+        if playerControl == nil {
+            playerControl = PlayerControlView.loadAnInstance()
+        }
+        
+        presentControl()
     }
+    
+    func togglePlay() {}
+    
+    func presentControl() {}
 
     override var next: UIResponder? {
         return nil

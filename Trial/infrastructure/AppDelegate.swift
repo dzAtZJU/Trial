@@ -37,21 +37,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print(error)
         }
         try! AVAudioSession.sharedInstance().setActive(true)
-//        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
-//        NSString *documentsDirectory = [paths objectAtIndex:0];
-//        NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];
-//        NSString *logFilePath = [documentsDirectory stringByAppendingPathComponent:fileName];
-        
-//        let logFilePath = ""
-//        freopen(<#T##UnsafePointer<Int8>!#>, <#T##UnsafePointer<Int8>!#>, <#T##UnsafeMutablePointer<FILE>!#>)
-//        freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding],"a+",stderr);
         
         window?.addSubview(activityIndicator)
         NSLayoutConstraint.activate([NSLayoutConstraint(item: window, attribute: .centerX, relatedBy: .equal, toItem: activityIndicator, attribute: .centerX, multiplier: 1, constant: 0),
                                      NSLayoutConstraint(item: window, attribute: .centerY, relatedBy: .equal, toItem: activityIndicator, attribute: .centerY, multiplier: 1, constant: 0)])
+        
         return true
     }
-
+    
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.

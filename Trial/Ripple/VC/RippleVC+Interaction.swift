@@ -55,6 +55,8 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
             rippleViewStore.dispatch(RippleViewState.SceneAction.fullScreen)
         case .goToEpisodesView:
             YoutubeManager.shared.getDataOf(item: self.inFocusItem) { data in
+                transferVideoId = data.videoId
+                transferEpisode = data.episodeId
                 EpisodesVC.shared.prepareForPresent(programId: "paogram id", episode: data.episodeId, scene: .full) {
                     self.present(EpisodesVC.shared, animated: false, completion: nil)
                 }

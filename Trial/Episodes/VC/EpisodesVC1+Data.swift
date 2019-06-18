@@ -12,9 +12,13 @@ import ReSwift
 
 let seasonsNum = 3
 
+var transferVideoId: VideoId!
+var transferEpisode: IndexPath!
+
 extension EpisodesVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefetching {
+    
     func prepareForPresent(programId: String, episode: IndexPath, scene: EpisodesSceneState, completion: () -> ()) {
-        try! PageDataManager.load(programId: programId) { pageDataManager in
+        try! EpisodesDataManager.load(programId: programId) { pageDataManager in
             let store = Store(reducer: EpisodesViewState.appReducer, state: EpisodesViewState(scene: scene))
             model = EpisodesVCModel(pageDataManager: pageDataManager, viewStore: store, latestWatchItem: episode)
             completion()
