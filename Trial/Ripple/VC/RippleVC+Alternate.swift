@@ -23,7 +23,7 @@ extension RippleVC {
             let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
             animationQueue.append {
                 self.collectionView.collectionViewLayout = self.layout.nextOnRotate()
-                self.inFocusCell.videoWithPlayer?.transform = self.inFocusCell.videoWithPlayer!.transform.concatenating(transformForVideo)
+                self.inFocusCell.video?.transform = self.inFocusCell.video!.transform.concatenating(transformForVideo)
                 shadowAnimation()
             }
             completionQueue.append {
@@ -57,7 +57,7 @@ extension RippleVC {
                 let (shadowAnimation, shadowCompletion) = installShadow(shadow.nextOnExit(isPortrait: UIDevice.current.orientation.isPortrait))
                 animationQueue.append {
                     self.collectionView.collectionViewLayout = newLayout
-                    self.inFocusCell.videoWithPlayer?.transform = self.inFocusCell.videoWithPlayer!.transform.concatenating(transformForVideo)
+                    self.inFocusCell.video?.transform = self.inFocusCell.video!.transform.concatenating(transformForVideo)
                     shadowAnimation()
                 }
                 completionQueue.append {
@@ -75,7 +75,7 @@ extension RippleVC {
                 }
                 completionQueue.append {
                     shadowCompletion()
-                    YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+                    self.dataManager.fetchVideo(self.inFocusItem) { (video, _) in
                         self.inFocusCell.mountVideo(video)
                     }
                 }
@@ -98,7 +98,7 @@ extension RippleVC {
             let transformForVideo = self.layout.uiTemplates.transformForCenterItemTo(newLayout.uiTemplates)
             animationQueue.append {
                 self.collectionView.collectionViewLayout = newLayout
-                self.inFocusCell.videoWithPlayer!.transform = self.inFocusCell.videoWithPlayer!.transform.concatenating(transformForVideo)
+                self.inFocusCell.video!.transform = self.inFocusCell.video!.transform.concatenating(transformForVideo)
                 shadowAnimation()
             }
             completionQueue.append {
@@ -110,9 +110,8 @@ extension RippleVC {
             }
         }
         
-        willlAnimate()
         if executeAnimationByNewState {
-            UIView.animate(withDuration: 0.3, animations: {
+            UIView.animate(withDuration: 0.4, animations: {
                 self.runQueuedAnimation()
             }) { _ in
                 self.runQueuedCompletion()
@@ -122,17 +121,11 @@ extension RippleVC {
         }
     }
     
-    func willlAnimate() {
-        YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
-            video.isUserInteractionEnabled = rippleViewStore.state.scene == .full
-        }
-        self.collectionView.isScrollEnabled = rippleViewStore.state.scene != .full
-    }
-    
     func runQueuedAnimation() {
         for animation in self.animationQueue {
             animation()
         }
+        self.inFocusCell?.runDisplayAnimation(fullScreenOrNot: rippleViewStore.state.scene == .full)
         subviewsReLayoutAnimation()
     }
     

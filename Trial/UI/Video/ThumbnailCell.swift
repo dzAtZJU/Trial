@@ -22,7 +22,10 @@ class ThumbnailCell: UICollectionViewCell {
     }
     
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        thumbnailView = UIImageView()
+        gradientView = UIImageView()
+        super.init(coder: aDecoder)
+        setupView()
     }
 
     private func setupView() {

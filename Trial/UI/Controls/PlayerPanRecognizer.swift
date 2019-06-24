@@ -17,6 +17,8 @@ enum PanPurpose {
 
 class PlayerPanRecognizer: NSObject {
 
+    var deleagte: BasePlayerView?
+    
     private(set) var diff: CGFloat! = nil
     
     private(set) var state = UIPanGestureRecognizer.State.possible
@@ -24,12 +26,6 @@ class PlayerPanRecognizer: NSObject {
     private var purpose: PanPurpose! = nil
     
     private var lastLocation: CGPoint! = nil
-    
-    private lazy var purpose2Responder = [PanPurpose: (AnyObject, Selector)]()
-    
-    func addTargert(_ target: AnyObject, action: Selector, purpose: PanPurpose) {
-        purpose2Responder[purpose] = (target, action)
-    }
     
     private func locationChanged(_ newValue: CGPoint) {
         diff = purpose == .horizontal ? newValue.x - lastLocation.x : newValue.y - lastLocation.y
@@ -62,8 +58,13 @@ class PlayerPanRecognizer: NSObject {
         
         state = sender.state
         
-        if let (target, action) = purpose2Responder[purpose] {
-            target.perform(action, with: self)
+        switch purpose! {
+        case .horizontal:
+            deleagte?.handleProgress(sender: self)
+        case .leftVertical:
+            deleagte?.handleBright(sender: self)
+        case .rightVertical:
+            deleagte?.handleVolume(sender: self)
         }
     }
 }

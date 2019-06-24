@@ -87,16 +87,22 @@ extension EpisodesVC: UICollectionViewDelegateFlowLayout {
         }
         
         set(newValue) {
-            seasonsView.frame = CGRect(origin: .zero, size: CGSize(width: view.bounds.width, height: 96))
+            seasonsView.frame = CGRect(origin: .zero, size: CGSize(width: 316, height: 96))
+            seasonsView.center.x = view.center.x
             seasonMaskWindow.frame = CGRect(center: seasonsView.center, size: CGSize(width: 102, height: 28))
             episodesView.frame = view.bounds.inset(by: UIEdgeInsets(top: 0, left: -episodesViewHorizontalExtent, bottom: -32, right: -episodesViewHorizontalExtent))
+            lastWatchButton.frame = CGRect(origin: CGPoint(x: view.bounds.width - 55, y: 32), size: CGSize(width: 27, height: 23))
             
-            let diffYEpisodes = newValue ? CGPoint(x: 0, y: -16) : .zero
+            let onlyOneSeason = model.pageDataManager.seasonsNum == 1
+            
+            let diffYEpisodes = newValue || onlyOneSeason ? CGPoint(x: 0, y: -16) : .zero
             self.episodesView.center = self.episodesView.center + diffYEpisodes
             
-            let diffYSeasons = newValue ? CGPoint(x: 0, y: -62) : .zero
+            let diffYSeasons = newValue || onlyOneSeason ? CGPoint(x: 0, y: -62) : .zero
             self.seasonsView.center = self.seasonsView.center + diffYSeasons
             self.seasonMaskWindow.center = self.seasonMaskWindow.center + diffYSeasons
+            
+            lastWatchButton.center.y += newValue ? -60 : 0
         }
     }
 }

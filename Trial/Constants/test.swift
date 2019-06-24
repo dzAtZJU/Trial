@@ -9,4 +9,5 @@
 import Foundation
 import UIKit
 
-let TestEpisodeId = IndexPath(row: 2, section: 2)
+let TestEpisodeId1 = IndexPath(row: 2, section: 2)
+let TestEpisodeId2 = IndexPath(row: 4, section: 0)

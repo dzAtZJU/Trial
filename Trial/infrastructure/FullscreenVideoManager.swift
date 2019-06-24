@@ -16,7 +16,7 @@ class FullscreenVideoManager {
     
     static let current = FullscreenVideoManager()
     
-    func gotoWindow(video: VideoWithPlayerView, window: UIWindow) {
+    func gotoWindow(video: VideoWithPlayerView, window: UIView) {
         self.video = video
         deactivateLayout()
         
@@ -24,9 +24,8 @@ class FullscreenVideoManager {
         window.addSubview(video)
     }
     
-    func gotoCell(block: (VideoWithPlayerView) -> ()) {
+    func gotoCell() {
         reactivateLayout()
-        block(video!)
         video = nil
     }
     

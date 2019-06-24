@@ -52,19 +52,18 @@ class EpisodeCell: VideoCellV2 {
                                      NSLayoutConstraint(item: contentView, attribute: .centerY, relatedBy: .equal, toItem: episodeNum, attribute: .centerY, multiplier: 1, constant: 0)])
     }
     
-    override func mountVideo(_ video: VideoWithPlayerView) {
-        super.mountVideo(video)
-        
-        videoFullScreenOrNot = bounds.width >= (EpisodeCell.aspectFull.width - 10) // 10 for numeric error
-    }
-    
     override func addVideoToHierarchy(_ video: VideoWithPlayerView) {
+        // Constraint Base Layout
         video.translatesAutoresizingMaskIntoConstraints = false
+        
         contentView.insertSubview(video, belowSubview: gradientView)
         NSLayoutConstraint.activate([NSLayoutConstraint(item: video, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: EpisodeCell.aspectFull.height),
                                      NSLayoutConstraint(item: video, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: EpisodeCell.aspectFull.width),
                                      NSLayoutConstraint(item: contentView, attribute: .centerX, relatedBy: .equal, toItem: video, attribute: .centerX, multiplier: 1, constant: 0),
                                      NSLayoutConstraint(item: contentView, attribute: .centerY, relatedBy: .equal, toItem: video, attribute: .centerY, multiplier: 1, constant: 0)])
+        
+        video.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        videoFullScreenOrNot = bounds.width >= (EpisodeCell.aspectFull.width - 10) // 10 for numeric error
     }
     
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {

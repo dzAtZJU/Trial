@@ -37,11 +37,11 @@ class ImageFetchOperation: Operation {
         if let urlString = urlString, let url = URL(string: urlString), let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
             self.image = image
         } else {
+            print("Image fetch fail. Url: \(urlString)")
             image = defaultThumbnail
         }
         
         self.image = resizedImage(image: self.image, for: CGSize(width: watchingWidth, height: watchingWidth))
-        print("Image fetch fail. Url: \(urlString)")
     }
 }
 
@@ -57,7 +57,7 @@ class ThumbnailsUrlsOperation: Operation {
     
     let videoIds: [VideoId]
     
-    private(set) var videoId2ThumbnailUrl = [VideoId: URLString]()
+    private(set) var videoId2ThumbnailUrl = [VideoId: (URLString, String)]()
     
     init(videoIds: [VideoId]) {
         self.videoIds = videoIds
@@ -70,14 +70,14 @@ class ThumbnailsUrlsOperation: Operation {
         youtubeService.executeQuery(youtubeQuery) { (ticket, response, error) in
             if let response = response as? GTLRYouTube_VideoListResponse, let items = response.items {
                 for item in items {
-                    if let identifier = item.identifier, let url = item.snippet?.thumbnails?.high?.url {
-                        self.videoId2ThumbnailUrl[identifier] = url
+                    if let identifier = item.identifier {
+                        self.videoId2ThumbnailUrl[identifier] = (item.snippet?.thumbnails?.high?.url ?? Default_ImageUrl, item.snippet?.title ?? "")
                     }
                 }
             }
             for videoId in self.videoIds {
                 if self.videoId2ThumbnailUrl[videoId] == nil {
-                    self.videoId2ThumbnailUrl[videoId] = Default_ImageUrl
+                    self.videoId2ThumbnailUrl[videoId] = (Default_ImageUrl, "")
                 }
             }
             self._isExecuting = false

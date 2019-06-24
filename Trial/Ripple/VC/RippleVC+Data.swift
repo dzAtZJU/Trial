@@ -23,23 +23,17 @@ extension RippleVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefet
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCellV2
         if cell.positionId != indexPath {
-            cell.clearContents()
             cell.positionId = indexPath
         }
         
-        YoutubeManager.shared.getDataOf(item: indexPath) { youtubeVideoData in
+        dataManager.batchRequest([indexPath] + eightNeighborsOf(item: indexPath, maxRow: ytRows, maxCol: ytCols))
+        dataManager.get(indexPath) { youtubeVideoData in
             DispatchQueue.main.async {
                 guard cell.positionId == indexPath else {
                     return
                 }
-                
-                cell.clearContents()
-                
+                cell.title = youtubeVideoData.title
                 cell.loadThumbnailImage(youtubeVideoData.thumbnail)
-                
-//                if let video = youtubeVideoData.videoView {
-//                    cell.loadScreenshot(video.screenshot)
-//                }
             }
         }
         
@@ -47,8 +41,9 @@ extension RippleVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefet
     }
     
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        dataManager.batchRequest(indexPaths)
         for item in indexPaths {
-            YoutubeManager.shared.requestFor(item: item)
+            dataManager.request(item)
         }
     }
 }

@@ -35,7 +35,7 @@ class EpisodesVC: UIViewController {
     
     var seasonsView: UICollectionView!
     
-    var episodesView: UICollectionView!
+    var episodesView: EpisodesView!
     
     var shadowLeft: UIImageView!
     
@@ -72,6 +72,8 @@ class EpisodesVC: UIViewController {
     
     var lockScrollUpdate = false
     
+    var timer: Timer?
+    
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .landscape
     }
@@ -98,7 +100,7 @@ class EpisodesVC: UIViewController {
         view.addSubview(seasonMaskWindow)
         
         let layout = EpisodesLayout.full
-        episodesView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        episodesView = EpisodesView(frame: .zero, collectionViewLayout: layout)
         episodesView.dataSource = self
         episodesView.delegate = self
         episodesView.prefetchDataSource = self
@@ -113,6 +115,12 @@ class EpisodesVC: UIViewController {
         seasonsView.delegate = self
         view.addSubview(seasonsView)
         
+        lastWatchButton = UIButton(type: .custom)
+        lastWatchButton.setImage(UIImage(named: "turn_back"), for: .normal)
+        lastWatchButton.addTarget(self, action: #selector(handleLastWatchButton), for: .touchUpInside)
+        lastWatchButton.isHidden = true
+        view.addSubview(lastWatchButton)
+        
         let shadowLeftImg = UIImage(named: "shadow_left")
         shadowLeft = UIImageView(image: shadowLeftImg)
         shadowLeft.contentMode = .left
@@ -126,12 +134,6 @@ class EpisodesVC: UIViewController {
         shadowRight.autoresizingMask = [.flexibleHeight, .flexibleWidth]
 //        view.addSubview(shadowRight)
         
-        lastWatchButton = UIButton(type: .custom)
-        lastWatchButton.setImage(UIImage(named: "last_watch_button"), for: .normal)
-        lastWatchButton.addTarget(self, action: #selector(handleLastWatchButton), for: .touchUpInside)
-        lastWatchButton.isHidden = true
-        view.addSubview(lastWatchButton)
-        
         thumbnailBg.frame = view.bounds
         thumbnailBlur.frame = view.bounds
         thumbnailShadow.frame = view.bounds
@@ -139,7 +141,6 @@ class EpisodesVC: UIViewController {
         shadowRight.frame = view.bounds
         
         episodesView.contentInset = UIEdgeInsets(top: 0, left: screenHeight / 2, bottom: 0, right: screenHeight / 2)
-        lastWatchButton.frame = CGRect(origin: CGPoint(x: view.bounds.width - 60, y: 10), size: CGSize(width: 50, height: 50))
         
         layoutFullScreenOrNot = true
     }
@@ -158,22 +159,28 @@ class EpisodesVC: UIViewController {
             }
         }
         
+        self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
+            FullscreenVideoManager.current.gotoWindow(video: video, window: self.view)
+        }
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .goToEpisodesView, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
+                FullscreenVideoManager.current.gotoCell()
                 self.latestWatchCell!.mountVideo(video)
                 self.willToScene()
                 self.extraSceneAnimation()
                 self.didToScene()
+                self.model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+        preSceneState = nil
         model.viewStore.unsubscribe(self)
         NotificationCenter.default.removeObserver(self)
     }

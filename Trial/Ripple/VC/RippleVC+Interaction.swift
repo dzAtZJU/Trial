@@ -30,7 +30,7 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
         }
         
         /// TODO: where to maintain centerItem
-        YoutubeManager.shared.fetchVideoForItem(self.inFocusItem) { video, _ in
+        dataManager.fetchVideo(inFocusItem) { (video, _) in
             self.inFocusCell.mountVideo(video)
         }
     }
@@ -54,11 +54,12 @@ extension RippleVC: UIScrollViewDelegate, UICollectionViewDelegate {
         case .exitFullscreen:
             rippleViewStore.dispatch(RippleViewState.SceneAction.fullScreen)
         case .goToEpisodesView:
-            YoutubeManager.shared.getDataOf(item: self.inFocusItem) { data in
+            dataManager.get(self.inFocusItem) { data in
                 transferVideoId = data.videoId
                 transferEpisode = data.episodeId
-                EpisodesVC.shared.prepareForPresent(programId: "paogram id", episode: data.episodeId, scene: .full) {
-                    self.present(EpisodesVC.shared, animated: false, completion: nil)
+                let vc = EpisodesVC()
+                vc.prepareForPresent(programId: "paogram id", episode: data.episodeId, scene: .full) {
+                    self.present(vc, animated: false, completion: nil)
                 }
             }
             return

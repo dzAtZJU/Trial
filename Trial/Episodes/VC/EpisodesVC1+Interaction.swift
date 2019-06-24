@@ -24,7 +24,10 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        prepareSliding()
+        timer?.invalidate()
+        if model.viewStore.state.scene == .watching {
+            prepareSliding()
+        }
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -39,7 +42,7 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
             centerItem = item
         }
         
-        if let latestWatchCell = latestWatchCell {
+        if let latestWatchCell = latestWatchCell, !autoScrollFlag {
             let centerInViewport = view.convert(latestWatchCell.center, from: episodesView)
             let isOutOfViewport =  centerInViewport.x < 0 || centerInViewport.x > view.bounds.width
             preWatchItem = isOutOfViewport ? model.latestWatchItem : nil
@@ -59,15 +62,19 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == seasonsView {
             selectedItem = IndexPath(row: 0, section: indexPath.row)
+            preWatchItem = model.latestWatchItem
             prepareAutoSliding(to: selectedItem!)
             return
         }
         
+        timer?.invalidate()
+        model.latestWatchItem = centerItem
         model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
     }
     
     @objc func handleLastWatchButton() {
         if let preWatchItem = preWatchItem {
+            self.preWatchItem = nil
             prepareAutoSliding(to: preWatchItem)
         }
     }
@@ -76,11 +83,15 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
         guard autoScrollFlag == autoScrollFlag, let latestWatchCell = latestWatchCell else {
             return
         }
-        
-        autoScrollFlag = false
-        preWatchItem = nil
-        model.pageDataManager.fetchVideo(model.latestWatchItem) { (video, _) in
-            latestWatchCell.mountVideo(video)
+        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
+            DispatchQueue.main.async {
+                self.autoScrollFlag = false
+                self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
+                    latestWatchCell.mountVideo(video)
+                }
+                self.willToScene()
+                self.didToScene()
+            }
         }
     }
     
@@ -93,6 +104,7 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
     @objc func handleNotification(_ notification: Notification) {
         switch notification.name {
         case .exitFullscreen:
+            transferVideoId = model.pageDataManager.item2VideoId[model.latestWatchItem]
             dismiss(animated: false, completion: nil)
         case .goToEpisodesView:
             model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
@@ -108,15 +120,21 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
         }
     }
     
+    
     private func prepareWatching() {
-        model.latestWatchItem = centerItem
-        model.pageDataManager.fetchVideo(model.latestWatchItem) { (video, _) in
-            self.latestWatchCell?.mountVideo(video)
-            self.model.viewStore.dispatch(EpisodesViewState.SceneAction.scroll)
-        }
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: { _ in
+            DispatchQueue.main.async {
+                self.model.latestWatchItem = self.centerItem
+                self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
+                    self.latestWatchCell?.mountVideo(video)
+                    self.model.viewStore.dispatch(EpisodesViewState.SceneAction.scroll)
+                }
+            }
+        })
     }
     
-    private func prepareAutoSliding(to: IndexPath) {
+    func prepareAutoSliding(to: IndexPath) {
         self.latestWatchCell?.unMountVideo()
         
         model.latestWatchItem = to

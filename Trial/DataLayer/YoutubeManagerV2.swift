@@ -10,11 +10,26 @@ import Foundation
 import UIKit
 import YoutubePlayer_in_WKWebView
 
+typealias VideoId = String
+typealias URLString = String
+typealias EpisodeId = IndexPath
+
+class YoutubeVideoData {
+    var videoId: VideoId!
+    
+    var title: String!
+    
+    // Maybe nil
+    var thumbnail: UIImage!
+    
+    var episodeId: EpisodeId!
+}
+
 // Network Layer
 class YoutubeManagerV2 {
     
     // Genesis information
-    private var videoId2ThumbnailURL: [VideoId: URLString]!
+    private var videoId2ThumbnailURL: [VideoId: (URLString, String)]!
     
     // On need information
     // Cache. Can request by known information
@@ -50,17 +65,26 @@ class YoutubeManagerV2 {
     
     func batchRequest(_ videoIds: [VideoId]) {
         if self.videoId2ThumbnailURL == nil {
-            self.videoId2ThumbnailURL = [VideoId: URLString]()
+            self.videoId2ThumbnailURL = [VideoId: (URLString, String)]()
         }
         
-        let thumbnailsUrlsOperation = ThumbnailsUrlsOperation(videoIds: videoIds.filter({
+        var filtered = videoIds.filter({
             self.videoId2ThumbnailURL[$0] == nil
-        }))
+        })
+        filtered = filterInFlyFrom(filtered)
+        
+        guard !filtered.isEmpty else {
+            return
+        }
+        
+        let thumbnailsUrlsOperation = ThumbnailsUrlsOperation(videoIds: filtered)
         thumbnailsUrlsOperation.completionBlock = {
             self.videoId2ThumbnailURL.merge(thumbnailsUrlsOperation.videoId2ThumbnailUrl, uniquingKeysWith: { (first, _ ) in first })
         }
         serialAccessQueue.addOperation(thumbnailsUrlsOperation)
     }
+    
+    var testOrder = true
     
     func request(_ videoId: VideoId, completion: ((YoutubeVideoData) -> ())? = nil) {
         self.serialAccessQueue.addOperation {
@@ -77,11 +101,14 @@ class YoutubeManagerV2 {
                 return
             }
             
-            let operation = ImageFetchOperation(urlString: self.videoId2ThumbnailURL[videoId], videoId: videoId)
+            let operation = ImageFetchOperation(urlString: self.videoId2ThumbnailURL[videoId]?.0, videoId: videoId)
             operation.completionBlock = {
                 let data = YoutubeVideoData()
                 data.videoId = videoId
                 data.thumbnail = operation.image
+                data.episodeId = self.testOrder ? TestEpisodeId1 : TestEpisodeId2
+                self.testOrder = !self.testOrder
+                data.title = self.videoId2ThumbnailURL[videoId]?.1
                 self.videoId2Data.setObject(data, forKey: videoId as NSString)
                 self.invokeVideoDataCompletion(for: videoId, with: data)
             }
@@ -96,6 +123,16 @@ class YoutubeManagerV2 {
         }
         
         request(videoId, completion: completion)
+    }
+    
+    private func filterInFlyFrom(_ videoIds: [VideoId]) -> [VideoId] {
+        var r = Set(videoIds)
+        for case let thumbnailsUrlsOperation as ThumbnailsUrlsOperation in serialAccessQueue.operations
+            where !thumbnailsUrlsOperation.isCancelled {
+                r = r.subtracting(thumbnailsUrlsOperation.videoIds)
+        }
+        
+        return Array(r)
     }
     
     private func operation(for identifier: VideoId) -> ImageFetchOperation? {

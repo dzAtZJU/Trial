@@ -11,43 +11,36 @@ import UIKit
 
 class PlayerControlView: UIView {
     
-    static let dateFormatter: DateComponentsFormatter = {
-        let r = DateComponentsFormatter()
-        r.unitsStyle = .positional
-        r.allowedUnits = [.hour, .minute, .second]
-        r.zeroFormattingBehavior = .pad
-        return r
-    }()
-    
-    @IBOutlet weak var playButton: UIButton!
-    
-    @IBOutlet weak var backButton1: UIButton!
-    @IBOutlet weak var backButton2: UIButton!
-    
-    
-    @IBOutlet weak var forwardButton1: UIButton!
-    @IBOutlet weak var forwardButton2: UIButton!
-    
-    @IBOutlet weak var slider: UISlider!
-    
-    @IBOutlet weak var progressLabel: UILabel!
-    
     var delegate: VideoWithPlayerView?
     
-    static let playIcon = UIImage(named: "play")
+    @IBOutlet weak var rippleButton: UIButton!
     
-    static let pauseIcon = UIImage(named: "pause")
+    @IBOutlet weak var title: UILabel!
     
-    static let thumbIcon = UIImage(named: "thumb")
+    @IBOutlet weak var episodesButton: UIButton!
+
+    @IBOutlet weak var backer: UIView!
+    @IBOutlet weak var backer2: UIImageView!
+    @IBOutlet weak var backer1: UIImageView!
+    @IBOutlet weak var backTip: UILabel!
     
-    static let backIcon = UIImage(named: "seek")!
+    @IBOutlet weak var playButton: UIButton!
+ 
+    @IBOutlet weak var forwarder: UIView!
+    @IBOutlet weak var forwarder1: UIImageView!
+    @IBOutlet weak var forwarder2: UIImageView!
+    @IBOutlet weak var forwardTip: UILabel!
     
-    static let forwardIcon: UIImage = {
-        let r = UIImage(cgImage: backIcon.cgImage!.copy()!, scale: 1, orientation: .down).withRenderingMode(.alwaysTemplate)
-        return r
-    }()
+    @IBOutlet weak var progressLabel: UILabel!
+    @IBOutlet weak var slider: UISlider!
     
-    static let xAnimation: CABasicAnimation = {
+    private lazy var playIcon = UIImage(named: "play")
+    
+    private lazy var pauseIcon = UIImage(named: "pause")
+    
+    private let thumbIcon = UIImage(named: "thumb")
+  
+    private lazy var xAnimation: CABasicAnimation = {
         let r = CABasicAnimation(keyPath: "position.x")
         r.duration = 0.33
         r.autoreverses = true
@@ -55,38 +48,87 @@ class PlayerControlView: UIView {
         return r
     }()
     
-    var isPlaying: Bool! = nil {
+    private var durationString = "00:00"
+    
+    private var sliderValue: Float = 0 {
         didSet {
-            playButton.setImage(isPlaying ? PlayerControlView.pauseIcon : PlayerControlView.playIcon, for: .normal)
+            slider.value = sliderValue
+//            let currentString = dateFormatter.string(from: TimeInterval(sliderValue))!
+//            progressLabel.text =  currentString.stripZeroHour() + " / " + durationString.stripZeroHour()
         }
     }
     
-    var isSliding = false
-    
-    static func loadAnInstance() -> PlayerControlView {
+    private let dateFormatter: DateComponentsFormatter = {
+        let r = DateComponentsFormatter()
+        r.unitsStyle = .positional
+        r.allowedUnits = [.hour, .minute, .second]
+        r.zeroFormattingBehavior = .pad
+        return r
+    }()
+
+    static let shared: PlayerControlView = {
         let r = (Bundle.main.loadNibNamed("PlayerControl", owner: nil, options: nil)!.first! as! PlayerControlView)
         r.installShadowLayer("shadow_player")
-        r.backButton1.setImage(PlayerControlView.backIcon, for: .normal)
-        r.backButton2.setImage(PlayerControlView.backIcon, for: .normal)
-        r.forwardButton1.setImage(PlayerControlView.forwardIcon, for: .normal)
-        r.forwardButton2.setImage(PlayerControlView.forwardIcon, for: .normal)
-        r.backButton1.tintColor = UIColor.lightGray
-        r.backButton2.tintColor = UIColor.lightGray
-        r.forwardButton1.tintColor = UIColor.lightGray
-        r.forwardButton2.tintColor = UIColor.lightGray
+        r.backer1.tintColor = UIColor.lightGray
+        r.backer2.tintColor = UIColor.lightGray
+        r.forwarder1.tintColor = UIColor.lightGray
+        r.forwarder2.tintColor = UIColor.lightGray
         return r
+    }()
+
+    func preparePresent(isPlaying: Bool, current: Float, duration: Float?, title: String) {
+        slider.setThumbImage(thumbIcon, for: .normal)
+        playIconOrPause = isPlaying
+        slider.minimumValue = 0
+        sliderValue = current
+        self.title.text = title
+        videoDidReady(duration: duration ?? 0)
     }
     
-    func preparePresent(isPlaying: Bool, duration: Float, current: Float) {
-        slider.setThumbImage(PlayerControlView.thumbIcon, for: .normal)
-        self.isPlaying = isPlaying
-        slider.minimumValue = 0
-        slider.maximumValue = duration
-        slider.value = current
+    func beforeTransition() {
+        rippleButton.transform = CGAffineTransform(translationX: 0, y: -5).concatenating(CGAffineTransform(scaleX: 1.02, y: 1.02))
+        title.transform = rippleButton.transform
+        episodesButton.transform = rippleButton.transform
         
-        let currentString = PlayerControlView.dateFormatter.string(from: TimeInterval(current))!
-        let durationString = PlayerControlView.dateFormatter.string(from: TimeInterval(duration))!
-        progressLabel.text =  currentString.stripZeroHour() + " / " + durationString.stripZeroHour()
+        backer.transform = .init(translationX: -5, y: 0)
+        playButton.transform = .init(scaleX: 1.05, y: 1.05)
+        forwarder.transform = .init(translationX: 5, y: 0)
+    }
+    
+    func runTransition() {
+        rippleButton.transform = .identity
+        title.transform = .identity
+        episodesButton.transform = .identity
+        
+        backer.transform = .identity
+        playButton.transform = .identity
+        forwarder.transform = .identity
+    }
+    
+    func videoDidReady(duration: Float) {
+        slider.maximumValue = duration
+        durationString = dateFormatter.string(from: TimeInterval(duration))!
+    }
+    
+    @IBAction func exit() {
+        delegate?.removePlayerControl()
+        NotificationCenter.default.post(name: Notification.Name.exitFullscreen, object: self)
+    }
+    
+    @IBAction func gotoEpisodes() {
+        delegate?.removePlayerControl()
+        NotificationCenter.default.post(name: Notification.Name.goToEpisodesView, object: self)
+    }
+
+    @IBAction func togglePlay(_ sender: UIButton) {
+        playIconOrPause ? delegate?.pause() : delegate?.play()
+        playIconOrPause = !playIconOrPause
+    }
+    
+    private var playIconOrPause: Bool! = nil {
+        didSet {
+            playButton.setImage(playIconOrPause ? pauseIcon : playIcon, for: .normal)
+        }
     }
     
     @IBAction func didSlide(_ sender: UISlider, forEvent event: UIEvent) {
@@ -97,92 +139,75 @@ class PlayerControlView: UIView {
         didSlideTo(newValue, ended: ended)
     }
     
+    func slideTo(_ seconds: Float, ended: Bool) {
+        isSliding = !ended
+        didSlideTo(seconds, ended: ended)
+    }
+    
     func didPlayedTo(_ seconds: Float) {
         if !isSliding {
             didSlideTo(seconds, ended: false)
         }
     }
     
-    func slideTo(_ seconds: Float, ended: Bool) {
-        isSliding = !ended
-        didSlideTo(seconds, ended: ended)
-    }
-    
-    func baseControlChanged(showed: Bool) {
-        playButton.isHidden = showed
-        forwardButton1.isHidden = showed
-        forwardButton2.isHidden = showed
-        backButton1.isHidden = showed
-        backButton2.isHidden = showed
-    }
+    private var isSliding = false
     
     private func didSlideTo(_ seconds: Float, ended: Bool) {
-        let currentString = PlayerControlView.dateFormatter.string(from: TimeInterval(seconds))!.stripZeroHour()
-        let slashIndex = progressLabel.text!.firstIndex(of: "/")!
-        progressLabel.text!.replaceSubrange(progressLabel.text!.startIndex..<slashIndex, with: currentString + " ")
-        
-        slider.value = seconds
+        sliderValue = seconds
         
         if ended {
             delegate?.videoView.seek(toSeconds: seconds, allowSeekAhead: true)
         }
     }
     
-    @IBAction func togglePlay(_ sender: UIButton) {
-        isPlaying ? delegate?.pause() : delegate?.play()
-        isPlaying = !isPlaying
-    }
-    
-    
-    @IBAction func didBack() {
-        delegate?.seekBy(-10)
-        animateBackOrForward = true
-    }
-    
-    @IBAction func didForward() {
-        delegate?.seekBy(10)
+    @IBAction func didForward(_ sender: Any) {
         animateBackOrForward = false
+        delegate?.seekBy(10)
     }
     
-    var animateBackOrForward: Bool {
+    @IBAction func didBack(_ sender: Any) {
+        animateBackOrForward = true
+        delegate?.seekBy(-10)
+    }
+    
+    private var animateBackOrForward: Bool {
         get {
             return true
         }
         set(newValue) {
-            let quicker = newValue ? backButton2 : forwardButton2
-            let slower = newValue ? backButton1 : forwardButton1
+            let quicker = newValue ? backer2 : forwarder2
+            let slower = newValue ? backer1 : forwarder1
+            let tip = newValue ? backTip : forwardTip
             
-            let translateX: CGFloat  = newValue ? -15 : 15
+            let translateX: CGFloat  = newValue ? -12 : 12
             
-            PlayerControlView.xAnimation.byValue = translateX
-            quicker?.layer.add(PlayerControlView.xAnimation, forKey: PlayerControlView.xAnimation.keyPath)
+            xAnimation.byValue = translateX * 1.2
+            quicker?.layer.add(xAnimation, forKey: xAnimation.keyPath)
             
-            PlayerControlView.xAnimation.byValue = translateX / 1.2
-            slower?.layer.add(PlayerControlView.xAnimation, forKey: PlayerControlView.xAnimation.keyPath)
+            xAnimation.byValue = translateX
+            slower?.layer.add(xAnimation, forKey: xAnimation.keyPath)
             
-            UIView.animate(withDuration: PlayerControlView.xAnimation.duration, animations: {
-                slower?.tintColor = UIColor.white
-                quicker?.tintColor = UIColor.white
+            UIView.animate(withDuration: xAnimation.duration, animations: {
+                quicker?.tintColor = .white
+                slower?.tintColor = .white
+                tip?.textColor = .white
+                tip?.transform = .init(translationX: translateX, y: 0)
             }) { _ in
-                UIView.animate(withDuration: PlayerControlView.xAnimation.duration, animations: {
-                    slower?.tintColor = UIColor.lightGray
-                    quicker?.tintColor = UIColor.lightGray
+                UIView.animate(withDuration: self.xAnimation.duration, animations: {
+                    quicker?.tintColor = .lightGray
+                    slower?.tintColor = .lightGray
+                    tip?.textColor = .lightGray
+                    tip?.transform = .identity
                 })
             }
         }
     }
     
-    @IBAction func exit() {
-        removeFromSuperview()
-        NotificationCenter.default.post(name: Notification.Name.exitFullscreen, object: self)
-    }
-    
-    @IBAction func gotoEpisodes() {
-        removeFromSuperview()
-        NotificationCenter.default.post(name: Notification.Name.goToEpisodesView, object: self)
-    }
-    
-    @IBAction func didTap(_ sender: Any) {
-        removeFromSuperview()
+    func baseControlChanged(showed: Bool) {
+        playButton.isHidden = showed
+        forwarder.isHidden = showed
+        backer.isHidden = showed
+        backTip.isHidden = showed
+        forwardTip.isHidden = showed
     }
 }

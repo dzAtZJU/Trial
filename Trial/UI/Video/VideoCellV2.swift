@@ -8,12 +8,15 @@
 
 import Foundation
 import UIKit
+import YoutubePlayer_in_WKWebView
 
 class VideoCellV2: ThumbnailCell {
     
     private(set) var video: VideoWithPlayerView?
     
-    private(set) var screenshot: UIView?
+    var screenshot: UIView?
+    
+    var title: String?
     
     // mount, unmount 概念是基于交互来说的，在这里针对交互的要求来处理 video
     func mountVideo(_ video: VideoWithPlayerView) {
@@ -25,7 +28,7 @@ class VideoCellV2: ThumbnailCell {
         
         layoutIfNeeded()
         
-        video.videoView.isHidden = true
+        video.dataDelegate = self
         video.play()
         activityIndicator.startAnimating()
     }
@@ -46,12 +49,12 @@ class VideoCellV2: ThumbnailCell {
 
         video.fallOff()
         
-        addScreenshot(video.screenshot)
+        addScreenshotToHierarchy(video.screenshot)
     }
     
     // Subclassable
     func addVideoToHierarchy(_ video: VideoWithPlayerView) {}
     
     // Subclassable
-    func addScreenshot(_ image: UIView?) {}
+    func addScreenshotToHierarchy(_ image: UIView?) {}
 }

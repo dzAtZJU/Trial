@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import YoutubePlayer_in_WKWebView
 
-class RippleCellV2: VideoCell {
+class RippleCellV2: VideoCellV2 {
     private var titleWatch: UILabel!
     private var subtitleWatch: UILabel!
     private var subtitleWatchBottomConstraint: NSLayoutConstraint!
@@ -24,12 +24,59 @@ class RippleCellV2: VideoCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupTitles()
+        setupViews()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        setupViews()
+    }
+    
+    private func setupViews() {
+        thumbnailView.contentMode = .scaleAspectFill
+        gradientView.image = UIImage(named: "episode_mask")
         setupTitles()
+    }
+    
+    func loadThumbnailImage(_ image: UIImage?) {
+        thumbnailView.image = image
+        if screenshot == nil {
+            let copyOfThumbnail = UIImageView(image: image)
+            copyOfThumbnail.contentMode = .scaleAspectFill
+            addScreenshotToHierarchy(copyOfThumbnail)
+        }
+    }
+    
+    override func addScreenshotToHierarchy(_ image: UIView?) {
+        guard let image = image else {
+            return
+        }
+        
+        screenshot?.removeFromSuperview()
+        
+        defer {
+            screenshot = image
+        }
+        
+        image.frame = bounds
+        image.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        contentView.insertSubview(image, aboveSubview: thumbnailView)
+    }
+    
+    override func addVideoToHierarchy(_ newVideoWithPlayer: VideoWithPlayerView) {
+        // Frame Based Layout
+        newVideoWithPlayer.translatesAutoresizingMaskIntoConstraints = true
+        
+        // Anchor POint
+        newVideoWithPlayer.layer.anchorPoint = .zero
+        
+        newVideoWithPlayer.bounds = CGRect(origin: .zero, size: CGSize(width: screenHeight, height: screenWidth))
+        newVideoWithPlayer.center = .zero
+        
+        // Transform
+        newVideoWithPlayer.transform = CGAffineTransform(scaleX: bounds.width / newVideoWithPlayer.bounds.width, y: bounds.height / newVideoWithPlayer.bounds.height)
+        
+        contentView.insertSubview(newVideoWithPlayer, belowSubview: gradientView)
     }
     
     func addSceneTransitionAnimation(toScene: RippleSceneState, duration: TimeInterval) -> [UIViewPropertyAnimator] {
@@ -68,23 +115,33 @@ class RippleCellV2: VideoCell {
             
             titleSurf.alpha = 0
             subtitleSurf.alpha = 0
-        } else {
+        } else if attributes.sceneState == .surfing {
             titleSurf.alpha = timing
             subtitleSurf.alpha = timing
+            
+            titleWatch.alpha = 0
+            subtitleWatch.alpha = 0
+        } else {
+            titleSurf.alpha = 0
+            subtitleSurf.alpha = 0
             
             titleWatch.alpha = 0
             subtitleWatch.alpha = 0
         }
         
         guard attributes.sceneState != .surfing else {
-            screenshotView?.alpha = 0
-            thumbnailImageView.alpha = 1
+            screenshot?.alpha = 0
+            thumbnailView.alpha = 1
             return
         }
         
-        thumbnailImageView.alpha = 1 - timing
-        screenshotView.alpha = timing
+        thumbnailView.alpha = 1 - timing
+        screenshot?.alpha = timing
         /// Notice for cell reusing
+    }
+    
+    func runDisplayAnimation(fullScreenOrNot: Bool) {
+        gradientView.alpha = fullScreenOrNot ? 0 : 1
     }
     
     private func setupTitles() {
@@ -92,7 +149,7 @@ class RippleCellV2: VideoCell {
         subtitleWatch.font = UIFont(name: "PingFangSC-Regular", size: UIMetricTemplate.watch.subtitleFontSize)
         subtitleWatch.text = "Cigerrete 2019-04"
         subtitleWatch.textColor = UIColor.white
-        addSubview(subtitleWatch)
+        contentView.addSubview(subtitleWatch)
         subtitleWatch.alpha = 1
         subtitleWatch.translatesAutoresizingMaskIntoConstraints = false
         subtitleWatchBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: subtitleWatch, attribute: .bottom, multiplier: 1, constant: UIMetricTemplate.watch.titlesBottom)
@@ -103,7 +160,7 @@ class RippleCellV2: VideoCell {
         titleWatch.font = UIFont(name: "PingFangSC-Regular", size: UIMetricTemplate.watch.titleFontSize)
         titleWatch.textColor = UIColor.white
         titleWatch.text = "音乐"
-        addSubview(titleWatch)
+        contentView.addSubview(titleWatch)
         titleWatch.alpha = 1
         titleWatch.translatesAutoresizingMaskIntoConstraints = false
         self.addConstraints([NSLayoutConstraint(item: titleWatch, attribute: .bottom, relatedBy: .equal, toItem: subtitleWatch, attribute: .top, multiplier: 1, constant: 0),
@@ -113,7 +170,7 @@ class RippleCellV2: VideoCell {
         subtitleSurf.font = UIFont(name: "PingFangSC-Regular", size: UIMetricTemplate.surf.subtitleFontSize)
         subtitleSurf.text = "Cigerrete 2019-04"
         subtitleSurf.textColor = UIColor.white
-        addSubview(subtitleSurf)
+        contentView.addSubview(subtitleSurf)
         subtitleSurf.alpha = 0
         subtitleSurf.translatesAutoresizingMaskIntoConstraints = false
         subtitleSurfBottomConstraint = NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: subtitleSurf, attribute: .bottom, multiplier: 1, constant: UIMetricTemplate.surf.titlesBottom)
@@ -124,7 +181,7 @@ class RippleCellV2: VideoCell {
         titleSurf.font = UIFont(name: "PingFangSC-Regular", size: UIMetricTemplate.surf.titleFontSize)
         titleSurf.textColor = UIColor.white
         titleSurf.text = "音乐"
-        addSubview(titleSurf)
+        contentView.addSubview(titleSurf)
         titleSurf.alpha = 0
         titleSurf.translatesAutoresizingMaskIntoConstraints = false
         self.addConstraints([NSLayoutConstraint(item: titleSurf, attribute: .bottom, relatedBy: .equal, toItem: subtitleSurf, attribute: .top, multiplier: 1, constant: 0),

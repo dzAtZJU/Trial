@@ -23,12 +23,24 @@ struct EpisodesDataManager {
     var item2VideoId: [IndexPath:VideoId]
     
     static func load(programId: String, completion: (EpisodesDataManager) -> ()) throws {
-        let seasonsNum = 5
-        let episodesNums = [6, 5, 5, 4, 4]
+        var episodesIds: [[String]]!
+        var seasonsNum: Int!
+        var episodesNums: [Int]!
+        
+        if transferEpisode == TestEpisodeId2 {
+            seasonsNum = 1
+            episodesNums = [24]
+            episodesIds = TestDatas.episodesIds2
+        } else {
+            seasonsNum = 5
+            episodesNums = [6, 5, 5, 4, 4]
+            episodesIds = TestDatas.episodesIds1
+        }
+        
         var item2VideoId = [IndexPath:VideoId]()
         for season in 0..<seasonsNum {
             for episode in 0..<episodesNums[season] {
-                item2VideoId[IndexPath(row: episode, section: season)] = TestDatas.episodesIds[season][episode]
+                item2VideoId[IndexPath(row: episode, section: season)] = episodesIds[season][episode]
             }
         }
         

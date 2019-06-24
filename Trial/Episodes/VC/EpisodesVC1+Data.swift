@@ -33,6 +33,7 @@ extension EpisodesVC: UICollectionViewDataSource, UICollectionViewDataSourcePref
             model.pageDataManager.get(indexPath) { data in
                 DispatchQueue.main.async {
                     cell.thumbnailView.image = data.thumbnail
+                    cell.title = data.title
                 }
             }
             

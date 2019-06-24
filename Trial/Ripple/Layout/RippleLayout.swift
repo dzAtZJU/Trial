@@ -89,13 +89,13 @@ class LayoutCalcuTemplate: NSObject {
     
     static let surf = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.surf)
     
-    private static let watchLand = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watchLand)
+    static let watchLand = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watchLand)
     
     static let surfLand = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.surfLand)
     
-    private static let watching2Full = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watching2Full)
+    static let watching2Full = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.watching2Full)
     
-    private static let full = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.full)
+    static let full = LayoutCalcuTemplate(uiTemplates: UIMetricTemplate.full)
     
     var uiTemplates: UIMetricTemplate
     
