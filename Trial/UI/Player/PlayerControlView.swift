@@ -53,8 +53,8 @@ class PlayerControlView: UIView {
     private var sliderValue: Float = 0 {
         didSet {
             slider.value = sliderValue
-//            let currentString = dateFormatter.string(from: TimeInterval(sliderValue))!
-//            progressLabel.text =  currentString.stripZeroHour() + " / " + durationString.stripZeroHour()
+            let currentString = dateFormatter.string(from: TimeInterval(sliderValue))!
+            progressLabel.text =  currentString.stripZeroHour() + " / " + durationString.stripZeroHour()
         }
     }
     
@@ -69,10 +69,6 @@ class PlayerControlView: UIView {
     static let shared: PlayerControlView = {
         let r = (Bundle.main.loadNibNamed("PlayerControl", owner: nil, options: nil)!.first! as! PlayerControlView)
         r.installShadowLayer("shadow_player")
-        r.backer1.tintColor = UIColor.lightGray
-        r.backer2.tintColor = UIColor.lightGray
-        r.forwarder1.tintColor = UIColor.lightGray
-        r.forwarder2.tintColor = UIColor.lightGray
         return r
     }()
 
@@ -119,10 +115,31 @@ class PlayerControlView: UIView {
         delegate?.removePlayerControl()
         NotificationCenter.default.post(name: Notification.Name.goToEpisodesView, object: self)
     }
-
-    @IBAction func togglePlay(_ sender: UIButton) {
+    
+    lazy var playAnimator: UIViewPropertyAnimator = {
+        let r = UIViewPropertyAnimator(duration: 0.4, curve: .easeInOut, animations: nil)
+        r.pausesOnCompletion = true
+        r.addObserver(self, forKeyPath: "running", options: NSKeyValueObservingOptions.new, context: nil)
+        return r
+    }()
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if object as? UIViewPropertyAnimator == playAnimator && keyPath == "running", let newValue = change?[.newKey] as? Bool, !newValue, playAnimator.isReversed {
+            playAnimator.stopAnimation(true)
+        }
+    }
+    
+    @IBAction func playTouchedUp() {
+        playAnimator.isReversed = true
         playIconOrPause ? delegate?.pause() : delegate?.play()
         playIconOrPause = !playIconOrPause
+    }
+    
+    @IBAction func playTouchedDown() {
+        playAnimator.addAnimations {
+            self.playButton.transform = .init(scaleX: 0.9, y: 0.9)
+        }
+        playAnimator.startAnimation()
     }
     
     private var playIconOrPause: Bool! = nil {
@@ -178,7 +195,7 @@ class PlayerControlView: UIView {
             let quicker = newValue ? backer2 : forwarder2
             let slower = newValue ? backer1 : forwarder1
             let tip = newValue ? backTip : forwardTip
-            
+            let seeker = newValue ? backer : forwarder
             let translateX: CGFloat  = newValue ? -12 : 12
             
             xAnimation.byValue = translateX * 1.2
@@ -188,15 +205,13 @@ class PlayerControlView: UIView {
             slower?.layer.add(xAnimation, forKey: xAnimation.keyPath)
             
             UIView.animate(withDuration: xAnimation.duration, animations: {
-                quicker?.tintColor = .white
-                slower?.tintColor = .white
-                tip?.textColor = .white
+                seeker?.alpha = 1
+                tip?.alpha = 1
                 tip?.transform = .init(translationX: translateX, y: 0)
             }) { _ in
                 UIView.animate(withDuration: self.xAnimation.duration, animations: {
-                    quicker?.tintColor = .lightGray
-                    slower?.tintColor = .lightGray
-                    tip?.textColor = .lightGray
+                    seeker?.alpha = 0.5
+                    tip?.alpha = 0.5
                     tip?.transform = .identity
                 })
             }

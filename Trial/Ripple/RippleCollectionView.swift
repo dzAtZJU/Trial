@@ -24,6 +24,8 @@ class RippleCollectionView: UICollectionView {
     }
     
     func setup() {
+        delaysContentTouches = false
+        canCancelContentTouches = false
         decelerationRate = UIScrollView.DecelerationRate.normal
         contentInsetAdjustmentBehavior = .never
         insetsLayoutMarginsFromSafeArea = false

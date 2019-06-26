@@ -11,8 +11,6 @@ import UIKit
 import MediaPlayer
 
 class BasePlayerView: UIView, UIGestureRecognizerDelegate {
-    var delegate: VideoWithPlayerView?
-    
     var playerControl: PlayerControlView?
     
     var volumeObserver: NSKeyValueObservation?
@@ -73,14 +71,22 @@ class BasePlayerView: UIView, UIGestureRecognizerDelegate {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        let panRecoginzer = UIPanGestureRecognizer(target: panResponder, action: #selector(PlayerPanRecognizer.handlePan(_:)))
-        addGestureRecognizer(panRecoginzer)
-        panRecoginzer.delegate = self
+        let pan = UIPanGestureRecognizer(target: panResponder, action: #selector(PlayerPanRecognizer.handlePan(_:)))
+        addGestureRecognizer(pan)
+        pan.delegate = self
         panResponder.deleagte = self
         
-        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        addGestureRecognizer(singleTap)
         
-        addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:))))
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+        doubleTap.delegate = self
+        doubleTap.numberOfTapsRequired = 2
+        singleTap.require(toFail: doubleTap)
+        addGestureRecognizer(doubleTap)
+        
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
+        addGestureRecognizer(pinch)
         
         mpVolume.frame = CGRect(origin: CGPoint(x: -1, y: -1), size: CGSize(width: 1, height: 1))
         mpVolume.alpha = 0.01
@@ -133,7 +139,7 @@ class BasePlayerView: UIView, UIGestureRecognizerDelegate {
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        return !(touch.view?.isKind(of: UISlider.self) ?? false)
+        return !((touch.view?.isKind(of: UISlider.self) ?? false) || (touch.view?.isKind(of: UIButton.self) ?? false))
     }
     
     @objc func handleProgress(sender: PlayerPanRecognizer) {
@@ -189,38 +195,49 @@ class BasePlayerView: UIView, UIGestureRecognizerDelegate {
     var timer: Timer?
     
     @objc func handleTap(_ sender: UITapGestureRecognizer) {
-        if CGRect(origin: bounds.center, size: .zero).insetBy(dx: -20, dy: -20).contains(sender.location(in: self)) {
-            togglePlay()
-            return
-        }
-        
         if playerControl == nil {
-            playerControl = PlayerControlView.shared
             presentControl()
         } else {
-            UIView.transition(with: self, duration: 0.4, options: .transitionCrossDissolve, animations: {
-                self.removePlayerControl()
-            }, completion: nil)
-            
+            removePlayerControl()
+        }
+    }
+    
+    @objc func handleDoubleTap(_ sender: UITapGestureRecognizer) {
+        pause()
+        if playerControl == nil {
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { _ in
+                self.presentControl()
+            }
         }
     }
     
     @objc func handlePinch(_ sender: UIPinchGestureRecognizer) {
         if sender.state == .began {
-            delegate?.removePlayerControl()
+            removePlayerControl()
             NotificationCenter.default.post(name: Notification.Name.exitFullscreen, object: self)
         }
     }
     
     func removePlayerControl() {
-        playerControl?.removeFromSuperview()
-        playerControl = nil
+        UIView.transition(with: self, duration: 0.4, options: .transitionCrossDissolve, animations: {
+            self.playerControl?.removeFromSuperview()
+            self.playerControl = nil
+        }, completion: nil)
+        invalidatePlayerControlTimer()
+    }
+    
+    var playerControlTimer: Timer?
+    
+    func invalidatePlayerControlTimer() {
+        playerControlTimer?.invalidate()
     }
     
     func togglePlay() {}
     
     func presentControl() {}
 
+    func pause() {}
+    
     override var next: UIResponder? {
         return nil
     }

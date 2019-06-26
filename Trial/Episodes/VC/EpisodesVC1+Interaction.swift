@@ -51,12 +51,12 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
-            prepareWatching()
+            prepareWatching(delay: true)
         }
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        prepareWatching()
+        prepareWatching(delay: true)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -67,9 +67,11 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
             return
         }
         
-        timer?.invalidate()
-        model.latestWatchItem = centerItem
-        model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
+        if model.viewStore.state.scene == .sliding {
+            prepareWatching(delay: false)
+        } else {
+            model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
+        }
     }
     
     @objc func handleLastWatchButton() {
@@ -121,9 +123,9 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
     }
     
     
-    private func prepareWatching() {
+    private func prepareWatching(delay: Bool) {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: delay ? 1 : 0, repeats: false, block: { _ in
             DispatchQueue.main.async {
                 self.model.latestWatchItem = self.centerItem
                 self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in

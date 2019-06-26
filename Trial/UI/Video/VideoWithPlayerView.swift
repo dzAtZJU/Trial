@@ -47,11 +47,10 @@ class VideoWithPlayerView: BasePlayerView {
         super.init(frame: CGRect.zero)
         isUserInteractionEnabled = false
         videoView.delegate = self
-        delegate = self
         fullSizingSubview(videoView)
         addSubview(videoView)
         self.videoId = videoId
-        self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "modestbranding": 1, "rel": 0])
+        self.videoView.load(withVideoId: videoId, playerVars: ["controls":0, "playsinline":1, "start": 1, "modestbranding": 1, "rel": 0, "fs": 0, "iv_load_policy": 3])
         
     }
     
@@ -85,7 +84,7 @@ class VideoWithPlayerView: BasePlayerView {
         }
     }
     
-    func pause() {
+    override func pause() {
         self.requestToPlay = false
         activityIndicator.stopAnimating()
         videoView.pauseVideo()
@@ -136,6 +135,7 @@ class VideoWithPlayerView: BasePlayerView {
     override func presentControl() {
         videoView.getCurrentTime { (current, _) in
             self.videoView.getPlayerState { (state, _) in
+                self.playerControl = PlayerControlView.shared
                 if let playerControl = self.playerControl {
                     playerControl.preparePresent(isPlaying: state != WKYTPlayerState.paused, current: current, duration: self.duration, title: self.dataDelegate?.title ?? "")
                     playerControl.delegate = self
@@ -145,10 +145,20 @@ class VideoWithPlayerView: BasePlayerView {
                     UIView.transition(with: self, duration: 0.4, options: .transitionCrossDissolve, animations: {
                         self.addSubview(playerControl)
                         playerControl.runTransition()
-                    }, completion: nil)
+                    }, completion: { _ in
+                        self.setupPlayerControlTimer()
+                    })
                 }
             }
         }
+    }
+    
+    func setupPlayerControlTimer() {
+        playerControlTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false, block: { _ in
+            DispatchQueue.main.async {
+                self.removePlayerControl()
+            }
+        })
     }
     
     private var loaded = false

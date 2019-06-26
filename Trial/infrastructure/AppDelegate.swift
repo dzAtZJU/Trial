@@ -17,7 +17,6 @@ let activityIndicator: UIActivityIndicatorView = {
     return spinner
 }()
 
-@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?

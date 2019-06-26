@@ -10,26 +10,45 @@ import Foundation
 import UIKit
 
 class Cell: UICollectionViewCell {
-    
-    @IBOutlet weak var label: UILabel!
 }
 
 class CollectionViewController: UICollectionViewController {
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 10
+        return 1
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
+        return 100
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! Cell
-        cell.label.text = String(indexPath.section * 10 + indexPath.row)
         return cell
     }
     
     override func viewDidLoad() {
-        collectionView.contentInset = UIEdgeInsets(top: 500, left: 100, bottom: 0, right: 100)
+        collectionView.delaysContentTouches = true
     }
+    
+    @IBAction func up(_ sender: Any) {
+        print("touchedUp")
+        print(Date().timeIntervalSince1970)
+        (sender as! UIButton).setImage(UIImage(named: "seek_back"), for: .normal)
+        animator.isReversed = true
+        animator.startAnimation()
+    }
+    
+    @IBAction func down(_ sender: Any) {
+        animator.stopAnimation(false)
+        animator.finishAnimation(at: .current)
+        print("touchedDown")
+        print(Date().timeIntervalSince1970)
+        animator.pausesOnCompletion = true
+        animator.addAnimations {
+            (sender as! UIButton).transform = .init(scaleX: 0.7, y: 0.7)
+        }
+        animator.startAnimation()
+    }
+    
+    let animator = UIViewPropertyAnimator(duration: 0.4, curve: UIView.AnimationCurve.easeInOut, animations: nil)
 }

@@ -49,6 +49,8 @@
 		89B7A0CC22C0A3C70054B981 /* BigButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89B7A0CB22C0A3C70054B981 /* BigButton.swift */; };
 		89B7A0CE22C0A46F0054B981 /* BigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89B7A0CD22C0A46F0054B981 /* BigView.swift */; };
 		89B7A0D022C0EA1B0054B981 /* EpisodesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89B7A0CF22C0EA1B0054B981 /* EpisodesView.swift */; };
+		89B7A0D222C20C240054B981 /* MyApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89B7A0D122C20C240054B981 /* MyApplication.swift */; };
+		89B7A0D422C20C870054B981 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89B7A0D322C20C870054B981 /* main.swift */; };
 		89BD5D9C2294FA3900C7C52C /* Test2VC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BD5D9B2294FA3900C7C52C /* Test2VC.swift */; };
 		89BD5DA322953E6400C7C52C /* RippleTransitionLayout+Alternate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BD5DA222953E6400C7C52C /* RippleTransitionLayout+Alternate.swift */; };
 		89BD5DA52297C25300C7C52C /* Test3VC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BD5DA42297C25300C7C52C /* Test3VC.swift */; };
@@ -128,6 +130,8 @@
 		89B7A0CB22C0A3C70054B981 /* BigButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BigButton.swift; sourceTree = "<group>"; };
 		89B7A0CD22C0A46F0054B981 /* BigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BigView.swift; sourceTree = "<group>"; };
 		89B7A0CF22C0EA1B0054B981 /* EpisodesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodesView.swift; sourceTree = "<group>"; };
+		89B7A0D122C20C240054B981 /* MyApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyApplication.swift; sourceTree = "<group>"; };
+		89B7A0D322C20C870054B981 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		89BD5D9A228D6D9B00C7C52C /* Optimization.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Optimization.md; sourceTree = "<group>"; };
 		89BD5D9B2294FA3900C7C52C /* Test2VC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test2VC.swift; sourceTree = "<group>"; };
 		89BD5DA222953E6400C7C52C /* RippleTransitionLayout+Alternate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RippleTransitionLayout+Alternate.swift"; sourceTree = "<group>"; };
@@ -220,6 +224,8 @@
 				89DD148F227852880008512A /* communication.swift */,
 				89065A72229CD9460058411D /* FullscreenVideoManager.swift */,
 				89F37A1D2237524800A9303D /* AppDelegate.swift */,
+				89B7A0D122C20C240054B981 /* MyApplication.swift */,
+				89B7A0D322C20C870054B981 /* main.swift */,
 			);
 			path = infrastructure;
 			sourceTree = "<group>";
@@ -622,7 +628,9 @@
 				89DD148B2277EE0D0008512A /* EpisodesVC1.swift in Sources */,
 				896EA9242248CA3200780557 /* RippleCollectionView.swift in Sources */,
 				8966379222A4CCAE0019E782 /* SeasonCell.swift in Sources */,
+				89B7A0D222C20C240054B981 /* MyApplication.swift in Sources */,
 				890CED2D2272EB0900F58780 /* RippleViewState.swift in Sources */,
+				89B7A0D422C20C870054B981 /* main.swift in Sources */,
 				89C61FF322B88E2800152864 /* PlayerPanRecognizer.swift in Sources */,
 				89BD5DA322953E6400C7C52C /* RippleTransitionLayout+Alternate.swift in Sources */,
 				89DD1489227701490008512A /* EpisodesViewState.swift in Sources */,

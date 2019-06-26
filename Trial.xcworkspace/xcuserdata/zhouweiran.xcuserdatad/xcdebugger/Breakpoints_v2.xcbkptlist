@@ -57,14 +57,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Trial/Ripple/VC/RippleVC+Interaction.swift"
-            timestampString = "583062450.961406"
+            filePath = "Trial/Episodes/VC/EpisodesVC1.swift"
+            timestampString = "583212567.3392"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
-            landmarkName = "handleNotification(_:)"
-            landmarkType = "7">
+            startingLineNumber = "20"
+            endingLineNumber = "20"
+            landmarkName = "EpisodesVCModel"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -73,14 +73,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Trial/Episodes/VC/EpisodesVC1.swift"
-            timestampString = "583068796.867373"
+            filePath = "Trial/UI/Video/VideoWithPlayerView.swift"
+            timestampString = "583220277.73847"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "20"
-            endingLineNumber = "20"
-            landmarkName = "EpisodesVCModel"
-            landmarkType = "14">
+            startingLineNumber = "138"
+            endingLineNumber = "138"
+            landmarkName = "presentControl()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

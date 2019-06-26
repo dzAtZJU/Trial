@@ -101,6 +101,7 @@ class EpisodesVC: UIViewController {
         
         let layout = EpisodesLayout.full
         episodesView = EpisodesView(frame: .zero, collectionViewLayout: layout)
+        episodesView.delaysContentTouches = false
         episodesView.dataSource = self
         episodesView.delegate = self
         episodesView.prefetchDataSource = self
