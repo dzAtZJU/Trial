@@ -18,10 +18,18 @@ import YoutubePlayer_in_WKWebView
 // Buffer -> 转圈圈/隐藏
 // 控件
 
+protocol VideoEventDelegate {
+    func videoDidPlay(_ video: VideoWithPlayerView)
+}
+
 class VideoWithPlayerView: BasePlayerView {
     let videoView: WKYTPlayerView
     
-    var screenshot: UIView?
+    var screenshot: UIView? {
+        didSet {
+            NotificationCenter.default.post(name: NSNotification.Name.newScreenshot, object: self, userInfo: ["videoId": videoId, "screenshot": screenshot])
+        }
+    }
     
     private var isFirstPlayed = true
     
@@ -34,6 +42,8 @@ class VideoWithPlayerView: BasePlayerView {
     var current: Float = 0
     
     var dataDelegate: VideoCellV2?
+    
+    var eventDelegate: VideoEventDelegate?
     
     static func loadVideoForWatch(videoId: VideoId) -> VideoWithPlayerView {
         let result = VideoWithPlayerView(videoId: videoId)
@@ -94,6 +104,7 @@ class VideoWithPlayerView: BasePlayerView {
         activityIndicator.stopAnimating()
         isReady = true
         videoView.isHidden = false
+        eventDelegate?.videoDidPlay(self)
         if requestToBuffer && !requestToPlay {
             endBuffer()
         }
@@ -156,7 +167,7 @@ class VideoWithPlayerView: BasePlayerView {
     func setupPlayerControlTimer() {
         playerControlTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false, block: { _ in
             DispatchQueue.main.async {
-                self.removePlayerControl()
+                self.removePlayerControl(animated: true)
             }
         })
     }

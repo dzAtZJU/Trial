@@ -107,12 +107,12 @@ class PlayerControlView: UIView {
     }
     
     @IBAction func exit() {
-        delegate?.removePlayerControl()
+        delegate?.removePlayerControl(animated: false)
         NotificationCenter.default.post(name: Notification.Name.exitFullscreen, object: self)
     }
     
     @IBAction func gotoEpisodes() {
-        delegate?.removePlayerControl()
+        delegate?.removePlayerControl(animated: false)
         NotificationCenter.default.post(name: Notification.Name.goToEpisodesView, object: self)
     }
     

@@ -15,13 +15,14 @@ let duration = 0.4
 let delay = 0.2
 let animator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
 let animator1 = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
-
+var layoutAnimationComplections = [() -> ()]()
 extension EpisodesVC {
     func newStateForAnimation(state: EpisodesSceneState) {
         switch state {
         case .sliding:
             animator.addAnimations {
                 self.episodesView.collectionViewLayout = EpisodesLayout.sliding
+                self.latestWatchCell?.animate2Sliding()
             }
             animator.addCompletion { _ in
                 (self.episodesView.cellForItem(at: self.model.latestWatchItem) as? EpisodeCell)?.unMountVideo()
@@ -30,10 +31,12 @@ extension EpisodesVC {
             if preSceneState == .sliding {
                 animator.addAnimations {
                     self.episodesView.collectionViewLayout = EpisodesLayout.watching
+                    self.latestWatchCell?.animate2Watching()
                 }
             } else {
                 animator.addAnimations {
                     self.episodesView.collectionViewLayout = EpisodesLayout.full2Watching
+                    self.latestWatchCell?.animate2Watching()
                     self.latestWatchCell?.layoutIfNeeded()
                 }
                 
@@ -47,6 +50,7 @@ extension EpisodesVC {
             }
             animator1.addAnimations {
                 self.episodesView.collectionViewLayout = EpisodesLayout.full
+                self.latestWatchCell?.animate2Full()
             }
         default:
             fatalError()
@@ -62,6 +66,10 @@ extension EpisodesVC {
         
         animator.addCompletion { _ in
             self.didToScene()
+            layoutAnimationComplections.forEach {
+                $0()
+            }
+            layoutAnimationComplections.removeAll()
         }
         
         animator.startAnimation()
@@ -71,16 +79,17 @@ extension EpisodesVC {
     func willToScene() {
         lockScrollUpdate = true
         
-        switch model.viewStore.state.scene {
-        case .watching:
+        let sceneState = model.viewStore.state.scene
+        
+        if sceneState == .watching {
             self.model.pageDataManager.get(self.model.latestWatchItem, completion: { data in
                 DispatchQueue.main.async {
                     self.thumbnailBg.image = data.thumbnail
                 }
             })
-        default:
-            return
         }
+        
+        latestWatchCell?.imageCenterOrFill = sceneState == .sliding || preSceneState! == .sliding
     }
     
     func extraSceneAnimation() {
@@ -90,12 +99,6 @@ extension EpisodesVC {
         
         if isFull || isWatching {
             layoutFullScreenOrNot = isFull
-        }
-        
-        self.latestWatchCell?.videoFullScreenOrNot = isFull
-        
-        if isFull || isSliding {
-            self.latestWatchCell?.imageCenterOrFill = isSliding
         }
     }
     

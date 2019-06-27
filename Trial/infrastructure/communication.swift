@@ -11,4 +11,6 @@ import Foundation
 extension NSNotification.Name {
     static let goToEpisodesView = Notification.Name("goToEpisodesView")
     static let exitFullscreen = Notification.Name("exitFullscreen")
+    static let rippleItemChange = Notification.Name("rippleItemChange")
+    static let newScreenshot = Notification.Name("newScreenshot")
 }

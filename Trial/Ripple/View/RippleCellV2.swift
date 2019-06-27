@@ -38,10 +38,13 @@ class RippleCellV2: VideoCellV2 {
         setupTitles()
     }
     
-    func loadThumbnailImage(_ image: UIImage?) {
-        thumbnailView.image = image
-        if screenshot == nil {
-            let copyOfThumbnail = UIImageView(image: image)
+    func loadThumbnail(_ thumbnail: UIImage, screenshot: UIView?) {
+        thumbnailView.image = thumbnail
+        
+        if let screenshot = screenshot {
+            addScreenshotToHierarchy(screenshot)
+        } else {
+            let copyOfThumbnail = UIImageView(image: thumbnail)
             copyOfThumbnail.contentMode = .scaleAspectFill
             addScreenshotToHierarchy(copyOfThumbnail)
         }

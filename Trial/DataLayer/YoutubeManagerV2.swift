@@ -22,6 +22,8 @@ class YoutubeVideoData {
     // Maybe nil
     var thumbnail: UIImage!
     
+    var screenshot: UIView?
+    
     var episodeId: EpisodeId!
 }
 
@@ -49,7 +51,18 @@ class YoutubeManagerV2 {
     private let youtubeOperationQueue = OperationQueue()
     
     static let shared = YoutubeManagerV2()
-    private init() {}
+    
+    private init() {
+        NotificationCenter.default.addObserver(self, selector: #selector(newScreenshot), name:. newScreenshot, object: nil)
+    }
+    
+    @objc private func newScreenshot(_ notification: Notification) {
+        let userInfo = notification.userInfo!
+        if let screenshot = userInfo["screenshot"] as? UIView {
+            let videoId = userInfo["videoId"] as! VideoId
+            videoId2Data.object(forKey: videoId as NSString)!.screenshot = screenshot
+        }
+    }
     
     func fetchVideo(_ videoId: VideoId, completion: ((VideoWithPlayerView, Bool) -> ())? = nil) {
         var videoView = videoId2View.object(forKey: videoId as NSString)

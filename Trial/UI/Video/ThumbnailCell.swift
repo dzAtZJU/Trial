@@ -30,7 +30,7 @@ class ThumbnailCell: UICollectionViewCell {
 
     private func setupView() {
         contentView.clipsToBounds = true
-        setupImageView(thumbnailView, at: 0, contentMode: .center)
+        setupImageView(thumbnailView, at: 0, contentMode: .scaleAspectFill)
         setupImageView(gradientView, at: 1, contentMode: .scaleAspectFill)
     }
     

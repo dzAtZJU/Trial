@@ -198,7 +198,7 @@ class BasePlayerView: UIView, UIGestureRecognizerDelegate {
         if playerControl == nil {
             presentControl()
         } else {
-            removePlayerControl()
+            removePlayerControl(animated: true)
         }
     }
     
@@ -213,13 +213,13 @@ class BasePlayerView: UIView, UIGestureRecognizerDelegate {
     
     @objc func handlePinch(_ sender: UIPinchGestureRecognizer) {
         if sender.state == .began {
-            removePlayerControl()
+            removePlayerControl(animated: false)
             NotificationCenter.default.post(name: Notification.Name.exitFullscreen, object: self)
         }
     }
     
-    func removePlayerControl() {
-        UIView.transition(with: self, duration: 0.4, options: .transitionCrossDissolve, animations: {
+    func removePlayerControl(animated: Bool) {
+        UIView.transition(with: self, duration: animated ? 0.4 : 0, options: .transitionCrossDissolve, animations: {
             self.playerControl?.removeFromSuperview()
             self.playerControl = nil
         }, completion: nil)

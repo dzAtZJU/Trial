@@ -20,9 +20,7 @@ class VideoCellV2: ThumbnailCell {
     
     // mount, unmount 概念是基于交互来说的，在这里针对交互的要求来处理 video
     func mountVideo(_ video: VideoWithPlayerView) {
-        defer {
-            self.video = video
-        }
+        self.video = video
         
         addVideoToHierarchy(video)
         
@@ -42,6 +40,9 @@ class VideoCellV2: ThumbnailCell {
             self.video = nil
         }
 
+        video.eventDelegate = nil
+        video.dataDelegate = nil
+        
         guard video.isReady else {
             video.removeFromSuperview()
             return

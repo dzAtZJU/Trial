@@ -69,6 +69,8 @@ class RippleVC: UIViewController,  StoreSubscriber {
                 appState.scene
             }
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDataNotification), name: .rippleItemChange, object: nil)
     }
 
     func prepareForePresent() {
@@ -77,20 +79,21 @@ class RippleVC: UIViewController,  StoreSubscriber {
         }
     }
     
+    func prepareForReAppear() {
+        if transferVideoId != nil {
+            dataManager.setVideoId(at: inFocusItem, videoId: transferVideoId)
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .goToEpisodesView, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handleNotification), name: .exitFullscreen, object: nil)
+        
         super.viewWillAppear(animated)
         
-        //TEST
-        if transferVideoId != nil {
-            dataManager.item2VideoId[inFocusItem] = transferVideoId
-        }
-        //
         dataManager.fetchVideo(inFocusItem) { (video, _) in
             FullscreenVideoManager.current.gotoWindow(video: video, window: self.view)
         }
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -104,7 +107,8 @@ class RippleVC: UIViewController,  StoreSubscriber {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        NotificationCenter.default.removeObserver(self)
+        NotificationCenter.default.removeObserver(self, name: .goToEpisodesView, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .exitFullscreen, object: nil)
     }
     
     func newState(state: RippleSceneState) {

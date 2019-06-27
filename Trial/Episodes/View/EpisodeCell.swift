@@ -32,20 +32,27 @@ class EpisodeCell: VideoCellV2 {
     }
     
     private func setupView() {
+        contentView.layer.borderColor = UIColor.white.withAlphaComponent(0.5).cgColor
+        contentView.layer.cornerRadius = 8
+            
         gradientView.image = UIImage(named: "episode_mask")
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
         setupEpisodeNum()
+        
+        setContentHide(true)
+        setGradientHide(true)
     }
     
     private func setupEpisodeNum() {
+        episodeNumMask.backgroundColor = UIColor.black.withAlphaComponent(0)
         episodeNumMask.image = UIImage(named: "wedge_bg")
         setupImageView(episodeNumMask, at: 0, contentMode: .scaleToFill)
             
         episodeNum.textColor = UIColor.white.withAlphaComponent(0.24)
         episodeNum.font = UIFont(name: "PingFangSC-Semibold", size: 54)
         
-        contentView.insertSubview(episodeNum, at: 0)
+        contentView.insertSubview(episodeNum, aboveSubview: episodeNumMask)
         
         episodeNum.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([NSLayoutConstraint(item: contentView, attribute: .centerX, relatedBy: .equal, toItem: episodeNum, attribute: .centerX, multiplier: 1, constant: 0),
@@ -63,38 +70,69 @@ class EpisodeCell: VideoCellV2 {
                                      NSLayoutConstraint(item: contentView, attribute: .centerY, relatedBy: .equal, toItem: video, attribute: .centerY, multiplier: 1, constant: 0)])
         
         video.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        videoFullScreenOrNot = bounds.width >= (EpisodeCell.aspectFull.width - 10) // 10 for numeric error
+        layoutVideo(isFull: bounds.width >= (EpisodeCell.aspectFull.width - 10))
     }
     
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
         super.apply(layoutAttributes)
         if let attributes = layoutAttributes as? EpisodeLayoutAttributes {
-            contentView.layer.cornerRadius = attributes.radius
-            contentFadeOutOrIn = attributes.hideContent
+//            contentView.layer.cornerRadius = attributes.radius
+//            setContentHide(attributes.hideContent)
+//            setGradientHide(attributes.hideContent)
         }
     }
     
-    var videoFullScreenOrNot: Bool {
-        get {
-            return true
-        }
-        set(newValue) {
-            video?.transform = newValue ? .identity: CGAffineTransform(scaleX: 1 / EpisodeCell.aspectScale, y: 1 / EpisodeCell.aspectScale)
-            video?.isUserInteractionEnabled = newValue
+    override var isHighlighted: Bool {
+        didSet {
+            UIView.animate(withDuration: 0.05) {
+                self.episodeNum.textColor = UIColor.white.withAlphaComponent(self.isHighlighted ? 1 : 0.24)
+                self.episodeNumMask.backgroundColor = UIColor.black.withAlphaComponent(self.isHighlighted ? 0.2 : 0)
+                self.contentView.layer.borderWidth = self.isHighlighted ? 1 : 0
+            }
         }
     }
     
-    var contentFadeOutOrIn: Bool {
-        get {
-            return true
-        }
-        set(newValue) {
-            let newAlpha: CGFloat = newValue ? 0 : 1
-            video?.alpha = newAlpha
-            thumbnailView.alpha = newAlpha
-            screenshot?.alpha = newAlpha
-            gradientView.alpha = newAlpha
-        }
+    func configure4Full() {
+        setContentHide(false)
+        setGradientHide(true)
+        contentView.layer.cornerRadius = 0
+    }
+    
+    func animate2Full() {
+        layoutVideo(isFull: true)
+        setGradientHide(true)
+        contentView.layer.cornerRadius = 0
+    }
+    
+    func animate2Watching() {
+        layoutVideo(isFull: false)
+        setContentHide(false)
+        setGradientHide(false)
+        contentView.layer.cornerRadius = 14
+        isHighlighted = false
+    }
+    
+    func animate2Sliding() {
+        setContentHide(true)
+        setGradientHide(true)
+        contentView.layer.cornerRadius = 8
+        isHighlighted = true
+    }
+    
+    private func layoutVideo(isFull: Bool) {
+        video?.transform = isFull ? .identity : CGAffineTransform(scaleX: 1 / EpisodeCell.aspectScale, y: 1 / EpisodeCell.aspectScale)
+        video?.isUserInteractionEnabled = isFull
+    }
+    
+    private func setContentHide(_ isHide: Bool) {
+        let newAlpha = CGFloat(isHide ? 0 : 1)
+        
+        video?.alpha = newAlpha
+        thumbnailView.alpha = newAlpha
+    }
+    
+    private func setGradientHide(_ isHide: Bool) {
+        gradientView.alpha = isHide ? 0 : 1
     }
     
     var imageCenterOrFill: Bool {

@@ -22,9 +22,8 @@ extension RippleVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefet
     /// Configure global cell contents, that is, each cell has such contents
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! RippleCellV2
-        if cell.positionId != indexPath {
-            cell.positionId = indexPath
-        }
+        
+        cell.positionId = indexPath
         
         dataManager.batchRequest([indexPath] + eightNeighborsOf(item: indexPath, maxRow: ytRows, maxCol: ytCols))
         dataManager.get(indexPath) { youtubeVideoData in
@@ -33,7 +32,7 @@ extension RippleVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefet
                     return
                 }
                 cell.title = youtubeVideoData.title
-                cell.loadThumbnailImage(youtubeVideoData.thumbnail)
+                cell.loadThumbnail(youtubeVideoData.thumbnail, screenshot: youtubeVideoData.screenshot)
             }
         }
         
@@ -44,6 +43,16 @@ extension RippleVC: UICollectionViewDataSource, UICollectionViewDataSourcePrefet
         dataManager.batchRequest(indexPaths)
         for item in indexPaths {
             dataManager.request(item)
+        }
+    }
+    
+    @objc func handleDataNotification(_ notification: Notification) {
+        switch notification.name {
+        case .rippleItemChange:
+            let changeItem = notification.userInfo!["item"] as! IndexPath
+            collectionView.reloadItems(at: [changeItem])
+        default:
+            return
         }
     }
 }

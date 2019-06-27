@@ -18,6 +18,10 @@ struct EpisodesVCModel {
     let viewStore: Store<EpisodesViewState>
     
     var latestWatchItem: IndexPath
+    
+    mutating func setLatestWatchItem(_ item: IndexPath) {
+        latestWatchItem = item
+    }
 }
 
 class EpisodesVC: UIViewController {
@@ -56,12 +60,21 @@ class EpisodesVC: UIViewController {
     var preSceneState: EpisodesSceneState? = nil
     
     // States
-    var centerItem: IndexPath! = IndexPath(row: 0, section: 0)
+    var centerItem: IndexPath! = IndexPath(row: 0, section: 0) {
+        didSet {
+            (episodesView.cellForItem(at: oldValue) as? EpisodeCell)?.isHighlighted = false
+            (episodesView.cellForItem(at: centerItem) as? EpisodeCell)?.isHighlighted = true
+        }
+    }
     
-    var preWatchItem: IndexPath? {
+    private(set) var preWatchItem: IndexPath? {
         didSet {
             lastWatchButton.isHidden = preWatchItem == nil
         }
+    }
+    
+    func setPreWatchItem(_ item: IndexPath?) {
+        preWatchItem = item
     }
     
     var latestWatchCell: EpisodeCell? {
@@ -72,7 +85,7 @@ class EpisodesVC: UIViewController {
     
     var lockScrollUpdate = false
     
-    var timer: Timer?
+    var timerWaitForVideo: Timer?
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .landscape
@@ -101,7 +114,6 @@ class EpisodesVC: UIViewController {
         
         let layout = EpisodesLayout.full
         episodesView = EpisodesView(frame: .zero, collectionViewLayout: layout)
-        episodesView.delaysContentTouches = false
         episodesView.dataSource = self
         episodesView.delegate = self
         episodesView.prefetchDataSource = self
@@ -169,13 +181,16 @@ class EpisodesVC: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        self.willToScene()
+        self.latestWatchCell!.configure4Full()
         self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
-                FullscreenVideoManager.current.gotoCell()
-                self.latestWatchCell!.mountVideo(video)
-                self.willToScene()
-                self.extraSceneAnimation()
-                self.didToScene()
+            FullscreenVideoManager.current.gotoCell()
+            self.latestWatchCell!.mountVideo(video)
+            self.extraSceneAnimation()
+            self.didToScene()
+            DispatchQueue.main.async {
                 self.model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
+            }
         }
     }
     

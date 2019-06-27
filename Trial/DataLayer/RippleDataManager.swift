@@ -18,6 +18,13 @@ struct RippleDataManager {
         completion(data)
     }
     
+    mutating func setVideoId(at: IndexPath, videoId: VideoId) {
+        item2VideoId[at] = videoId
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .rippleItemChange, object: nil, userInfo: ["item": at])
+        }
+    }
+    
     func fetchVideo(_ item: IndexPath, completion: ((VideoWithPlayerView, Bool) -> ())? = nil) {
         let videoId = self.item2VideoId[item]!
         YoutubeManagerV2.shared.fetchVideo(videoId, completion: completion)

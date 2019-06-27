@@ -24,9 +24,15 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        timer?.invalidate()
-        if model.viewStore.state.scene == .watching {
-            prepareSliding()
+        let sceneState = model.viewStore.state.scene
+        
+        switch sceneState {
+        case .watching:
+            willSlide()
+        case .sliding:
+            willKeepSlide()
+        default:
+            return
         }
     }
     
@@ -35,64 +41,69 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
             return
         }
         
-        if let item = episodesView.indexPathForItem(at: episodesView.bounds.center) {
-            if item.section != centerItem.section {
-                seasonsView.scrollToItem(at: IndexPath(row: item.section, section: 0), at: [.centeredHorizontally], animated: true)
+        if let newCenterItem = episodesView.indexPathForItem(at: episodesView.bounds.center) {
+            if newCenterItem.section != centerItem.section {
+                seasonsView.scrollToItem(at: IndexPath(row: newCenterItem.section, section: 0), at: [.centeredHorizontally], animated: true)
             }
-            centerItem = item
+            if centerItem != newCenterItem {
+                centerItem = newCenterItem
+            }
         }
         
         if let latestWatchCell = latestWatchCell, !autoScrollFlag {
             let centerInViewport = view.convert(latestWatchCell.center, from: episodesView)
             let isOutOfViewport =  centerInViewport.x < 0 || centerInViewport.x > view.bounds.width
-            preWatchItem = isOutOfViewport ? model.latestWatchItem : nil
+            if isOutOfViewport {
+                setPreWatchItem(model.latestWatchItem)
+            }
         }
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
-            prepareWatching(delay: true)
+            didStopSlide()
         }
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        prepareWatching(delay: true)
+        didStopSlide()
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == seasonsView {
-            selectedItem = IndexPath(row: 0, section: indexPath.row)
-            preWatchItem = model.latestWatchItem
-            prepareAutoSliding(to: selectedItem!)
-            return
-        }
-        
-        if model.viewStore.state.scene == .sliding {
-            prepareWatching(delay: false)
-        } else {
-            model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
+
+            doAutoSlide(IndexPath(row: 0, section: indexPath.row))
+            
+        } else if collectionView == episodesView {
+            
+            let sceneState = model.viewStore.state.scene
+            switch sceneState {
+            case .sliding:
+                doAutoSlide(indexPath)
+            case .watching:
+                model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
+            default:
+                return
+            }
         }
     }
     
     @objc func handleLastWatchButton() {
         if let preWatchItem = preWatchItem {
-            self.preWatchItem = nil
-            prepareAutoSliding(to: preWatchItem)
+            setPreWatchItem(nil)
+            doAutoSlide(preWatchItem)
         }
     }
     
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        guard autoScrollFlag == autoScrollFlag, let latestWatchCell = latestWatchCell else {
+        if !autoScrollFlag {
             return
         }
+        autoScrollFlag = false
+        
         Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
             DispatchQueue.main.async {
-                self.autoScrollFlag = false
-                self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
-                    latestWatchCell.mountVideo(video)
-                }
-                self.willToScene()
-                self.didToScene()
+                self.didStopSlide()
             }
         }
     }
@@ -103,10 +114,47 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
         }
     }
     
+    private func willSlide(completion: (() -> ())? = nil) {
+        setPreWatchItem(nil)
+        if let completion = completion {
+            layoutAnimationComplections.append(completion)
+        }
+        model.viewStore.dispatch(EpisodesViewState.SceneAction.scroll)
+    }
+    
+    private func willKeepSlide() {
+        latestWatchCell?.unMountVideo()
+    }
+    
+    private func doAutoSlide(_ to: IndexPath) {
+        autoScrollFlag = true
+        
+        switch model.viewStore.state.scene {
+        case .watching:
+            willSlide() {
+                self.episodesView.scrollToItem(at: to, at: .centeredHorizontally, animated: true)
+            }
+        case .sliding:
+            willKeepSlide()
+            episodesView.scrollToItem(at: to, at: .centeredHorizontally, animated: true)
+        default:
+            break
+        }
+    }
+    
+    private func didStopSlide() {
+        model.setLatestWatchItem(centerItem)
+        model.pageDataManager.fetchVideo(model.latestWatchItem) { (video, _) in
+            self.latestWatchCell?.mountVideo(video)
+            video.eventDelegate = self
+        }
+    }
+    
     @objc func handleNotification(_ notification: Notification) {
         switch notification.name {
         case .exitFullscreen:
             transferVideoId = model.pageDataManager.item2VideoId[model.latestWatchItem]
+            (presentingViewController as! RippleVC).prepareForReAppear()
             dismiss(animated: false, completion: nil)
         case .goToEpisodesView:
             model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
@@ -114,34 +162,11 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
             return
         }
     }
-    
-    private func prepareSliding() {
-        if !seasonsView.isDecelerating {
-            model.viewStore.dispatch(EpisodesViewState.SceneAction.scroll)
-            preWatchItem = nil
-        }
-    }
-    
-    
-    private func prepareWatching(delay: Bool) {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: delay ? 1 : 0, repeats: false, block: { _ in
-            DispatchQueue.main.async {
-                self.model.latestWatchItem = self.centerItem
-                self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
-                    self.latestWatchCell?.mountVideo(video)
-                    self.model.viewStore.dispatch(EpisodesViewState.SceneAction.scroll)
-                }
-            }
-        })
-    }
-    
-    func prepareAutoSliding(to: IndexPath) {
-        self.latestWatchCell?.unMountVideo()
-        
-        model.latestWatchItem = to
-        self.layout.invalidateLayout()
-        self.episodesView.scrollToItem(at: to, at: .centeredHorizontally, animated: true)
-        autoScrollFlag = true
+}
+
+extension EpisodesVC: VideoEventDelegate {
+    func videoDidPlay(_ video: VideoWithPlayerView) {
+        video.eventDelegate = nil
+        model.viewStore.dispatch(EpisodesViewState.SceneAction.scroll)
     }
 }
