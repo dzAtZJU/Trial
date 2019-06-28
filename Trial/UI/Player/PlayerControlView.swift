@@ -73,6 +73,7 @@ class PlayerControlView: UIView {
     }()
 
     func preparePresent(isPlaying: Bool, current: Float, duration: Float?, title: String) {
+        alpha = 1
         slider.setThumbImage(thumbIcon, for: .normal)
         playIconOrPause = isPlaying
         slider.minimumValue = 0
@@ -107,12 +108,10 @@ class PlayerControlView: UIView {
     }
     
     @IBAction func exit() {
-        delegate?.removePlayerControl(animated: false)
         NotificationCenter.default.post(name: Notification.Name.exitFullscreen, object: self)
     }
     
     @IBAction func gotoEpisodes() {
-        delegate?.removePlayerControl(animated: false)
         NotificationCenter.default.post(name: Notification.Name.goToEpisodesView, object: self)
     }
     
@@ -130,7 +129,9 @@ class PlayerControlView: UIView {
     }
     
     @IBAction func playTouchedUp() {
+        playAnimator.pauseAnimation()
         playAnimator.isReversed = true
+        playAnimator.startAnimation()
         playIconOrPause ? delegate?.pause() : delegate?.play()
         playIconOrPause = !playIconOrPause
     }

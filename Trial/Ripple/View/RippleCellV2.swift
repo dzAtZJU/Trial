@@ -34,7 +34,7 @@ class RippleCellV2: VideoCellV2 {
     
     private func setupViews() {
         thumbnailView.contentMode = .scaleAspectFill
-        gradientView.image = UIImage(named: "episode_mask")
+        gradientView.image = UIImage(named: "default_thumbnail")//"episode_mask")
         setupTitles()
     }
     
@@ -140,11 +140,13 @@ class RippleCellV2: VideoCellV2 {
         
         thumbnailView.alpha = 1 - timing
         screenshot?.alpha = timing
+//        gradientView.alpha = (attributes.sceneState == .full && attributes.zIndex == 1) ? 0 : 1
+        gradientView.alpha = attributes.sceneState == .full ? 0 : 1
         /// Notice for cell reusing
     }
     
     func runDisplayAnimation(fullScreenOrNot: Bool) {
-        gradientView.alpha = fullScreenOrNot ? 0 : 1
+//        gradientView.alpha = fullScreenOrNot ? 0 : 1
     }
     
     private func setupTitles() {

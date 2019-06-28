@@ -85,7 +85,7 @@ class EpisodesVC: UIViewController {
     
     var lockScrollUpdate = false
     
-    var timerWaitForVideo: Timer?
+    var delayerForMount: Timer?
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .landscape
@@ -185,7 +185,7 @@ class EpisodesVC: UIViewController {
         self.latestWatchCell!.configure4Full()
         self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
             FullscreenVideoManager.current.gotoCell()
-            self.latestWatchCell!.mountVideo(video)
+            self.latestWatchCell!.mountVideo(video, keepWatchingState: true)
             self.extraSceneAnimation()
             self.didToScene()
             DispatchQueue.main.async {

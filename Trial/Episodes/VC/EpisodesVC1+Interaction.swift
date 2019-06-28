@@ -61,12 +61,12 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if !decelerate {
-            didStopSlide()
+            didStopSlide(delay: 0.5)
         }
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        didStopSlide()
+        didStopSlide(delay: 0.5)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -88,6 +88,12 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+        if indexPath == centerItem && model.viewStore.state.scene == .sliding {
+            centerItem = indexPath
+        }
+    }
+    
     @objc func handleLastWatchButton() {
         if let preWatchItem = preWatchItem {
             setPreWatchItem(nil)
@@ -100,12 +106,8 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
             return
         }
         autoScrollFlag = false
-        
-        Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
-            DispatchQueue.main.async {
-                self.didStopSlide()
-            }
-        }
+
+        didStopSlide(delay: 0.5)
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -123,6 +125,7 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
     }
     
     private func willKeepSlide() {
+        delayerForMount?.invalidate()
         latestWatchCell?.unMountVideo()
     }
     
@@ -142,11 +145,15 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
         }
     }
     
-    private func didStopSlide() {
-        model.setLatestWatchItem(centerItem)
-        model.pageDataManager.fetchVideo(model.latestWatchItem) { (video, _) in
-            self.latestWatchCell?.mountVideo(video)
-            video.eventDelegate = self
+    private func didStopSlide(delay: TimeInterval) {
+        delayerForMount = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { _ in
+            DispatchQueue.main.async {
+                self.model.setLatestWatchItem(self.centerItem)
+                self.model.pageDataManager.fetchVideo(self.model.latestWatchItem) { (video, _) in
+                    self.latestWatchCell?.mountVideo(video, keepWatchingState: false, alpha: 0)
+                    video.eventDelegate = self
+                }
+            }
         }
     }
     
@@ -155,7 +162,9 @@ extension EpisodesVC: UICollectionViewDelegate, StoreSubscriber {
         case .exitFullscreen:
             transferVideoId = model.pageDataManager.item2VideoId[model.latestWatchItem]
             (presentingViewController as! RippleVC).prepareForReAppear()
-            dismiss(animated: false, completion: nil)
+            DispatchQueue.main.async {
+                self.dismiss(animated: false, completion: nil)
+            }
         case .goToEpisodesView:
             model.viewStore.dispatch(EpisodesViewState.SceneAction.touchCell)
         default:

@@ -11,6 +11,10 @@ import UIKit
 
 class EpisodesView: UICollectionView, UIGestureRecognizerDelegate{
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        return touch.view?.isKind(of: EpisodesView.self) ?? true
+        if let a = touch.view?.isKind(of: EpisodesView.self), let b = touch.view?.superview?.isKind(of: EpisodeCell.self), a || b {
+            return true
+        }
+        
+        return false
     }
 }

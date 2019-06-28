@@ -100,7 +100,7 @@ class RippleVC: UIViewController,  StoreSubscriber {
         rippleViewStore.dispatch(RippleViewState.ReadyAction.ready)
         dataManager.fetchVideo(inFocusItem) { (video, _) in
             FullscreenVideoManager.current.gotoCell()
-            self.inFocusCell.mountVideo(video)
+            self.inFocusCell.mountVideo(video, keepWatchingState: true)
             rippleViewStore.dispatch(RippleViewState.SceneAction.fullScreen)
         }
     }

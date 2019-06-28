@@ -14,11 +14,17 @@ import YoutubePlayer_in_WKWebView
 
 class TestVC: UIViewController {
 
-    override func viewDidLoad() {
-        let v = VideoWithPlayerView.loadVideoForWatch(videoId: "876pLueclwE")
-        v.frame = view.bounds
-        view.addSubview(v)
-        v.isUserInteractionEnabled = true
-        v.play()
+    @IBOutlet weak var button: UIButton!
+    
+    var flag = true
+    
+    let animator = UIViewPropertyAnimator(duration: 2, curve: UIView.AnimationCurve.easeInOut, animations: nil)
+    
+    @IBAction func touched(_ sender: Any) {
+        UIView.animate(withDuration: 2) {
+            self.button.transform = self.flag ? CGAffineTransform(scaleX: 1.5, y: 1.5) : .identity
+        }
+        flag = !flag
     }
+    
 }

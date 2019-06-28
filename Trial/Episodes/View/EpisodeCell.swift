@@ -106,6 +106,7 @@ class EpisodeCell: VideoCellV2 {
     
     func animate2Watching() {
         layoutVideo(isFull: false)
+        video?.playerControl?.alpha = 0
         setContentHide(false)
         setGradientHide(false)
         contentView.layer.cornerRadius = 14

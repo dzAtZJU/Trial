@@ -58,10 +58,12 @@ extension RippleVC {
                 animationQueue.append {
                     self.collectionView.collectionViewLayout = newLayout
                     self.inFocusCell.video?.transform = self.inFocusCell.video!.transform.concatenating(transformForVideo)
+                    self.inFocusCell.video?.playerControl?.alpha = 0
                     shadowAnimation()
                 }
                 completionQueue.append {
                     shadowCompletion()
+                    self.inFocusCell?.video?.removePlayerControl(animated: false)
                 }
                 if UIDevice.current.orientation.isPortrait {
                     executeAnimationByNewState = false
@@ -142,9 +144,9 @@ extension RippleVC {
     }
     
     func installShadow(_ newShadow: Shadow) -> (() -> Void, () -> Void) {
-        guard TestState != 1 else {
-            return ({}, {})
-        }
+//        guard TestState != 1 else {
+//            return ({}, {})
+//        }
         if newShadow != Shadow.dumb {
             newShadow.frame = view.bounds
             newShadow.autoresizingMask = [.flexibleWidth, .flexibleHeight]

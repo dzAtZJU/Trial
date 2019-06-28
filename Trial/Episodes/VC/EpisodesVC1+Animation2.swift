@@ -13,8 +13,17 @@ import CoreGraphics
 
 let duration = 0.4
 let delay = 0.2
-let animator = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
-let animator1 = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
+let animator: UIViewPropertyAnimator = {
+    let r = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
+    r.isUserInteractionEnabled = false
+    return r
+}()
+let animator1: UIViewPropertyAnimator = {
+    let r = UIViewPropertyAnimator(duration: duration, curve: .easeInOut, animations: nil)
+    r.isUserInteractionEnabled = false
+    return r
+}()
+
 var layoutAnimationComplections = [() -> ()]()
 extension EpisodesVC {
     func newStateForAnimation(state: EpisodesSceneState) {
@@ -39,7 +48,9 @@ extension EpisodesVC {
                     self.latestWatchCell?.animate2Watching()
                     self.latestWatchCell?.layoutIfNeeded()
                 }
-                
+                animator.addCompletion { _ in
+                    self.latestWatchCell?.video?.removePlayerControl(animated: false)
+                }
                 animator1.addAnimations {
                     self.episodesView.collectionViewLayout = EpisodesLayout.watching
                 }

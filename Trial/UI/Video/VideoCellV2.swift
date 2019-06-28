@@ -19,7 +19,7 @@ class VideoCellV2: ThumbnailCell {
     var title: String?
     
     // mount, unmount 概念是基于交互来说的，在这里针对交互的要求来处理 video
-    func mountVideo(_ video: VideoWithPlayerView) {
+    func mountVideo(_ video: VideoWithPlayerView, keepWatchingState: Bool = false, alpha: CGFloat = 1) {
         self.video = video
         
         addVideoToHierarchy(video)
@@ -27,7 +27,10 @@ class VideoCellV2: ThumbnailCell {
         layoutIfNeeded()
         
         video.dataDelegate = self
-        video.play()
+        if !keepWatchingState {
+            video.play()
+        }
+        video.alpha = alpha
         activityIndicator.startAnimating()
     }
     
